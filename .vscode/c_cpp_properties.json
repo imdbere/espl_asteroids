@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "./Libraries/FreeRTOS/**",
+                "./Libraries/STM32F4/**",
+                "./Libraries/FreeRTOS/**",
+                "./Libraries/**",
+                "./Libraries/ugfx/",
+                "./Libraries/ugfx/src/gdisp/mcufont",
+                "./Libraries/ugfx/boards/base/STM32F429i-Discovery/"
+
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/c++",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
