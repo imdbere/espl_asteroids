@@ -74,11 +74,16 @@ file(GLOB UGFX_SRCS
     ${CURRENT_PATH}/ugfx/src/gdriver/gdriver.c
     ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_fonts.c
     ${CURRENT_PATH}/ugfx/src/gdisp/gdisp.c
+    ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image.c
+    ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image_gif.c
+    ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image_png.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_encoding.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_font.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_justify.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_scaledfont.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_rlefont.c
+    ${CURRENT_PATH}/ugfx/src/gfile/gfile.c
+    ${CURRENT_PATH}/ugfx/src/gfile/gfile_fs_rom.c
     ${CURRENT_PATH}/ugfx/src/gevent/gevent.c
     ${CURRENT_PATH}/ugfx/src/ginput/ginput.c
     ${CURRENT_PATH}/ugfx/src/ginput/ginput_mouse.c
