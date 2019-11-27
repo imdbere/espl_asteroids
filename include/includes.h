@@ -30,3 +30,5 @@
 #define DISPLAY_SIZE_X  320
 #define DISPLAY_SIZE_Y  240
 #define STATIC_STACK_SIZE 100
+
+extern SemaphoreHandle_t DrawReady;

@@ -92,7 +92,7 @@ unsigned char smInit(void)
 
 	if (!state_queue) {
 		fprintf(stderr, "State queue creation failed\n");
-		exit(EXIT_FAILURE);
+		//exit(EXIT_FAILURE);
 	}
 
 	for (iterator = &sm.head; iterator->next; iterator = iterator->next)
@@ -109,9 +109,9 @@ void statesHandlerTask(void* params)
 	TickType_t prev_wake_time;
 
 	if (!(sm._initialized++))
-		if (!smInit && !(sm.current = sm.next = sm.head.next)) {
+		if (!smInit() && !(sm.current = sm.next = sm.head.next)) {
 			fprintf(stderr, "No states\n");
-			exit(EXIT_FAILURE);
+			//exit(EXIT_FAILURE);
 		}
 
 	while (1) {

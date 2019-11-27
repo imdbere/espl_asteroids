@@ -12,8 +12,9 @@
             "type": "cortex-debug",
             "servertype": "openocd",
             //"openOCDLaunchCommands": ["-f board/stm32f429discovery-v2-1-.cfg"],
-            "configFiles": ["board/stm32f429discovery-v2-1-.cfg"],
-            "preLaunchTask": "buildAndFlash"
+            "configFiles": ["board/stm32f429discovery.cfg"],
+            "preLaunchTask": "buildAndFlash",
+            "armToolchainPath": "${workspaceRoot}/../gcc-arm/gcc/bin"
         }
     ]
 }
