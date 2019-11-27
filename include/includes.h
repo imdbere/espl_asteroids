@@ -32,3 +32,4 @@
 #define STATIC_STACK_SIZE 100
 
 extern SemaphoreHandle_t DrawReady;
+extern font_t font1;
