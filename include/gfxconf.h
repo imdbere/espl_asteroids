@@ -44,6 +44,7 @@
 #define GFX_USE_GEVENT			TRUE
 #define GFX_USE_GINPUT			FALSE
 #define GFX_USE_GTIMER			TRUE
+#define GFX_USE_GFILE           TRUE
 
 /* Features for the GDISP sub-system. */
 #define GDISP_NEED_STARTUP_LOGO	FALSE
@@ -53,6 +54,8 @@
 #define GDISP_NEED_MULTITHREAD	TRUE
 #define GDISP_NEED_CIRCLE		TRUE
 #define GDISP_NEED_CONTROL 		TRUE
+#define GDISP_NEED_IMAGE        TRUE
+#define GFILE_NEED_ROMFS        TRUE
 
 /* Builtin Fonts */
 #define GDISP_INCLUDE_FONT_UI1			TRUE

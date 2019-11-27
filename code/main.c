@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "sm.h"
 #include "states/main_menu.h"
+#include "input.h"
 
 #define STATE_COUNT 3
 
@@ -38,8 +39,8 @@ int main(void)
 	xTaskCreate(statesHandlerTask, "statesHandlerTask", 200, NULL, 3, NULL);
 
 	addState(mainMenuInit, mainMenuEnter, mainMenuRun, mainMenuExit, NULL);
-	
 
+	initInputTask();
 	// Start FreeRTOS Scheduler
 	vTaskStartScheduler();
 }

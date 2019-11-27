@@ -889,6 +889,87 @@ Libraries/ugfx/src/gdisp/gdisp_fonts.c.s:
 	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_fonts.c.s
 .PHONY : Libraries/ugfx/src/gdisp/gdisp_fonts.c.s
 
+Libraries/ugfx/src/gdisp/gdisp_image.o: Libraries/ugfx/src/gdisp/gdisp_image.c.o
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image.o
+
+# target to build an object file
+Libraries/ugfx/src/gdisp/gdisp_image.c.o:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image.c.o
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image.c.o
+
+Libraries/ugfx/src/gdisp/gdisp_image.i: Libraries/ugfx/src/gdisp/gdisp_image.c.i
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image.i
+
+# target to preprocess a source file
+Libraries/ugfx/src/gdisp/gdisp_image.c.i:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image.c.i
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image.c.i
+
+Libraries/ugfx/src/gdisp/gdisp_image.s: Libraries/ugfx/src/gdisp/gdisp_image.c.s
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image.s
+
+# target to generate assembly for a file
+Libraries/ugfx/src/gdisp/gdisp_image.c.s:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image.c.s
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image.c.s
+
+Libraries/ugfx/src/gdisp/gdisp_image_gif.o: Libraries/ugfx/src/gdisp/gdisp_image_gif.c.o
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_gif.o
+
+# target to build an object file
+Libraries/ugfx/src/gdisp/gdisp_image_gif.c.o:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_gif.c.o
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_gif.c.o
+
+Libraries/ugfx/src/gdisp/gdisp_image_gif.i: Libraries/ugfx/src/gdisp/gdisp_image_gif.c.i
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_gif.i
+
+# target to preprocess a source file
+Libraries/ugfx/src/gdisp/gdisp_image_gif.c.i:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_gif.c.i
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_gif.c.i
+
+Libraries/ugfx/src/gdisp/gdisp_image_gif.s: Libraries/ugfx/src/gdisp/gdisp_image_gif.c.s
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_gif.s
+
+# target to generate assembly for a file
+Libraries/ugfx/src/gdisp/gdisp_image_gif.c.s:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_gif.c.s
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_gif.c.s
+
+Libraries/ugfx/src/gdisp/gdisp_image_png.o: Libraries/ugfx/src/gdisp/gdisp_image_png.c.o
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.o
+
+# target to build an object file
+Libraries/ugfx/src/gdisp/gdisp_image_png.c.o:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_png.c.o
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.c.o
+
+Libraries/ugfx/src/gdisp/gdisp_image_png.i: Libraries/ugfx/src/gdisp/gdisp_image_png.c.i
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.i
+
+# target to preprocess a source file
+Libraries/ugfx/src/gdisp/gdisp_image_png.c.i:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_png.c.i
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.c.i
+
+Libraries/ugfx/src/gdisp/gdisp_image_png.s: Libraries/ugfx/src/gdisp/gdisp_image_png.c.s
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.s
+
+# target to generate assembly for a file
+Libraries/ugfx/src/gdisp/gdisp_image_png.c.s:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_png.c.s
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.c.s
+
 Libraries/ugfx/src/gdisp/mcufont/mf_encoding.o: Libraries/ugfx/src/gdisp/mcufont/mf_encoding.c.o
 
 .PHONY : Libraries/ugfx/src/gdisp/mcufont/mf_encoding.o
@@ -1077,6 +1158,60 @@ Libraries/ugfx/src/gevent/gevent.s: Libraries/ugfx/src/gevent/gevent.c.s
 Libraries/ugfx/src/gevent/gevent.c.s:
 	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gevent/gevent.c.s
 .PHONY : Libraries/ugfx/src/gevent/gevent.c.s
+
+Libraries/ugfx/src/gfile/gfile.o: Libraries/ugfx/src/gfile/gfile.c.o
+
+.PHONY : Libraries/ugfx/src/gfile/gfile.o
+
+# target to build an object file
+Libraries/ugfx/src/gfile/gfile.c.o:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gfile/gfile.c.o
+.PHONY : Libraries/ugfx/src/gfile/gfile.c.o
+
+Libraries/ugfx/src/gfile/gfile.i: Libraries/ugfx/src/gfile/gfile.c.i
+
+.PHONY : Libraries/ugfx/src/gfile/gfile.i
+
+# target to preprocess a source file
+Libraries/ugfx/src/gfile/gfile.c.i:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gfile/gfile.c.i
+.PHONY : Libraries/ugfx/src/gfile/gfile.c.i
+
+Libraries/ugfx/src/gfile/gfile.s: Libraries/ugfx/src/gfile/gfile.c.s
+
+.PHONY : Libraries/ugfx/src/gfile/gfile.s
+
+# target to generate assembly for a file
+Libraries/ugfx/src/gfile/gfile.c.s:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gfile/gfile.c.s
+.PHONY : Libraries/ugfx/src/gfile/gfile.c.s
+
+Libraries/ugfx/src/gfile/gfile_fs_rom.o: Libraries/ugfx/src/gfile/gfile_fs_rom.c.o
+
+.PHONY : Libraries/ugfx/src/gfile/gfile_fs_rom.o
+
+# target to build an object file
+Libraries/ugfx/src/gfile/gfile_fs_rom.c.o:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gfile/gfile_fs_rom.c.o
+.PHONY : Libraries/ugfx/src/gfile/gfile_fs_rom.c.o
+
+Libraries/ugfx/src/gfile/gfile_fs_rom.i: Libraries/ugfx/src/gfile/gfile_fs_rom.c.i
+
+.PHONY : Libraries/ugfx/src/gfile/gfile_fs_rom.i
+
+# target to preprocess a source file
+Libraries/ugfx/src/gfile/gfile_fs_rom.c.i:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gfile/gfile_fs_rom.c.i
+.PHONY : Libraries/ugfx/src/gfile/gfile_fs_rom.c.i
+
+Libraries/ugfx/src/gfile/gfile_fs_rom.s: Libraries/ugfx/src/gfile/gfile_fs_rom.c.s
+
+.PHONY : Libraries/ugfx/src/gfile/gfile_fs_rom.s
+
+# target to generate assembly for a file
+Libraries/ugfx/src/gfile/gfile_fs_rom.c.s:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gfile/gfile_fs_rom.c.s
+.PHONY : Libraries/ugfx/src/gfile/gfile_fs_rom.c.s
 
 Libraries/ugfx/src/gfx.o: Libraries/ugfx/src/gfx.c.o
 
@@ -1519,6 +1654,33 @@ code/callbacks.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/callbacks.c.s
 .PHONY : code/callbacks.c.s
 
+code/input.o: code/input.c.o
+
+.PHONY : code/input.o
+
+# target to build an object file
+code/input.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/input.c.o
+.PHONY : code/input.c.o
+
+code/input.i: code/input.c.i
+
+.PHONY : code/input.i
+
+# target to preprocess a source file
+code/input.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/input.c.i
+.PHONY : code/input.c.i
+
+code/input.s: code/input.c.s
+
+.PHONY : code/input.s
+
+# target to generate assembly for a file
+code/input.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/input.c.s
+.PHONY : code/input.c.s
+
 code/main.o: code/main.c.o
 
 .PHONY : code/main.o
@@ -1718,6 +1880,15 @@ help:
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_fonts.o"
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_fonts.i"
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_fonts.s"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image.o"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image.i"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image.s"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_gif.o"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_gif.i"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_gif.s"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_png.o"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_png.i"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_png.s"
 	@echo "... Libraries/ugfx/src/gdisp/mcufont/mf_encoding.o"
 	@echo "... Libraries/ugfx/src/gdisp/mcufont/mf_encoding.i"
 	@echo "... Libraries/ugfx/src/gdisp/mcufont/mf_encoding.s"
@@ -1739,6 +1910,12 @@ help:
 	@echo "... Libraries/ugfx/src/gevent/gevent.o"
 	@echo "... Libraries/ugfx/src/gevent/gevent.i"
 	@echo "... Libraries/ugfx/src/gevent/gevent.s"
+	@echo "... Libraries/ugfx/src/gfile/gfile.o"
+	@echo "... Libraries/ugfx/src/gfile/gfile.i"
+	@echo "... Libraries/ugfx/src/gfile/gfile.s"
+	@echo "... Libraries/ugfx/src/gfile/gfile_fs_rom.o"
+	@echo "... Libraries/ugfx/src/gfile/gfile_fs_rom.i"
+	@echo "... Libraries/ugfx/src/gfile/gfile_fs_rom.s"
 	@echo "... Libraries/ugfx/src/gfx.o"
 	@echo "... Libraries/ugfx/src/gfx.i"
 	@echo "... Libraries/ugfx/src/gfx.s"
@@ -1788,6 +1965,9 @@ help:
 	@echo "... code/callbacks.o"
 	@echo "... code/callbacks.i"
 	@echo "... code/callbacks.s"
+	@echo "... code/input.o"
+	@echo "... code/input.i"
+	@echo "... code/input.s"
 	@echo "... code/main.o"
 	@echo "... code/main.i"
 	@echo "... code/main.s"
