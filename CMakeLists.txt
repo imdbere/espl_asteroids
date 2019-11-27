@@ -4,7 +4,7 @@ project(Demo)
 
 message(${CMAKE_CURRENT_LIST_FILE})
 
-file(GLOB SRCS ${CMAKE_CURRENT_SOURCE_DIR}/code/*.c)
+file(GLOB_RECURSE SRCS ${CMAKE_CURRENT_SOURCE_DIR}/code/*.c)
 
 if(NOT TOOLCHAINDIR)
     set(TOOLCHAINDIR ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/esptoolchain.cmake)

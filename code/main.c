@@ -1,4 +1,6 @@
 #include "includes.h"
+#include "sm.h"
+#include "states/main_menu.h"
 
 #define STATE_COUNT 3
 
@@ -33,6 +35,10 @@ int main(void)
 	// Initializes Tasks with their respective priority
 	// Core tasks
 	xTaskCreate(frameSwapTask, "frameSwapper", 100, NULL, 4, &frameSwapHandle);
+	xTaskCreate(statesHandlerTask, "statesHandlerTask", 200, NULL, 3, NULL);
+
+	addState(mainMenuInit, mainMenuEnter, mainMenuRun, mainMenuExit, NULL);
+	
 
 	// Start FreeRTOS Scheduler
 	vTaskStartScheduler();
