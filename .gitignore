@@ -2,3 +2,8 @@
 /.metadata
 /CMakeCache.txt
 /Demo.*
+/cmake_install.cmake
+/MakeFile
+/Libraries/FreeRTOS
+/Libraries/STM32F4
+/Libraries/ugfx
