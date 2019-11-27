@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/adamos/ESPL/espl_asteroids
+CMAKE_SOURCE_DIR = /home/aaron/Dokumente/espl_asteroids
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/adamos/ESPL/espl_asteroids
+CMAKE_BINARY_DIR = /home/aaron/Dokumente/espl_asteroids
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles /home/adamos/ESPL/espl_asteroids/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles /home/aaron/Dokumente/espl_asteroids/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -1546,33 +1546,6 @@ code/main.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/main.c.s
 .PHONY : code/main.c.s
 
-code/main_menu.o: code/main_menu.c.o
-
-.PHONY : code/main_menu.o
-
-# target to build an object file
-code/main_menu.c.o:
-	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/main_menu.c.o
-.PHONY : code/main_menu.c.o
-
-code/main_menu.i: code/main_menu.c.i
-
-.PHONY : code/main_menu.i
-
-# target to preprocess a source file
-code/main_menu.c.i:
-	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/main_menu.c.i
-.PHONY : code/main_menu.c.i
-
-code/main_menu.s: code/main_menu.c.s
-
-.PHONY : code/main_menu.s
-
-# target to generate assembly for a file
-code/main_menu.c.s:
-	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/main_menu.c.s
-.PHONY : code/main_menu.c.s
-
 code/sm.o: code/sm.c.o
 
 .PHONY : code/sm.o
@@ -1599,6 +1572,33 @@ code/sm.s: code/sm.c.s
 code/sm.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/sm.c.s
 .PHONY : code/sm.c.s
+
+code/states/main_menu.o: code/states/main_menu.c.o
+
+.PHONY : code/states/main_menu.o
+
+# target to build an object file
+code/states/main_menu.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/main_menu.c.o
+.PHONY : code/states/main_menu.c.o
+
+code/states/main_menu.i: code/states/main_menu.c.i
+
+.PHONY : code/states/main_menu.i
+
+# target to preprocess a source file
+code/states/main_menu.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/main_menu.c.i
+.PHONY : code/states/main_menu.c.i
+
+code/states/main_menu.s: code/states/main_menu.c.s
+
+.PHONY : code/states/main_menu.s
+
+# target to generate assembly for a file
+code/states/main_menu.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/main_menu.c.s
+.PHONY : code/states/main_menu.c.s
 
 code/uart.o: code/uart.c.o
 
@@ -1791,12 +1791,12 @@ help:
 	@echo "... code/main.o"
 	@echo "... code/main.i"
 	@echo "... code/main.s"
-	@echo "... code/main_menu.o"
-	@echo "... code/main_menu.i"
-	@echo "... code/main_menu.s"
 	@echo "... code/sm.o"
 	@echo "... code/sm.i"
 	@echo "... code/sm.s"
+	@echo "... code/states/main_menu.o"
+	@echo "... code/states/main_menu.i"
+	@echo "... code/states/main_menu.s"
 	@echo "... code/uart.o"
 	@echo "... code/uart.i"
 	@echo "... code/uart.s"
