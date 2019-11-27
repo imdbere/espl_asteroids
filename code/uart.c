@@ -1,8 +1,10 @@
+
 #include "includes.h"
 #include "uart.h"
 
 QueueHandle_t ESPL_RxQueue; // Already defined in ESPL_Functions.h
 QueueHandle_t UartPacketQueue;
+
 static const uint8_t startByte = 0xAA, stopByte = 0x55;
 
 void sendBuffer(uint8_t *buffer, size_t length)

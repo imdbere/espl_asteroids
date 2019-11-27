@@ -1546,6 +1546,60 @@ code/main.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/main.c.s
 .PHONY : code/main.c.s
 
+code/main_menu.o: code/main_menu.c.o
+
+.PHONY : code/main_menu.o
+
+# target to build an object file
+code/main_menu.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/main_menu.c.o
+.PHONY : code/main_menu.c.o
+
+code/main_menu.i: code/main_menu.c.i
+
+.PHONY : code/main_menu.i
+
+# target to preprocess a source file
+code/main_menu.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/main_menu.c.i
+.PHONY : code/main_menu.c.i
+
+code/main_menu.s: code/main_menu.c.s
+
+.PHONY : code/main_menu.s
+
+# target to generate assembly for a file
+code/main_menu.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/main_menu.c.s
+.PHONY : code/main_menu.c.s
+
+code/sm.o: code/sm.c.o
+
+.PHONY : code/sm.o
+
+# target to build an object file
+code/sm.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/sm.c.o
+.PHONY : code/sm.c.o
+
+code/sm.i: code/sm.c.i
+
+.PHONY : code/sm.i
+
+# target to preprocess a source file
+code/sm.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/sm.c.i
+.PHONY : code/sm.c.i
+
+code/sm.s: code/sm.c.s
+
+.PHONY : code/sm.s
+
+# target to generate assembly for a file
+code/sm.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/sm.c.s
+.PHONY : code/sm.c.s
+
 code/uart.o: code/uart.c.o
 
 .PHONY : code/uart.o
@@ -1737,6 +1791,12 @@ help:
 	@echo "... code/main.o"
 	@echo "... code/main.i"
 	@echo "... code/main.s"
+	@echo "... code/main_menu.o"
+	@echo "... code/main_menu.i"
+	@echo "... code/main_menu.s"
+	@echo "... code/sm.o"
+	@echo "... code/sm.i"
+	@echo "... code/sm.s"
 	@echo "... code/uart.o"
 	@echo "... code/uart.i"
 	@echo "... code/uart.s"
