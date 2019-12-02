@@ -34,8 +34,6 @@ void mainMenuRun()
     {
         gdispClear(Black);
 		gdispDrawBox(100, 100, 100, 100, White);
-        gdispImageOpenFile(&myImage, "sprites.png");
-        gdispImageDraw(&myImage, 30, 30, 13, 18, 0, 14);
         //gdispClear(White);
         
         gdispDrawString(30, 20, str, font1, White);

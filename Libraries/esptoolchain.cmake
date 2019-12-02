@@ -40,7 +40,7 @@ file(GLOB RTOS_SRCS
     ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Source/queue.c
     ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Source/tasks.c
     ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Source/timers.c
-    ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c
+    ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c
     ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Demo/Common/Minimal/flash.c
 )
 
