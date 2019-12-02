@@ -55,6 +55,7 @@
 #define GDISP_NEED_CIRCLE		TRUE
 #define GDISP_NEED_CONTROL 		TRUE
 #define GDISP_NEED_IMAGE        TRUE
+#define GDISP_NEED_IMAGE_PNG	TRUE
 #define GFILE_NEED_ROMFS        TRUE
 
 /* Builtin Fonts */
