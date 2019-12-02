@@ -4,25 +4,28 @@
 static gdispImage myImage;
 font_t font;
 char str[100];
+TaskHandle_t mainMenuTaskHandle;
 
 void mainMenuInit()
 {
     font = gdispOpenFont("DejaVuSansBold12_aa");
     sprintf(str, "Hello");
+    xTaskCreate(mainMenuDrawTask, "mainMenuDrawTask", 200, NULL, 3, &mainMenuTaskHandle);
+    vTaskSuspend(mainMenuTaskHandle);
 }
 
 void mainMenuEnter() 
 {
-    
+    vTaskResume(mainMenuTaskHandle);   
 }
 
 void mainMenuExit()
 {
-
+    vTaskSuspend(mainMenuTaskHandle);
 }
 
 
-void mainMenuRun()
+void mainMenuDrawTask(void* data)
 {
     coord_t	swidth, sheight;
     swidth = gdispGetWidth();
@@ -30,15 +33,19 @@ void mainMenuRun()
 
     sprintf(str, "Asteroids %i", swidth);
 
-    if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
+    while (1)
     {
-        gdispClear(Black);
-		gdispDrawBox(100, 100, 100, 100, White);
-        //gdispClear(White);
-        
-        gdispDrawString(30, 20, str, font1, White);
-		gdispDrawBox(swidth - 120,  60, 100, 50, White);
+        if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
+        {
+            gdispClear(Black);
+            gdispDrawBox(100, 100, 100, 100, White);
+            //gdispClear(White);
+            
+            gdispDrawString(30, 20, str, font1, White);
+            gdispDrawBox(swidth - 120,  60, 100, 50, White);
 
-        
+            
+        }
     }
+
 }

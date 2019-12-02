@@ -39,8 +39,9 @@ int main(void)
 	xTaskCreate(frameSwapTask, "frameSwapper", 100, NULL, 4, &frameSwapHandle);
 	xTaskCreate(statesHandlerTask, "statesHandlerTask", 200, NULL, 3, NULL);
 
-	addState(gameInit, gameEnter, gameRun, gameExit, NULL);
-	addState(mainMenuInit, mainMenuEnter, mainMenuRun, mainMenuExit, NULL);
+	addState(gameInit, gameEnter, gameExit, NULL);
+	addState(mainMenuInit, mainMenuEnter, mainMenuExit, NULL);
+	initStateMachine();
 
 	initInputTask();
 	// Start FreeRTOS Scheduler
