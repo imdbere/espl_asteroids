@@ -13,8 +13,8 @@
             "servertype": "openocd",
             //"openOCDLaunchCommands": ["-f board/stm32f429discovery-v2-1-.cfg"],
             "configFiles": ["board/stm32f429discovery.cfg"],
-            "preLaunchTask": "buildAndFlash",
-            "armToolchainPath": "${workspaceRoot}/../gcc-arm/gcc/bin"
+            //"preLaunchTask": "buildAndFlash"
+            "armToolchainPath": "/home/adamos/ESPL/espl-toolchain/bin/gcc-arm/gcc/bin"
         }
     ]
 }
