@@ -1,6 +1,6 @@
 #include "includes.h"
 #include "sm.h"
-#include "states/main_menu.h"
+#include "states/mainMenu.h"
 #include "states/game.h"
 #include "input.h"
 

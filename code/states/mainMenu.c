@@ -1,4 +1,4 @@
-#include "states/main_menu.h"
+#include "states/mainMenu.h"
 #include "includes.h"
 
 static gdispImage myImage;
@@ -37,10 +37,8 @@ void mainMenuRun()
         gdispImageOpenFile(&myImage, "sprites.png");
         gdispImageDraw(&myImage, 30, 30, 28, 74, 59, 32);
         gdispImageClose(&myImage);
+        
         gdispDrawString(10, 10, str, font32, White);
-        
-        
-
-        
+          
     }
 }

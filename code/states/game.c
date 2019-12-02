@@ -1,4 +1,4 @@
-#include "states/main_menu.h"
+#include "states/mainMenu.h"
 #include "includes.h"
 #include "input.h"
 
