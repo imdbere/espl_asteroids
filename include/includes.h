@@ -33,3 +33,4 @@
 
 extern SemaphoreHandle_t DrawReady;
 extern font_t font1;
+extern font_t font32;

@@ -7,7 +7,7 @@ char str[100];
 
 void mainMenuInit()
 {
-    font = gdispOpenFont("DejaVuSansBold12_aa");
+    font = gdispOpenFont("UI1");
     sprintf(str, "Hello");
 }
 
@@ -28,18 +28,18 @@ void mainMenuRun()
     swidth = gdispGetWidth();
 	sheight = gdispGetHeight();
 
-    sprintf(str, "Asteroids %i", swidth);
+    sprintf(str, "Asteroids", swidth);
 
     if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
     {
         gdispClear(Black);
-		gdispDrawBox(100, 100, 100, 100, White);
-        gdispImageOpenFile(&myImage, "sprites.png");
-        gdispImageDraw(&myImage, 30, 30, 13, 18, 0, 14);
-        //gdispClear(White);
         
-        gdispDrawString(30, 20, str, font1, White);
-		gdispDrawBox(swidth - 120,  60, 100, 50, White);
+        gdispImageOpenFile(&myImage, "sprites.png");
+        gdispImageDraw(&myImage, 30, 30, 28, 74, 59, 32);
+        gdispImageClose(&myImage);
+        gdispDrawString(10, 10, str, font32, White);
+        
+        
 
         
     }

@@ -13,7 +13,7 @@
 #define PREV_TASK 2
 
 font_t font1; // Load font for ugfx
-
+font_t font32;
 //Function prototypes
 void frameSwapTask(void *params);
 
@@ -29,6 +29,7 @@ int main(void)
 	ESPL_SystemInit();
 
 	font1 = gdispOpenFont("DejaVuSans24*");
+	font32 = gdispOpenFont("DejaVuSans32");
 
 	ESPL_DisplayReady = xSemaphoreCreateBinary();
 	DrawReady = xSemaphoreCreateBinary();
