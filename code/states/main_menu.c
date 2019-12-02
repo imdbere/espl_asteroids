@@ -30,14 +30,16 @@ void mainMenuDrawTask(void *data)
     coord_t swidth, sheight;
     swidth = gdispGetWidth();
     sheight = gdispGetHeight();
+    int framesPerSecond=0;
 
     sprintf(str, "Asteroids %i", swidth);
 
-    gdispImageOpenFile(&myImage, "sprites.png");
+    //gdispImageOpenFile(&myImage, "sprites.png");
     // gdispImageClose(&myImage);
 
     gdispImageOpenFile(&titleImage, "mainTextAsteroids.png");
     // gdispImageClose(&myImage);
+    
 
     while (1)
     {
@@ -45,13 +47,12 @@ void mainMenuDrawTask(void *data)
         {
             gdispClear(Black);
 
+            //gdispImageDraw(&myImage, 30, 30, 28, 25, 0, 56);
+            gdispImageDraw(&titleImage, 30, 30, 210, 40, 0, 0);
             
-            // gdispImageDraw(&myImage, 30, 30, 28, 25, 0, 56);
-            
-            gdispImageDraw(&titleImage, 40, 10, titleImage.width, titleImage.height, 0, 0);
             
 
-            sprintf(str, "Asteroids");
+            /* sprintf(str, "Asteroids");
             gdispDrawString(10, 10, str, font32, White);
 
             sprintf(str, "Start Game");
@@ -61,9 +62,9 @@ void mainMenuDrawTask(void *data)
             gdispDrawString(10, 90, str, font1, White);
 
             sprintf(str, "Single Player");
-            gdispDrawString(100, 130, str, font32, White);
+            gdispDrawString(100, 130, str, font32, White); */
 
-            sprintf(str, "Options");
+            sprintf(str, "Options %i", framesPerSecond++);
             gdispDrawString(10, 170, str, font32, White);
 
             // sprintf(str, "", swi)
