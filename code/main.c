@@ -24,13 +24,16 @@ SemaphoreHandle_t DrawReady; // After swapping buffer calll drawing
 // Task handles, used for task control
 TaskHandle_t frameSwapHandle;
 
+
 int main(void)
 {
 	// Initialize Board functions and graphics
+	unsigned int _mainMenuId;
+
 	ESPL_SystemInit();
 
 	font1 = gdispOpenFont("DejaVuSans24*");
-	font32 = gdispOpenFont("DejaVuSans32");
+	font32 = gdispOpenFont("DejaVuSans32*");
 
 	ESPL_DisplayReady = xSemaphoreCreateBinary();
 	DrawReady = xSemaphoreCreateBinary();
@@ -40,12 +43,17 @@ int main(void)
 	xTaskCreate(frameSwapTask, "frameSwapper", 100, NULL, 4, &frameSwapHandle);
 	xTaskCreate(statesHandlerTask, "statesHandlerTask", 200, NULL, 3, NULL);
 
-	addState(gameInit, gameEnter, gameRun, gameExit, NULL);
-	addState(mainMenuInit, mainMenuEnter, mainMenuRun, mainMenuExit, NULL);
-
+	//addState(gameInit, gameEnter, gameRun, gameExit, NULL);
+	_mainMenuId = addState(mainMenuInit, mainMenuEnter, mainMenuRun, mainMenuExit, NULL);
+	
+	//xQueueSend(state_queue, &_mainMenuId, 100);
+	
 	initInputTask();
 	// Start FreeRTOS Scheduler
 	vTaskStartScheduler();
+
+	
+
 }
 
 /*

@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aaron/Dokumente/espl_asteroids
+CMAKE_SOURCE_DIR = /home/adamos/ESPL/espl_asteroids
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aaron/Dokumente/espl_asteroids
+CMAKE_BINARY_DIR = /home/adamos/ESPL/espl_asteroids
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles /home/aaron/Dokumente/espl_asteroids/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles /home/adamos/ESPL/espl_asteroids/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -1762,32 +1762,32 @@ code/states/game.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/game.c.s
 .PHONY : code/states/game.c.s
 
-code/states/main_menu.o: code/states/main_menu.c.o
+code/states/mainMenu.o: code/states/mainMenu.c.o
 
-.PHONY : code/states/main_menu.o
+.PHONY : code/states/mainMenu.o
 
 # target to build an object file
-code/states/main_menu.c.o:
-	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/main_menu.c.o
-.PHONY : code/states/main_menu.c.o
+code/states/mainMenu.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/mainMenu.c.o
+.PHONY : code/states/mainMenu.c.o
 
-code/states/main_menu.i: code/states/main_menu.c.i
+code/states/mainMenu.i: code/states/mainMenu.c.i
 
-.PHONY : code/states/main_menu.i
+.PHONY : code/states/mainMenu.i
 
 # target to preprocess a source file
-code/states/main_menu.c.i:
-	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/main_menu.c.i
-.PHONY : code/states/main_menu.c.i
+code/states/mainMenu.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/mainMenu.c.i
+.PHONY : code/states/mainMenu.c.i
 
-code/states/main_menu.s: code/states/main_menu.c.s
+code/states/mainMenu.s: code/states/mainMenu.c.s
 
-.PHONY : code/states/main_menu.s
+.PHONY : code/states/mainMenu.s
 
 # target to generate assembly for a file
-code/states/main_menu.c.s:
-	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/main_menu.c.s
-.PHONY : code/states/main_menu.c.s
+code/states/mainMenu.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/mainMenu.c.s
+.PHONY : code/states/mainMenu.c.s
 
 code/uart.o: code/uart.c.o
 
@@ -2004,9 +2004,9 @@ help:
 	@echo "... code/states/game.o"
 	@echo "... code/states/game.i"
 	@echo "... code/states/game.s"
-	@echo "... code/states/main_menu.o"
-	@echo "... code/states/main_menu.i"
-	@echo "... code/states/main_menu.s"
+	@echo "... code/states/mainMenu.o"
+	@echo "... code/states/mainMenu.i"
+	@echo "... code/states/mainMenu.s"
 	@echo "... code/uart.o"
 	@echo "... code/uart.i"
 	@echo "... code/uart.s"
