@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/adamos/ESPL/espl_asteroids
+CMAKE_SOURCE_DIR = /home/aaron/Dokumente/espl_asteroids
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/adamos/ESPL/espl_asteroids
+CMAKE_BINARY_DIR = /home/aaron/Dokumente/espl_asteroids
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles /home/adamos/ESPL/espl_asteroids/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles /home/aaron/Dokumente/espl_asteroids/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -268,32 +268,32 @@ Libraries/FreeRTOS/FreeRTOS/Source/list.c.s:
 	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/list.c.s
 .PHONY : Libraries/FreeRTOS/FreeRTOS/Source/list.c.s
 
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.o: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.o
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.o: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.o
 
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.o
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.o
 
 # target to build an object file
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.o:
-	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.o
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.o
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.o:
+	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.o
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.o
 
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.i: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.i
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.i: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.i
 
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.i
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.i
 
 # target to preprocess a source file
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.i:
-	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.i
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.i
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.i:
+	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.i
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.i
 
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.s: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.s
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.s: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.s
 
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.s
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.s
 
 # target to generate assembly for a file
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.s:
-	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.s
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.s
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.s:
+	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.s
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.s
 
 Libraries/FreeRTOS/FreeRTOS/Source/queue.o: Libraries/FreeRTOS/FreeRTOS/Source/queue.c.o
 
@@ -1735,6 +1735,33 @@ code/sm.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/sm.c.s
 .PHONY : code/sm.c.s
 
+code/states/game.o: code/states/game.c.o
+
+.PHONY : code/states/game.o
+
+# target to build an object file
+code/states/game.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/game.c.o
+.PHONY : code/states/game.c.o
+
+code/states/game.i: code/states/game.c.i
+
+.PHONY : code/states/game.i
+
+# target to preprocess a source file
+code/states/game.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/game.c.i
+.PHONY : code/states/game.c.i
+
+code/states/game.s: code/states/game.c.s
+
+.PHONY : code/states/game.s
+
+# target to generate assembly for a file
+code/states/game.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/game.c.s
+.PHONY : code/states/game.c.s
+
 code/states/main_menu.o: code/states/main_menu.c.o
 
 .PHONY : code/states/main_menu.o
@@ -1811,9 +1838,9 @@ help:
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/list.o"
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/list.i"
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/list.s"
-	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.o"
-	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.i"
-	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.s"
+	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.o"
+	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.i"
+	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.s"
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/queue.o"
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/queue.i"
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/queue.s"
@@ -1974,6 +2001,9 @@ help:
 	@echo "... code/sm.o"
 	@echo "... code/sm.i"
 	@echo "... code/sm.s"
+	@echo "... code/states/game.o"
+	@echo "... code/states/game.i"
+	@echo "... code/states/game.s"
 	@echo "... code/states/main_menu.o"
 	@echo "... code/states/main_menu.i"
 	@echo "... code/states/main_menu.s"

@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "sm.h"
 #include "states/main_menu.h"
+#include "states/game.h"
 #include "input.h"
 
 #define STATE_COUNT 3
@@ -39,6 +40,7 @@ int main(void)
 	xTaskCreate(frameSwapTask, "frameSwapper", 100, NULL, 4, &frameSwapHandle);
 	xTaskCreate(statesHandlerTask, "statesHandlerTask", 200, NULL, 3, NULL);
 
+	addState(gameInit, gameEnter, gameRun, gameExit, NULL);
 	addState(mainMenuInit, mainMenuEnter, mainMenuRun, mainMenuExit, NULL);
 
 	initInputTask();

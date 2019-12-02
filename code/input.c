@@ -33,13 +33,15 @@ void checkInputs(void *params)
 {
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	struct buttons buttons = {{0}};
-	const TickType_t PollingRate = 20;
+	const TickType_t PollingRate = 50;
 
 	while (TRUE)
 	{
-		buttons.joystick.x = (uint8_t)(
-			ADC_GetConversionValue(ESPL_ADC_Joystick_2) >> 4);
-		buttons.joystick.y = (uint8_t)255 - (ADC_GetConversionValue(ESPL_ADC_Joystick_1) >> 4);
+		int joystickX = (uint8_t)(ADC_GetConversionValue(ESPL_ADC_Joystick_2) >> 4);
+		buttons.joystick.x = abs(joystickX) > 10 ? joystickX : 0;
+
+		int joystickY = (uint8_t)255 - (ADC_GetConversionValue(ESPL_ADC_Joystick_1) >> 4);
+		buttons.joystick.y = abs(joystickY) > 10 ? joystickY : 0;
 
 		// Edge detection
 		updateButton(&buttons.A, !GPIO_ReadInputDataBit(ESPL_Register_Button_A, ESPL_Pin_Button_A));
