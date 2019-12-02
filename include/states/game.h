@@ -1,4 +1,4 @@
 void gameInit();
 void gameEnter();
 void gameExit();
-void gameRun();
+void gameDrawTask(void* data);

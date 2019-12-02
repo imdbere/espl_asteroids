@@ -1,6 +1,6 @@
 #include "includes.h"
 #include "sm.h"
-#include "states/mainMenu.h"
+#include "states/main_menu.h"
 #include "states/game.h"
 #include "input.h"
 
@@ -43,11 +43,13 @@ int main(void)
 	xTaskCreate(frameSwapTask, "frameSwapper", 100, NULL, 4, &frameSwapHandle);
 	xTaskCreate(statesHandlerTask, "statesHandlerTask", 200, NULL, 3, NULL);
 
-	//addState(gameInit, gameEnter, gameRun, gameExit, NULL);
-	_mainMenuId = addState(mainMenuInit, mainMenuEnter, mainMenuRun, mainMenuExit, NULL);
-	
-	//xQueueSend(state_queue, &_mainMenuId, 100);
-	
+	unsigned int mainMenuStateId;
+	//addState(gameInit, gameEnter, gameExit, NULL);
+	mainMenuStateId = addState(mainMenuInit, mainMenuEnter, mainMenuExit, NULL);
+	initStateMachine();
+
+	//xQueueSend(state_queue, &mainMenuStateId, 100);
+
 	initInputTask();
 	// Start FreeRTOS Scheduler
 	vTaskStartScheduler();

@@ -34,7 +34,7 @@ struct state_machine {
 QueueHandle_t state_queue = NULL;
 
 unsigned int addState(void (*init)(void *), void (*enter)(void *),
-		      void (*run)(void *), void (*exit)(void *), void *data)
+		      /*void (*run)(void *),*/ void (*exit)(void *), void *data)
 {
 	system_state_t *iterator;
 
@@ -44,7 +44,7 @@ unsigned int addState(void (*init)(void *), void (*enter)(void *),
 	iterator->next = (system_state_t *)calloc(1, sizeof(system_state_t));
 	iterator->next->init = init;
 	iterator->next->enter = enter;
-	iterator->next->run = run;
+	//iterator->next->run = run;
 	iterator->next->exit = exit;
 	iterator->next->data = data;
 
@@ -95,29 +95,33 @@ unsigned char smInit(void)
 		//exit(EXIT_FAILURE);
 	}
 
-	for (iterator = &sm.head; iterator->next; iterator = iterator->next)
+	for (iterator = &sm.head; iterator; iterator = iterator->next)
 		if (iterator->init)
 			(iterator->init)(iterator->data);
 
 	return 0;
 }
 
-void statesHandlerTask(void* params)
+void initStateMachine()
 {
-	unsigned char state_in;
-
-	TickType_t prev_wake_time;
-
 	if (!(sm._initialized++))
 		if (!smInit() && !(sm.current = sm.next = sm.head.next)) {
 			fprintf(stderr, "No states\n");
+			return;
 			//exit(EXIT_FAILURE);
 		}
+		(sm.current->enter)(sm.current->data);
+}
+
+void statesHandlerTask(void* params)
+{
+	unsigned char state_in;
+	TickType_t prev_wake_time;
 
 	while (1) {
-		if (xQueueReceive(state_queue, &state_in, 0) == pdTRUE)
-			sm.next = findState(state_in);
+		while (xQueueReceive(state_queue, &state_in, portMAX_DELAY) != pdTRUE);
 
+		sm.next = findState(state_in);
 		if (sm.current != sm.next) {
 			if (sm.current->exit)
 				(sm.current->exit)(sm.current->data);
@@ -127,10 +131,5 @@ void statesHandlerTask(void* params)
 
 			sm.current = sm.next;
 		}
-
-		if (sm.current->run)
-			(sm.current->run)(sm.current->data);
-
-		vTaskDelayUntil(&prev_wake_time, STATE_MACHINE_INTERVAL);
 	}
 }

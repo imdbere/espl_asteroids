@@ -51,7 +51,7 @@ void checkInputs(void *params)
 		updateButton(&buttons.E, !GPIO_ReadInputDataBit(ESPL_Register_Button_E, ESPL_Pin_Button_E));
 		updateButton(&buttons.K, !GPIO_ReadInputDataBit(ESPL_Register_Button_K, ESPL_Pin_Button_K));
 
-		xQueueSend(ButtonQueue, &buttons, 100);
+		while(xQueueSend(ButtonQueue, &buttons, 100) != pdTRUE);
 
 		// Execute every 20 Ticks
 		vTaskDelayUntil(&xLastWakeTime, PollingRate);
