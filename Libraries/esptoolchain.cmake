@@ -76,8 +76,8 @@ file(GLOB UGFX_SRCS
     ${CURRENT_PATH}/ugfx/src/gdisp/gdisp.c
     ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image.c
     ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image_gif.c
-    ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image_png.c
     ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image_bmp.c
+    ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_pixmap.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_encoding.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_font.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_justify.c
@@ -151,7 +151,7 @@ find_program(ST_FLASH st-flash)
 message("ST_FLASH= ${ST_FLASH}")
 
 
-set(CMAKE_C_FLAGS "-mcpu=cortex-m4 -march=armv7e-m -mtune=cortex-m4 -mlittle-endian -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -std=c99 -Wall -Wunused-value -O3 -ffast-math -ffunction-sections -fdata-sections -Wl,--gc-sections -fno-common --param max-inline-insns-single=1000 -DUSE_STDPERIPH_DRIVER -DGFX_USE_OS_FREERTOS=TRUE -DSTM32F429_439xx=TRUE -g")
+set(CMAKE_C_FLAGS "-mcpu=cortex-m4 -O0 -march=armv7e-m -mtune=cortex-m4 -mlittle-endian -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -std=c99 -Wall -Wunused-value -O3 -ffast-math -ffunction-sections -fdata-sections -Wl,--gc-sections -fno-common --param max-inline-insns-single=1000 -DUSE_STDPERIPH_DRIVER -DGFX_USE_OS_FREERTOS=TRUE -DSTM32F429_439xx=TRUE -g")
 
 set(CMAKE_C_COMPILER ${ARM_GCC})
 set(CMAKE_CXX_COMPILER ${ARM_GCXX})

@@ -43,7 +43,7 @@ int main(void)
 	xTaskCreate(statesHandlerTask, "statesHandlerTask", 200, NULL, 3, NULL);
 
 	unsigned int mainMenuStateId;
-	//addState(gameInit, gameEnter, gameExit, NULL);
+	addState(gameInit, gameEnter, gameExit, NULL);
 	mainMenuStateId = addState(mainMenuInit, mainMenuEnter, mainMenuExit, NULL);
 	initStateMachine();
 
