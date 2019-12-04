@@ -13,7 +13,7 @@
 #define PREV_TASK 2
 
 font_t font1; // Load font for ugfx
-
+font_t font32;
 //Function prototypes
 void frameSwapTask(void *params);
 
@@ -23,12 +23,16 @@ SemaphoreHandle_t DrawReady; // After swapping buffer calll drawing
 // Task handles, used for task control
 TaskHandle_t frameSwapHandle;
 
+
 int main(void)
 {
 	// Initialize Board functions and graphics
+	unsigned int _mainMenuId;
+
 	ESPL_SystemInit();
 
-	font1 = gdispOpenFont("UI1");
+	font1 = gdispOpenFont("DejaVuSans24*");
+	font32 = gdispOpenFont("DejaVuSans32*");
 
 	ESPL_DisplayReady = xSemaphoreCreateBinary();
 	DrawReady = xSemaphoreCreateBinary();
@@ -38,13 +42,19 @@ int main(void)
 	xTaskCreate(frameSwapTask, "frameSwapper", 100, NULL, 4, &frameSwapHandle);
 	xTaskCreate(statesHandlerTask, "statesHandlerTask", 200, NULL, 3, NULL);
 
-	addState(gameInit, gameEnter, gameExit, NULL);
-	addState(mainMenuInit, mainMenuEnter, mainMenuExit, NULL);
+	unsigned int mainMenuStateId;
+	//addState(gameInit, gameEnter, gameExit, NULL);
+	mainMenuStateId = addState(mainMenuInit, mainMenuEnter, mainMenuExit, NULL);
 	initStateMachine();
+
+	//xQueueSend(state_queue, &mainMenuStateId, 100);
 
 	initInputTask();
 	// Start FreeRTOS Scheduler
 	vTaskStartScheduler();
+
+	
+
 }
 
 /*
