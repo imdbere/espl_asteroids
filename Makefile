@@ -268,32 +268,32 @@ Libraries/FreeRTOS/FreeRTOS/Source/list.c.s:
 	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/list.c.s
 .PHONY : Libraries/FreeRTOS/FreeRTOS/Source/list.c.s
 
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.o: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.o
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.o: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.o
 
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.o
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.o
 
 # target to build an object file
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.o:
-	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.o
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.o
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.o:
+	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.o
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.o
 
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.i: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.i
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.i: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.i
 
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.i
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.i
 
 # target to preprocess a source file
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.i:
-	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.i
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.i
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.i:
+	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.i
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.i
 
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.s: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.s
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.s: Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.s
 
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.s
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.s
 
 # target to generate assembly for a file
-Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.s:
-	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.s
-.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c.s
+Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.s:
+	$(MAKE) -f CMakeFiles/rtoslib.dir/build.make CMakeFiles/rtoslib.dir/Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.s
+.PHONY : Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c.s
 
 Libraries/FreeRTOS/FreeRTOS/Source/queue.o: Libraries/FreeRTOS/FreeRTOS/Source/queue.c.o
 
@@ -915,6 +915,33 @@ Libraries/ugfx/src/gdisp/gdisp_image.s: Libraries/ugfx/src/gdisp/gdisp_image.c.s
 Libraries/ugfx/src/gdisp/gdisp_image.c.s:
 	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image.c.s
 .PHONY : Libraries/ugfx/src/gdisp/gdisp_image.c.s
+
+Libraries/ugfx/src/gdisp/gdisp_image_bmp.o: Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.o
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_bmp.o
+
+# target to build an object file
+Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.o:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.o
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.o
+
+Libraries/ugfx/src/gdisp/gdisp_image_bmp.i: Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.i
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_bmp.i
+
+# target to preprocess a source file
+Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.i:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.i
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.i
+
+Libraries/ugfx/src/gdisp/gdisp_image_bmp.s: Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.s
+
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_bmp.s
+
+# target to generate assembly for a file
+Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.s:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.s
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_bmp.c.s
 
 Libraries/ugfx/src/gdisp/gdisp_image_gif.o: Libraries/ugfx/src/gdisp/gdisp_image_gif.c.o
 
@@ -1838,9 +1865,9 @@ help:
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/list.o"
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/list.i"
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/list.s"
-	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.o"
-	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.i"
-	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.s"
+	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.o"
+	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.i"
+	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.s"
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/queue.o"
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/queue.i"
 	@echo "... Libraries/FreeRTOS/FreeRTOS/Source/queue.s"
@@ -1910,6 +1937,9 @@ help:
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_image.o"
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_image.i"
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_image.s"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_bmp.o"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_bmp.i"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_bmp.s"
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_gif.o"
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_gif.i"
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_gif.s"

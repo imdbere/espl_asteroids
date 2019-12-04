@@ -6,7 +6,7 @@ void checkInputs(void *params);
 void initInputTask()
 {
     ButtonQueue = xQueueCreate(1, sizeof(struct buttons));
-    xTaskCreate(checkInputs, "checkButtons", 100, NULL, 3, NULL);
+    xTaskCreate(checkInputs, "checkButtons", 200, NULL, 4, NULL);
 }
 
 void updateButton(struct button *button, unsigned char currentState)
@@ -33,14 +33,14 @@ void checkInputs(void *params)
 {
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	struct buttons buttons = {{0}};
-	const TickType_t PollingRate = 50;
+	const TickType_t PollingRate = 20;
 
 	while (TRUE)
 	{
-		int joystickX = (uint8_t)(ADC_GetConversionValue(ESPL_ADC_Joystick_2) >> 4);
+		int joystickX = (int)(ADC_GetConversionValue(ESPL_ADC_Joystick_2) >> 4) - 128 ;
 		buttons.joystick.x = abs(joystickX) > 10 ? joystickX : 0;
 
-		int joystickY = (uint8_t)255 - (ADC_GetConversionValue(ESPL_ADC_Joystick_1) >> 4);
+		int joystickY = (int)128 - (ADC_GetConversionValue(ESPL_ADC_Joystick_1) >> 4);
 		buttons.joystick.y = abs(joystickY) > 10 ? joystickY : 0;
 
 		// Edge detection
@@ -51,7 +51,7 @@ void checkInputs(void *params)
 		updateButton(&buttons.E, !GPIO_ReadInputDataBit(ESPL_Register_Button_E, ESPL_Pin_Button_E));
 		updateButton(&buttons.K, !GPIO_ReadInputDataBit(ESPL_Register_Button_K, ESPL_Pin_Button_K));
 
-		while(xQueueSend(ButtonQueue, &buttons, 100) != pdTRUE);
+		xQueueSend(ButtonQueue, &buttons, 100);
 
 		// Execute every 20 Ticks
 		vTaskDelayUntil(&xLastWakeTime, PollingRate);

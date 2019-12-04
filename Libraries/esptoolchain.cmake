@@ -40,7 +40,7 @@ file(GLOB RTOS_SRCS
     ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Source/queue.c
     ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Source/tasks.c
     ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Source/timers.c
-    ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_2.c
+    ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_1.c
     ${CURRENT_PATH}/FreeRTOS/FreeRTOS/Demo/Common/Minimal/flash.c
 )
 
@@ -77,6 +77,7 @@ file(GLOB UGFX_SRCS
     ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image.c
     ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image_gif.c
     ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image_png.c
+    ${CURRENT_PATH}/ugfx/src/gdisp/gdisp_image_bmp.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_encoding.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_font.c
     ${CURRENT_PATH}/ugfx/src/gdisp/mcufont/mf_justify.c

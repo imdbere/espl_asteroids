@@ -3,7 +3,6 @@
 #include "states/main_menu.h"
 #include "states/game.h"
 #include "input.h"
-
 #define STATE_COUNT 3
 
 #define STATE_EX_TWO 0

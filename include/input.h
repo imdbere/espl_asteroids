@@ -1,8 +1,8 @@
 #include "includes.h"
 
 struct coord {
-	uint8_t x;
-	uint8_t y;
+	int x;
+	int y;
 };
 
 struct button {
