@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "random": "c",
-        "mainmenu.h": "c"
+        "mainmenu.h": "c",
+        "randm.h": "c"
     }
 }
