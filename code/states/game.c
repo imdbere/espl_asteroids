@@ -143,18 +143,25 @@ void gameDrawTask(void* data)
             if (speedShipY > maxSpeedY) speedShipY = maxSpeedY;
             if (speedShipY < -maxSpeedY) speedShipY = -maxSpeedY;
 
-            point points[3] = {{0,0}, {10,0}, {5,15}};
-            for (int i = 0; i<3; i++)
+            int pointCount = 6;
+            int flameLength = max(abs(buttons.joystick.x), abs(buttons.joystick.y)) * 12 / 127.0;
+
+            point points[] = {{0,5}, {16,5}, {8,25}, {3, 5}, {13, 5}, {8, -flameLength}};
+            for (int i = 0; i<pointCount; i++)
             {
                 int newX = rotatePointX(points[i].x, points[i].y, lastAngleRad);
                 int newY = rotatePointY(points[i].x, points[i].y, lastAngleRad);
                 points[i] = (point){newX, newY};
             }
 
-            gdispDrawPoly(shipX, shipY, points, 3, White);
+            gdispFillConvexPoly(shipX, shipY, points, 3, White);
+            if (thrustOn)
+                gdispFillConvexPoly(shipX, shipY, points + 3, 3, Orange);
+
+            //gdispDrawThickLine(points[0].x + shipX, points[0].y + shipY, points[1]. x + shipX, points[1].y + shipY, White, 4, 1);
             //gdispBlitArea((int)shipX, (int)shipY, 60, 60, surface1);
             //displayShip((int)shipX, (int)shipY, thrustOn);
-
+            
             shipX += speedShipX;
             shipY += speedShipY;
 

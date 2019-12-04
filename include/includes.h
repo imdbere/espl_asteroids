@@ -33,6 +33,11 @@
 
 #define M_PI 3.14159265358979323846
 
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+     
 extern SemaphoreHandle_t DrawReady;
 extern font_t font1;
 extern font_t font32;

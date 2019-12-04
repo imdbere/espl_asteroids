@@ -161,6 +161,6 @@ set(CMAKE_RANLIB ${ARM_RANLIB})
 set(CMAKE_LINKER ${ARM_LINKER})
 
 set(CMAKE_C_LINK_EXECUTABLE
-    "${CMAKE_LINKER} -o <TARGET> <OBJECTS> --start-group -lc -lnosys --end-group -L ${CURRENT_PATH}/softfp/arm-none-eabi_softfp -L ${CURRENT_PATH}/softfp/lib_softfp -T ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/usr/stm32f429zi_flash.ld"
+    "${CMAKE_LINKER} -o <TARGET> <OBJECTS> --start-group -lc -lm -lnosys --end-group -L ${CURRENT_PATH}/softfp/arm-none-eabi_softfp -L ${CURRENT_PATH}/softfp/lib_softfp -T ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/usr/stm32f429zi_flash.ld"
 )
 

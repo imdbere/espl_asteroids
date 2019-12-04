@@ -60,6 +60,7 @@
 #define GDISP_NEED_IMAGE_BMP	TRUE
 #define GDISP_NEED_PIXMAP       TRUE
 #define GFILE_NEED_ROMFS        TRUE
+#define GDISP_NEED_CONVEX_POLYGON   TRUE
 
 /* Builtin Fonts */
 #define GDISP_INCLUDE_FONT_UI1			TRUE
