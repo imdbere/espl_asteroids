@@ -31,6 +31,8 @@
 #define DISPLAY_SIZE_Y  240
 #define STATIC_STACK_SIZE 100
 
+#define M_PI 3.14159265358979323846
+
 extern SemaphoreHandle_t DrawReady;
 extern font_t font1;
 extern font_t font32;

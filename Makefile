@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/adamos/ESPL/espl_asteroids
+CMAKE_SOURCE_DIR = /home/aaron/Dokumente/espl_asteroids
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/adamos/ESPL/espl_asteroids
+CMAKE_BINARY_DIR = /home/aaron/Dokumente/espl_asteroids
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles /home/adamos/ESPL/espl_asteroids/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles /home/aaron/Dokumente/espl_asteroids/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -970,32 +970,32 @@ Libraries/ugfx/src/gdisp/gdisp_image_gif.c.s:
 	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_gif.c.s
 .PHONY : Libraries/ugfx/src/gdisp/gdisp_image_gif.c.s
 
-Libraries/ugfx/src/gdisp/gdisp_image_png.o: Libraries/ugfx/src/gdisp/gdisp_image_png.c.o
+Libraries/ugfx/src/gdisp/gdisp_pixmap.o: Libraries/ugfx/src/gdisp/gdisp_pixmap.c.o
 
-.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.o
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_pixmap.o
 
 # target to build an object file
-Libraries/ugfx/src/gdisp/gdisp_image_png.c.o:
-	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_png.c.o
-.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.c.o
+Libraries/ugfx/src/gdisp/gdisp_pixmap.c.o:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_pixmap.c.o
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_pixmap.c.o
 
-Libraries/ugfx/src/gdisp/gdisp_image_png.i: Libraries/ugfx/src/gdisp/gdisp_image_png.c.i
+Libraries/ugfx/src/gdisp/gdisp_pixmap.i: Libraries/ugfx/src/gdisp/gdisp_pixmap.c.i
 
-.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.i
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_pixmap.i
 
 # target to preprocess a source file
-Libraries/ugfx/src/gdisp/gdisp_image_png.c.i:
-	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_png.c.i
-.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.c.i
+Libraries/ugfx/src/gdisp/gdisp_pixmap.c.i:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_pixmap.c.i
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_pixmap.c.i
 
-Libraries/ugfx/src/gdisp/gdisp_image_png.s: Libraries/ugfx/src/gdisp/gdisp_image_png.c.s
+Libraries/ugfx/src/gdisp/gdisp_pixmap.s: Libraries/ugfx/src/gdisp/gdisp_pixmap.c.s
 
-.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.s
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_pixmap.s
 
 # target to generate assembly for a file
-Libraries/ugfx/src/gdisp/gdisp_image_png.c.s:
-	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_image_png.c.s
-.PHONY : Libraries/ugfx/src/gdisp/gdisp_image_png.c.s
+Libraries/ugfx/src/gdisp/gdisp_pixmap.c.s:
+	$(MAKE) -f CMakeFiles/ugfxlib.dir/build.make CMakeFiles/ugfxlib.dir/Libraries/ugfx/src/gdisp/gdisp_pixmap.c.s
+.PHONY : Libraries/ugfx/src/gdisp/gdisp_pixmap.c.s
 
 Libraries/ugfx/src/gdisp/mcufont/mf_encoding.o: Libraries/ugfx/src/gdisp/mcufont/mf_encoding.c.o
 
@@ -1943,9 +1943,9 @@ help:
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_gif.o"
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_gif.i"
 	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_gif.s"
-	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_png.o"
-	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_png.i"
-	@echo "... Libraries/ugfx/src/gdisp/gdisp_image_png.s"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_pixmap.o"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_pixmap.i"
+	@echo "... Libraries/ugfx/src/gdisp/gdisp_pixmap.s"
 	@echo "... Libraries/ugfx/src/gdisp/mcufont/mf_encoding.o"
 	@echo "... Libraries/ugfx/src/gdisp/mcufont/mf_encoding.i"
 	@echo "... Libraries/ugfx/src/gdisp/mcufont/mf_encoding.s"
