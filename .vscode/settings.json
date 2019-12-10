@@ -3,6 +3,7 @@
         "random": "c",
         "mainmenu.h": "c",
         "randm.h": "c",
-        "includes.h": "c"
+        "includes.h": "c",
+        "main_menu.h": "c"
     }
 }

@@ -1,5 +1,6 @@
 #include "states/main_menu.h"
 #include "includes.h"
+#include "input.h"
 #include "asteroids.h"
 
 #include <math.h>
@@ -13,14 +14,15 @@
 TaskHandle_t mainMenuTaskHandle;
 static gdispImage myImage;
 static gdispImage titleImage;
-font_t font;
+
+
 
 int i, j;
 char str[100];
+int framesPerSecond = 0;
 
 void mainMenuInit()
-{
-    font = gdispOpenFont("DejaVuSansBold12_aa");
+{ 
     sprintf(str, "Hello");
     xTaskCreate(mainMenuDrawTask, "mainMenuDrawTask", 2000, NULL, 3, &mainMenuTaskHandle);
     vTaskSuspend(mainMenuTaskHandle);
@@ -42,6 +44,11 @@ void mainMenuDrawTask(void *data)
     int asteroidCount = 10;
     struct asteroid asteroids[asteroidCount];
     generateAsteroids(&asteroids, asteroidCount, 20);
+    struct buttons buttons;
+    int selectorPositionY = 60;
+    int selectedOffsetX[4] = {30, 0, 0, 0};
+    int selectedBool = 0;
+    int selected = 0;
     //sprintf(str, "Asteroids %i", swidth);
 
     //gdispImageOpenFile(&myImage, "sprites.png");
@@ -58,18 +65,64 @@ void mainMenuDrawTask(void *data)
             drawAsteroids(&asteroids, asteroidCount);
             //gdispImageDraw(&myImage, 30, 30, 28, 25, 0, 56);
             //gdispImageDraw(&titleImage, 30, 30, 210, 40, 0, 0);
-            /* sprintf(str, "Asteroids");
-            gdispDrawString(10, 10, str, font32, White);
+
+            if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
+            {
+                
+            }
+
+            if(buttons.joystick.y < 0 && selectorPositionY > 60)
+            {
+                if(selectedBool == 0)
+                {
+                    selectorPositionY -= 30;
+                    selected --;
+                    selectedOffsetX[selected] = 30;
+                    selectedOffsetX[selected + 1] = 0;
+                    selectedBool = 1;
+                }      
+            }
+            else if(buttons.joystick.y > 0 && selectorPositionY < 150)
+            {
+                if(selectedBool == 0)
+                {
+                    selectorPositionY += 30;
+                    selected ++;
+                    selectedOffsetX[selected] = 30;
+                    selectedOffsetX[selected - 1] = 0;
+                    selectedBool = 1;
+                } 
+            }
+            else
+            {
+                selectedBool = 0;
+            }            
+
+            point points[] = {{0,0}, {0,16}, {20,8}};
+
+            gdispFillConvexPoly(50, selectorPositionY, points, 3, White);
+
+            sprintf(str, "Asteroids %i", buttons.joystick.y);
+            gdispDrawString(50, 10, str, font32, White);
 
             sprintf(str, "Start Game");
-            gdispDrawString(10, 50, str, font32, White);
-
-            sprintf(str, "Mode:");
-            gdispDrawString(10, 90, str, font1, White);*/
+            gdispDrawString(50+selectedOffsetX[0], 60, str, font1, White);
             
+            sprintf(str, "Mode:");
+            gdispDrawString(50+selectedOffsetX[1], 90, str, font1, White);
+            int offset = gdispGetStringWidth(str,font1);
 
-            //sprintf(str, "Frames %i", framesPerSecond++);
-            //gdispDrawString(10, 170, str, font32, White);
+            sprintf(str, "  Single Player");
+            gdispDrawString(50+offset+selectedOffsetX[1], 90, str, font1, White);
+
+            sprintf(str, "High Score");
+            gdispDrawString(50+selectedOffsetX[2], 120, str, font1, White);
+
+            sprintf(str, "Name");
+            gdispDrawString(50+selectedOffsetX[3], 150, str, font1, White);
+             
+            sprintf(str, "Frames %i", framesPerSecond++);
+            gdispDrawString(DISPLAY_SIZE_X-100, DISPLAY_SIZE_Y-20, str, font1, White);
 
             // sprintf(str, "", swi)
         }
