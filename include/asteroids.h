@@ -2,9 +2,10 @@
 
 struct asteroid 
 {
-    point position;
-    float speedX;
-    float speedY;
+    uint8_t isActive;
+    pointf position;
+    pointf speed;
+    float radius;
     
     int segmentCount;
     point vertices[10];
