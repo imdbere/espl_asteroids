@@ -4,10 +4,12 @@
 #include "math.h"
 
 TaskHandle_t drawTaskHandle;
+TaskHandle_t generateAsteroidsHandle;
 
 void gameInit()
 {
     xTaskCreate(gameDrawTask, "gameDrawTask", 3000, NULL, 3, &drawTaskHandle);
+    //XTaskCreate(generateAsteroid, "generateAsteroidsHandle", 3000, NULL, &generateAsteroidsHandle);
     vTaskSuspend(drawTaskHandle);
 }
 
@@ -176,9 +178,7 @@ void gameDrawTask(void* data)
     }
 }
 
-/*void generateAsteroid(int x, int y, int lineCount) {
-    for (int i=0; i<lineCount, i++) 
-    {
-        float d = i - floor
-    }
-}*/
+void generateAsteroid(void* data) 
+{
+    
+}

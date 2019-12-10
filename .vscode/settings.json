@@ -2,6 +2,7 @@
     "files.associations": {
         "random": "c",
         "mainmenu.h": "c",
-        "randm.h": "c"
+        "randm.h": "c",
+        "includes.h": "c"
     }
 }

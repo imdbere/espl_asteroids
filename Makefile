@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aaron/Dokumente/espl_asteroids
+CMAKE_SOURCE_DIR = /home/adamos/ESPL/espl_asteroids
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aaron/Dokumente/espl_asteroids
+CMAKE_BINARY_DIR = /home/adamos/ESPL/espl_asteroids
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles /home/aaron/Dokumente/espl_asteroids/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles /home/adamos/ESPL/espl_asteroids/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -1654,6 +1654,33 @@ Libraries/usr/timertest.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/Libraries/usr/timertest.c.s
 .PHONY : Libraries/usr/timertest.c.s
 
+code/asteroids.o: code/asteroids.c.o
+
+.PHONY : code/asteroids.o
+
+# target to build an object file
+code/asteroids.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/asteroids.c.o
+.PHONY : code/asteroids.c.o
+
+code/asteroids.i: code/asteroids.c.i
+
+.PHONY : code/asteroids.i
+
+# target to preprocess a source file
+code/asteroids.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/asteroids.c.i
+.PHONY : code/asteroids.c.i
+
+code/asteroids.s: code/asteroids.c.s
+
+.PHONY : code/asteroids.s
+
+# target to generate assembly for a file
+code/asteroids.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/asteroids.c.s
+.PHONY : code/asteroids.c.s
+
 code/callbacks.o: code/callbacks.c.o
 
 .PHONY : code/callbacks.o
@@ -2019,6 +2046,9 @@ help:
 	@echo "... Libraries/usr/timertest.o"
 	@echo "... Libraries/usr/timertest.i"
 	@echo "... Libraries/usr/timertest.s"
+	@echo "... code/asteroids.o"
+	@echo "... code/asteroids.i"
+	@echo "... code/asteroids.s"
 	@echo "... code/callbacks.o"
 	@echo "... code/callbacks.i"
 	@echo "... code/callbacks.s"
