@@ -1,5 +1,6 @@
 #include "states/game.h"
 #include "includes.h"
+#include "asteroids.h"
 #include "input.h"
 #include "math.h"
 #include "libs/linkedlist.h"
@@ -90,6 +91,36 @@ pointf addPoints(pointf p1, pointf p2)
 {
     pointf p = {p1.x + p2.x, p1.y + p2.y};
     return p;
+}
+
+float square(float nr)
+{
+    return nr * nr;
+}
+
+uint8_t pointWithinCircle(pointf circlePos, float circleRadius, pointf point)
+{
+    return square(point.x - circlePos.x) + square(point.y - circlePos.y) < square(circleRadius);
+}
+
+void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids)
+{
+    // Between bullets and asteroids
+    for (int bi=0; bi<numBullets; bi++)
+    {
+        struct bullet* b = &bullets[bi];
+        
+        for (int ai=0; ai<numAsteroids; ai++)
+        {
+            struct asteroid* a = &asteroids[ai];
+            if (pointWithinCircle(a->position, a->radius, b->position))
+            {
+                // Collision
+                a->isActive = 0;
+                b->isActive = 0;
+            }
+        }
+    }
 }
 
 void gameDrawTask(void* data)
