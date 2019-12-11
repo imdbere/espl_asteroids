@@ -127,6 +127,16 @@ uint8_t pointWithinCircle(pointf circlePos, float circleRadius, pointf point)
     return cirlceTouchingCircle(circlePos, circleRadius, point, 0);
 }
 
+void destroyAsteroid(struct asteroid asteroids[], int numAsteroids, int index)
+{
+    struct asteroid* a = &asteroids[index];
+    a->isActive = 0;
+    int radius = a->radius - 10;
+
+    if (radius > 0)
+        generateAsteroids(asteroids, numAsteroids, 2, a->position, radius);
+}
+
 void __attribute__((optimize("O0"))) checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player* player)
 {
 
@@ -144,7 +154,7 @@ void __attribute__((optimize("O0"))) checkCollisions(struct bullet bullets[], in
             if (pointWithinCircle(a->position, a->radius, b->position))
             {
                 // Collision
-                a->isActive = 0;
+                destroyAsteroid(asteroids, numAsteroids, ai);
                 b->isActive = 0;
             }
         }
@@ -152,7 +162,7 @@ void __attribute__((optimize("O0"))) checkCollisions(struct bullet bullets[], in
         // Between player and asteroids
         if (cirlceTouchingCircle(a->position, a->radius, player->position, player->colliderRadius))
         {
-            a->isActive = 0;
+            destroyAsteroid(asteroids, numAsteroids, ai);
             player->health -= 1;
             if (player->health == 0)  
             {
@@ -164,13 +174,16 @@ void __attribute__((optimize("O0"))) checkCollisions(struct bullet bullets[], in
 }
 
 //void gfxMutexExit(gfxMutex *pmutex);
+#define MAX_ASTEROID_COUNT_GAME 20
 
 void gameDrawTask(void* data)
 {
     //all about asteroid
-    int asteroidCount = 7;
-    struct asteroid asteroids[asteroidCount];
-    generateAsteroids(&asteroids, asteroidCount, 20);
+    int maxAsteroidCount = MAX_ASTEROID_COUNT_GAME;
+    int initialAsteroidCount = 7;
+    struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME] = {{0}};
+
+    generateAsteroids(&asteroids, maxAsteroidCount, initialAsteroidCount, (pointf){0, 0}, 20);
 
     //Game Stats
     int gameStartLifes = 10;
@@ -211,9 +224,9 @@ void gameDrawTask(void* data)
             gdispClear(Black);
             //gdispClear(White);
 
-            checkCollisions(bullets, maxNumBullets, asteroids, asteroidCount, &player);
+            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player);
             //draw asteroids
-            drawAsteroids(&asteroids, asteroidCount);
+            drawAsteroids(&asteroids, maxAsteroidCount, White);
 
             uint8_t thrustOn = buttons.joystick.x != 0 || buttons.joystick.y != 0;
 

@@ -44,12 +44,13 @@ void mainMenuExit()
     //xSemaphoreGive(g->mutex);
 }
 
+#define MAX_ASTEROID_COUNT_MENU 5
+
 void mainMenuDrawTask(void *data)
 {
-
-    int asteroidCount = 5;
-    struct asteroid asteroids[asteroidCount];
-    generateAsteroids(&asteroids, asteroidCount, 20);
+    int asteroidCount = MAX_ASTEROID_COUNT_MENU;
+    struct asteroid asteroids[MAX_ASTEROID_COUNT_MENU] = {{0}};
+    generateAsteroids(&asteroids, asteroidCount, asteroidCount, (pointf){0, 0}, 20);
     struct buttons buttons;
     
     //Drawing Menu
@@ -71,7 +72,7 @@ void mainMenuDrawTask(void *data)
         {
             gdispClear(Black);
 
-            drawAsteroids(&asteroids, asteroidCount);
+            drawAsteroids(&asteroids, asteroidCount, HTML2COLOR(0xb3b3b3));
             //gdispImageDraw(&myImage, 30, 30, 28, 25, 0, 56);
             //gdispImageDraw(&titleImage, 30, 30, 210, 40, 0, 0);
 
