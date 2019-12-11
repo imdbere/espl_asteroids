@@ -37,8 +37,8 @@ int main(void)
 	ESPL_SystemInit();
 
 	font1 = gdispOpenFont("");
-	font12 = gdispOpenFont("DejaVuSans20*");
-	font16 = gdispOpenFont("DejaVuSans24*");
+	font12 = gdispOpenFont("DejaVuSans12*");
+	font16 = gdispOpenFont("DejaVuSans16*");
 	font20 = gdispOpenFont("DejaVuSans20*");
 	font24 = gdispOpenFont("DejaVuSans24*");
 	font32 = gdispOpenFont("DejaVuSans32*");
@@ -53,7 +53,7 @@ int main(void)
 	xTaskCreate(statesHandlerTask, "statesHandlerTask", 200, NULL, 3, NULL);
 
 	unsigned int mainMenuStateId;
-	addState(gameInit, gameEnter, gameExit, NULL);
+	//addState(gameInit, gameEnter, gameExit, NULL);
 	mainMenuStateId = addState(mainMenuInit, mainMenuEnter, mainMenuExit, NULL);
 	initStateMachine();
 
