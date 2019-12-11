@@ -48,10 +48,11 @@ unsigned int addState(void (*init)(void *), void (*enter)(void *),
 	iterator->next->exit = exit;
 	iterator->next->data = data;
 
-	return (iterator->_ID = ++sm._state_count);
+	return (iterator->next->_ID = ++sm._state_count);
 }
 
-system_state_t *findState(unsigned int ID)
+
+system_state_t __attribute__((optimize("O0"))) *findState(unsigned int ID)
 {
 	system_state_t *iterator;
 

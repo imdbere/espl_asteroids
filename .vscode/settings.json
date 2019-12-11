@@ -4,6 +4,8 @@
         "mainmenu.h": "c",
         "randm.h": "c",
         "includes.h": "c",
-        "main_menu.h": "c"
+        "main_menu.h": "c",
+        "gdisp_driver.h": "c",
+        "gos_freertos.h": "c"
     }
 }

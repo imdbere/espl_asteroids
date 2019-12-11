@@ -28,6 +28,8 @@ SemaphoreHandle_t DrawReady; // After swapping buffer calll drawing
 // Task handles, used for task control
 TaskHandle_t frameSwapHandle;
 
+int mainMenuStateId;
+int gameStateId;
 
 int main(void)
 {
@@ -52,19 +54,13 @@ int main(void)
 	xTaskCreate(frameSwapTask, "frameSwapper", 100, NULL, 4, &frameSwapHandle);
 	xTaskCreate(statesHandlerTask, "statesHandlerTask", 200, NULL, 3, NULL);
 
-	unsigned int mainMenuStateId;
-	//addState(gameInit, gameEnter, gameExit, NULL);
 	mainMenuStateId = addState(mainMenuInit, mainMenuEnter, mainMenuExit, NULL);
+	gameStateId = addState(gameInit, gameEnter, gameExit, NULL);
 	initStateMachine();
-
-	//xQueueSend(state_queue, &mainMenuStateId, 100);
 
 	initInputTask();
 	// Start FreeRTOS Scheduler
 	vTaskStartScheduler();
-
-	
-
 }
 
 /*

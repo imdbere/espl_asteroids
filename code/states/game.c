@@ -3,7 +3,10 @@
 #include "asteroids.h"
 #include "input.h"
 #include "math.h"
-
+#include "sm.h"
+#include "states/states.h"
+#include "src/gdisp/gdisp_driver.h"
+#include "src/gos/gos_freertos.h"
 
 TaskHandle_t drawTaskHandle;
 TaskHandle_t generateAsteroidsHandle;
@@ -17,6 +20,9 @@ void gameInit()
 
 void gameEnter() 
 {
+    GDisplay* g = gdispGetDisplay(0);
+    xSemaphoreTake(g->mutex, 0);
+    xSemaphoreGive(g->mutex);
     vTaskResume(drawTaskHandle);
 }
 
@@ -123,6 +129,8 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
     }
 }
 
+//void gfxMutexExit(gfxMutex *pmutex);
+
 void gameDrawTask(void* data)
 {
     //all about asteroid
@@ -168,7 +176,7 @@ void gameDrawTask(void* data)
     int maxNumBullets = 10;
     struct bullet bullets[maxNumBullets];
     //List* bulletList = makelist();
-
+    
     while (1)
     {
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
