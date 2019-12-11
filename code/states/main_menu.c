@@ -1,21 +1,21 @@
 #include "states/main_menu.h"
+#include "states/states.h"
 #include "includes.h"
 #include "input.h"
 #include "asteroids.h"
+#include "sm.h"
+#include "src/gdisp/gdisp_driver.h"
+#include "src/gos/gos_freertos.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
 
 #define PI 3.14159265358979323846
-#define X 0
-#define Y 1
 
 TaskHandle_t mainMenuTaskHandle;
 static gdispImage myImage;
 static gdispImage titleImage;
-
-
 
 int i, j;
 char str[100];
@@ -35,7 +35,10 @@ void mainMenuEnter()
 
 void mainMenuExit()
 {
+    GDisplay* g = gdispGetDisplay(0);
+    xSemaphoreTake(g->mutex, portMAX_DELAY);
     vTaskSuspend(mainMenuTaskHandle);
+    //xSemaphoreGive(g->mutex);
 }
 
 void mainMenuDrawTask(void *data)
@@ -68,7 +71,14 @@ void mainMenuDrawTask(void *data)
 
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
             {
-                
+                if (buttons.E.risingEdge)
+                {
+                    if (selected == 0)
+                    {
+                        xQueueSend(state_queue, &gameStateId, 0);
+                    }
+
+                }
             }
 
             if(buttons.joystick.y < 0 && selectorPositionY > 60)
