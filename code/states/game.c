@@ -130,6 +130,10 @@ void gameDrawTask(void* data)
     struct asteroid asteroids[asteroidCount];
     generateAsteroids(&asteroids, asteroidCount, 20);
 
+    //Game Stats
+    int gameStartLifes = 10;
+    int gameLifes = gameStartLifes;
+    int gameScore = 0;
 
     int i = 0;
     struct buttons buttons;
@@ -261,6 +265,28 @@ void gameDrawTask(void* data)
             if (thrustOn)
                 gdispFillConvexPoly(shipPos.x, shipPos.y, points + 3, 3, Orange);
             
+
+            //Score counter on top
+
+            sprintf(str, "%.5i", gameScore++);
+            gdispDrawString(10, 10, str, font12, White);
+            point gameLifePoints[] = {{4,0}, {0,12}, {8,12}};
+
+            for(int i = 0; i < gameLifes; i++)
+            {
+                gdispFillConvexPoly(gameStartLifes*12-(i*12), 30, gameLifePoints, 3, White);
+            }
+            for(int i = gameLifes; i < gameStartLifes; i++)
+            {
+                gdispDrawPoly(gameStartLifes*12-(i*12), 30, gameLifePoints, 3, White);
+            }
+                
+
+            //Loosig a life
+            if(buttons.B.fallingEdge && gameLifes > 0)
+            {
+                gameLifes --;
+            }
             //gdispDrawThickLine(points[0].x + shipX, points[0].y + shipY, points[1]. x + shipX, points[1].y + shipY, White, 4, 1);
             //gdispBlitArea((int)shipX, (int)shipY, 60, 60, surface1);
             //displayShip((int)shipX, (int)shipY, thrustOn);

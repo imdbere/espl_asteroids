@@ -40,7 +40,12 @@
 		 
 extern SemaphoreHandle_t DrawReady;
 extern font_t font1;
+extern font_t font12;
+extern font_t font16;
+extern font_t font20;
+extern font_t font24;
 extern font_t font32;
+extern font_t fontLN;
 
 struct pointf
 {
