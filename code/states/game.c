@@ -28,6 +28,8 @@ void gameEnter()
 
 void gameExit()
 {
+    GDisplay* g = gdispGetDisplay(0);
+    xSemaphoreTake(g->mutex, portMAX_DELAY);
     vTaskSuspend(drawTaskHandle);
 }
 
@@ -83,14 +85,25 @@ struct bullet
     pointf speed;
 };
 
-void generateBullet(struct bullet* b, pointf pos, float angle)
+struct player
+{
+    uint8_t isActive;
+    pointf position;
+    pointf speed;
+    float colliderRadius;
+    int health;
+};
+
+
+void generateBullet(struct bullet* b, pointf pos, pointf playerSpeed, float angle)
 {
     float speedMagnitude = 5.0;
+    float playerSpeedInheritanceAmount = 1;
 
     b->isActive = 1;
     b->position = pos;
-    b->speed.x = -speedMagnitude * sin(angle);
-    b->speed.y = speedMagnitude * cos(angle);
+    b->speed.x = -speedMagnitude * sin(angle) + playerSpeed.x * playerSpeedInheritanceAmount;
+    b->speed.y = speedMagnitude * cos(angle) + playerSpeed.y * playerSpeedInheritanceAmount;
 }
 
 pointf addPoints(pointf p1, pointf p2)
@@ -104,21 +117,30 @@ float square(float nr)
     return nr * nr;
 }
 
-uint8_t pointWithinCircle(pointf circlePos, float circleRadius, pointf point)
+uint8_t cirlceTouchingCircle(pointf pos1, float rad1, pointf pos2, float rad2)
 {
-    return square(point.x - circlePos.x) + square(point.y - circlePos.y) < square(circleRadius);
+    return square(pos1.x - pos2.x) + square(pos1.y - pos2.y) < square(rad1 + rad2);
 }
 
-void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids)
+uint8_t pointWithinCircle(pointf circlePos, float circleRadius, pointf point)
 {
-    // Between bullets and asteroids
-    for (int bi=0; bi<numBullets; bi++)
+    return cirlceTouchingCircle(circlePos, circleRadius, point, 0);
+}
+
+void __attribute__((optimize("O0"))) checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player* player)
+{
+
+    for (int ai=0; ai<numAsteroids; ai++)
     {
-        struct bullet* b = &bullets[bi];
-        
-        for (int ai=0; ai<numAsteroids; ai++)
+        struct asteroid* a = &asteroids[ai];
+        if (!a->isActive) continue;
+
+        // Between bullets and asteroids
+        for (int bi=0; bi<numBullets; bi++)
         {
-            struct asteroid* a = &asteroids[ai];
+            struct bullet* b = &bullets[bi];
+            if (!b->isActive) continue;
+
             if (pointWithinCircle(a->position, a->radius, b->position))
             {
                 // Collision
@@ -126,6 +148,18 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
                 b->isActive = 0;
             }
         }
+
+        // Between player and asteroids
+        if (cirlceTouchingCircle(a->position, a->radius, player->position, player->colliderRadius))
+        {
+            a->isActive = 0;
+            player->health -= 1;
+            if (player->health == 0)  
+            {
+                xQueueSend(state_queue, &mainMenuStateId, 0);
+            }
+        }
+
     }
 }
 
@@ -140,7 +174,6 @@ void gameDrawTask(void* data)
 
     //Game Stats
     int gameStartLifes = 10;
-    int gameLifes = gameStartLifes;
     int gameScore = 0;
 
     int i = 0;
@@ -149,13 +182,7 @@ void gameDrawTask(void* data)
     gdispImageOpenFile(&spriteSheet, "sprites.bmp");
     gdispImageCache(&spriteSheet);
 
-    pointf shipPos = {100, 100};
-    //float shipX = 100;
-    //float shipY = 100;
-
-    //float speedShipX = 0;
-    //float speedShipY = 0;
-    pointf shipSpeed = {0, 0};
+    struct player player = {0, {100, 100}, {0, 0}, 20, 5};
 
     float shipMaxSpeed = 2;
     //float maxSpeedY = 2;
@@ -184,6 +211,7 @@ void gameDrawTask(void* data)
             gdispClear(Black);
             //gdispClear(White);
 
+            checkCollisions(bullets, maxNumBullets, asteroids, asteroidCount, &player);
             //draw asteroids
             drawAsteroids(&asteroids, asteroidCount);
 
@@ -205,7 +233,7 @@ void gameDrawTask(void* data)
                 if (buttons.C.risingEdge)
                 {
                     /*struct bullet* newBullet = malloc(sizeof(struct bullet));
-                    generateBullet(newBullet, shipPos, lastAngleRad);
+                    generateBullet(newBullet, player.position, lastAngleRad);
                     add(newBullet, bulletList);*/
 
                     // Search free array space
@@ -219,7 +247,7 @@ void gameDrawTask(void* data)
                     if (i != maxNumBullets)
                     {
                         struct bullet* newBullet = &bullets[i];
-                        generateBullet(newBullet, shipPos, lastAngleRad);
+                        generateBullet(newBullet, player.position, player.speed, lastAngleRad);
                     }
                 }
             }
@@ -227,7 +255,7 @@ void gameDrawTask(void* data)
             // FPS counter
 			TickType_t nowTime = xTaskGetTickCount();
 			uint16_t fps = 1000/ (nowTime - xLastWakeTime);
-            snprintf(str, 100, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f", fps, buttons.joystick.x, buttons.joystick.y, angle, i++, shipSpeed.x, shipSpeed.y);	
+            snprintf(str, 100, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f", fps, buttons.joystick.x, buttons.joystick.y, angle, i++, player.speed.x, player.speed.y);	
             gdispDrawString(DISPLAY_SIZE_X - gdispGetStringWidth(str, font1) - 10, DISPLAY_SIZE_Y - 20 , str, font1, White);
 
             for (int i=0; i<maxNumBullets; i++)
@@ -250,13 +278,13 @@ void gameDrawTask(void* data)
                 }
             }
 
-            shipSpeed.x += buttons.joystick.x / 2000.0;
-            if (shipSpeed.x > shipMaxSpeed) shipSpeed.x = shipMaxSpeed;
-            if (shipSpeed.x < -shipMaxSpeed) shipSpeed.x = -shipMaxSpeed;
+            player.speed.x += buttons.joystick.x / 2000.0;
+            if (player.speed.x > shipMaxSpeed) player.speed.x = shipMaxSpeed;
+            if (player.speed.x < -shipMaxSpeed) player.speed.x = -shipMaxSpeed;
 
-            shipSpeed.y += buttons.joystick.y / 2000.0;
-            if (shipSpeed.y > shipMaxSpeed) shipSpeed.y = shipMaxSpeed;
-            if (shipSpeed.y < -shipMaxSpeed) shipSpeed.y = -shipMaxSpeed;
+            player.speed.y += buttons.joystick.y / 2000.0;
+            if (player.speed.y > shipMaxSpeed) player.speed.y = shipMaxSpeed;
+            if (player.speed.y < -shipMaxSpeed) player.speed.y = -shipMaxSpeed;
 
             int pointCount = 6;
             int flameLength = max(abs(buttons.joystick.x), abs(buttons.joystick.y)) * 12 / 127.0;
@@ -269,9 +297,9 @@ void gameDrawTask(void* data)
                 points[i] = (point){newX, newY};
             }
 
-            gdispFillConvexPoly(shipPos.x, shipPos.y, points, 3, White);
+            gdispFillConvexPoly(player.position.x, player.position.y, points, 3, White);
             if (thrustOn)
-                gdispFillConvexPoly(shipPos.x, shipPos.y, points + 3, 3, Orange);
+                gdispFillConvexPoly(player.position.x, player.position.y, points + 3, 3, Orange);
             
 
             //Score counter on top
@@ -280,32 +308,32 @@ void gameDrawTask(void* data)
             gdispDrawString(10, 10, str, font12, White);
             point gameLifePoints[] = {{4,0}, {0,12}, {8,12}};
 
-            for(int i = 0; i < gameLifes; i++)
+            for(int i = 0; i < player.health; i++)
             {
                 gdispFillConvexPoly(gameStartLifes*12-(i*12), 30, gameLifePoints, 3, White);
             }
-            for(int i = gameLifes; i < gameStartLifes; i++)
+            for(int i = player.health; i < gameStartLifes; i++)
             {
                 gdispDrawPoly(gameStartLifes*12-(i*12), 30, gameLifePoints, 3, White);
             }
                 
 
             //Loosig a life
-            if(buttons.B.fallingEdge && gameLifes > 0)
+            if(buttons.B.fallingEdge && player.health > 0)
             {
-                gameLifes --;
+                player.health --;
             }
             //gdispDrawThickLine(points[0].x + shipX, points[0].y + shipY, points[1]. x + shipX, points[1].y + shipY, White, 4, 1);
             //gdispBlitArea((int)shipX, (int)shipY, 60, 60, surface1);
             //displayShip((int)shipX, (int)shipY, thrustOn);
 
-            shipPos.x += shipSpeed.x;
-            shipPos.y += shipSpeed.y;
+            player.position.x += player.speed.x;
+            player.position.y += player.speed.y;
 
-            if (shipPos.x > DISPLAY_SIZE_X) shipPos.x = 0;
-            if (shipPos.y > DISPLAY_SIZE_Y) shipPos.y = 0;
-            if (shipPos.x < 0) shipPos.x = DISPLAY_SIZE_X;
-            if (shipPos.y < 0) shipPos.y = DISPLAY_SIZE_Y;
+            if (player.position.x > DISPLAY_SIZE_X) player.position.x = 0;
+            if (player.position.y > DISPLAY_SIZE_Y) player.position.y = 0;
+            if (player.position.x < 0) player.position.x = DISPLAY_SIZE_X;
+            if (player.position.y < 0) player.position.y = DISPLAY_SIZE_Y;
 
             xLastWakeTime = nowTime;
             //gdispImageClose(&spriteSheet);

@@ -30,6 +30,9 @@ void mainMenuInit()
 
 void mainMenuEnter()
 {
+    GDisplay* g = gdispGetDisplay(0);
+    xSemaphoreTake(g->mutex, 0);
+    xSemaphoreGive(g->mutex);
     vTaskResume(mainMenuTaskHandle);
 }
 

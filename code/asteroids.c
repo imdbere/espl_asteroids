@@ -19,6 +19,8 @@ void generateAsteroids(struct asteroid *asteroids, int asteroidsCount, int radiu
         asteroids[j].position = (pointf){randRange(0, 100), randRange(0, 100)};
         asteroids[j].speed.x = (randRange(-50, 50)) / 50.0;
         asteroids[j].speed.y = (randRange(-50, 50)) / 50.0;
+        asteroids[j].radius = radius;
+
         for (int i = 0; i < segmentCount; i++)
         {
             point vertex;
@@ -40,6 +42,8 @@ void drawAsteroids(struct asteroid *asteroids, int asteroidCount)
     for (int j = 0; j < asteroidCount; j++)
     {
         struct asteroid asteroid = asteroids[j];
+        if (!asteroid.isActive) continue;
+
         for (int i = 0; i < asteroid.segmentCount; i++)
         {
             int nextVertex = i + 1;
