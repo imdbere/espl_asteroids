@@ -53,8 +53,8 @@ void mainMenuDrawTask(void *data)
     //UFo
     struct ufo myufo;
     initUfo(&myufo);
-    myufo.position.x = 150;
-    myufo.position.y = 160;
+    myufo.position.x = 0;
+    myufo.position.y = 0;
     myufo.size = 10;
     
     //Drawing Menu
