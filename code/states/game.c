@@ -125,6 +125,12 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
 
 void gameDrawTask(void* data)
 {
+    //all about asteroid
+    int asteroidCount = 7;
+    struct asteroid asteroids[asteroidCount];
+    generateAsteroids(&asteroids, asteroidCount, 20);
+
+
     int i = 0;
     struct buttons buttons;
     char str[100];
@@ -165,6 +171,9 @@ void gameDrawTask(void* data)
         {
             gdispClear(Black);
             //gdispClear(White);
+
+            //draw asteroids
+            drawAsteroids(&asteroids, asteroidCount);
 
             uint8_t thrustOn = buttons.joystick.x != 0 || buttons.joystick.y != 0;
 

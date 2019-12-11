@@ -14,11 +14,11 @@ void generateAsteroids(struct asteroid* asteroids, int asteroidsCount, int radiu
     float current = 0;
     for (int j = 0; j < asteroidsCount; j++)
     {
-        int segmentCount = randRange(5, 10);
+        int segmentCount = randRange(9, 5);
         asteroids[j].segmentCount = segmentCount;
         asteroids[j].position = (pointf){randRange(0, 100), randRange(0, 100)};
-        asteroids[j].speed.x = (randRange(-50, 50)) / 50.0;
-        asteroids[j].speed.y = (randRange(-50, 50)) / 50.0;
+        asteroids[j].speed.x = (randRange(50, -50)) / 50.0;
+        asteroids[j].speed.y = (randRange(50, -50)) / 50.0;
         for (int i = 0; i < segmentCount; i++)
         {
             point vertex;
@@ -43,9 +43,8 @@ void drawAsteroids(struct asteroid* asteroids, int asteroidCount)
         for (int i = 0; i < asteroid.segmentCount; i++)
         {
             int nextVertex = i + 1;
-            if (nextVertex == asteroidCount)
+            if (nextVertex == asteroid.segmentCount)
                 nextVertex = 0;
-
             gdispDrawLine(
                 asteroid.vertices[i].x + asteroid.position.x, 
                 asteroid.vertices[i].y + asteroid.position.y, 
