@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aaron/Dokumente/espl_asteroids
+CMAKE_SOURCE_DIR = /home/adamos/ESPL/espl_asteroids
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aaron/Dokumente/espl_asteroids
+CMAKE_BINARY_DIR = /home/adamos/ESPL/espl_asteroids
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles /home/aaron/Dokumente/espl_asteroids/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles /home/adamos/ESPL/espl_asteroids/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -1870,6 +1870,33 @@ code/uart.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/uart.c.s
 .PHONY : code/uart.c.s
 
+code/ufo.o: code/ufo.c.o
+
+.PHONY : code/ufo.o
+
+# target to build an object file
+code/ufo.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/ufo.c.o
+.PHONY : code/ufo.c.o
+
+code/ufo.i: code/ufo.c.i
+
+.PHONY : code/ufo.i
+
+# target to preprocess a source file
+code/ufo.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/ufo.c.i
+.PHONY : code/ufo.c.i
+
+code/ufo.s: code/ufo.c.s
+
+.PHONY : code/ufo.s
+
+# target to generate assembly for a file
+code/ufo.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/ufo.c.s
+.PHONY : code/ufo.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -2070,6 +2097,9 @@ help:
 	@echo "... code/uart.o"
 	@echo "... code/uart.i"
 	@echo "... code/uart.s"
+	@echo "... code/ufo.o"
+	@echo "... code/ufo.i"
+	@echo "... code/ufo.s"
 .PHONY : help
 
 

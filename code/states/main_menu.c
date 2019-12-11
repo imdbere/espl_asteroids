@@ -3,6 +3,7 @@
 #include "includes.h"
 #include "input.h"
 #include "asteroids.h"
+#include "ufo.h"
 #include "sm.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
@@ -43,11 +44,18 @@ void mainMenuExit()
 
 void mainMenuDrawTask(void *data)
 {
-
+    // All about asteroids
     int asteroidCount = 5;
     struct asteroid asteroids[asteroidCount];
     generateAsteroids(&asteroids, asteroidCount, 20);
     struct buttons buttons;
+    
+    //UFo
+    struct ufo myufo;
+    initUfo(&myufo);
+    myufo.position.x = 150;
+    myufo.position.y = 160;
+    myufo.size = 10;
     
     //Drawing Menu
     int TextOffset = 30;
@@ -69,6 +77,7 @@ void mainMenuDrawTask(void *data)
             gdispClear(Black);
 
             drawAsteroids(&asteroids, asteroidCount);
+            drawUfo(&myufo);
             //gdispImageDraw(&myImage, 30, 30, 28, 25, 0, 56);
             //gdispImageDraw(&titleImage, 30, 30, 210, 40, 0, 0);
 
