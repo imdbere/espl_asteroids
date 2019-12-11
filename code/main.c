@@ -39,8 +39,8 @@ int main(void)
 	ESPL_SystemInit();
 
 	font1 = gdispOpenFont("");
-	font12 = gdispOpenFont("DejaVuSans20*");
-	font16 = gdispOpenFont("DejaVuSans24*");
+	font12 = gdispOpenFont("DejaVuSans12*");
+	font16 = gdispOpenFont("DejaVuSans16*");
 	font20 = gdispOpenFont("DejaVuSans20*");
 	font24 = gdispOpenFont("DejaVuSans24*");
 	font32 = gdispOpenFont("DejaVuSans32*");

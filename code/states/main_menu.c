@@ -47,10 +47,13 @@ void mainMenuExit()
 void mainMenuDrawTask(void *data)
 {
 
-    int asteroidCount = 10;
+    int asteroidCount = 5;
     struct asteroid asteroids[asteroidCount];
     generateAsteroids(&asteroids, asteroidCount, 20);
     struct buttons buttons;
+    
+    //Drawing Menu
+    int TextOffset = 30;
     int selectorPositionY = 60;
     int selectedOffsetX[4] = {30, 0, 0, 0};
     int selectedBool = 0;
@@ -113,29 +116,29 @@ void mainMenuDrawTask(void *data)
 
             point points[] = {{0,0}, {0,16}, {20,8}};
 
-            gdispFillConvexPoly(50, selectorPositionY, points, 3, White);
+            gdispFillConvexPoly(TextOffset, selectorPositionY, points, 3, White);
 
-            sprintf(str, "Asteroids %i", buttons.joystick.y);
-            gdispDrawString(50, 10, str, font32, White);
+            sprintf(str, "Asteroids");
+            gdispDrawString(TextOffset-5, 10, str, font32, White);
 
             sprintf(str, "Start Game");
-            gdispDrawString(50+selectedOffsetX[0], 60, str, font1, White);
+            gdispDrawString(TextOffset+selectedOffsetX[0], 60, str, font16, White);
             
             sprintf(str, "Mode:");
-            gdispDrawString(50+selectedOffsetX[1], 90, str, font1, White);
-            int offset = gdispGetStringWidth(str,font1);
+            gdispDrawString(TextOffset+selectedOffsetX[1], 90, str, font16, White);
+            int offset = gdispGetStringWidth(str,font16);
 
             sprintf(str, "  Single Player");
-            gdispDrawString(50+offset+selectedOffsetX[1], 90, str, font1, White);
+            gdispDrawString(TextOffset+offset+selectedOffsetX[1], 90, str, font16, White);
 
             sprintf(str, "High Score");
-            gdispDrawString(50+selectedOffsetX[2], 120, str, font1, White);
+            gdispDrawString(TextOffset+selectedOffsetX[2], 120, str, font16, White);
 
             sprintf(str, "Name");
-            gdispDrawString(50+selectedOffsetX[3], 150, str, font1, White);
+            gdispDrawString(TextOffset+selectedOffsetX[3], 150, str, font16, White);
              
             sprintf(str, "Frames %i", framesPerSecond++);
-            gdispDrawString(DISPLAY_SIZE_X-100, DISPLAY_SIZE_Y-20, str, font1, White);
+            gdispDrawString(DISPLAY_SIZE_X-100, DISPLAY_SIZE_Y-20, str, font16, White);
 
             // sprintf(str, "", swi)
         }
