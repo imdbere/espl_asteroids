@@ -92,6 +92,8 @@ struct player
     pointf speed;
     float colliderRadius;
     int health;
+    int score;
+    char name[10];
 };
 
 
@@ -154,6 +156,7 @@ void __attribute__((optimize("O0"))) checkCollisions(struct bullet bullets[], in
             if (pointWithinCircle(a->position, a->radius, b->position))
             {
                 // Collision
+                
                 destroyAsteroid(asteroids, numAsteroids, ai);
                 b->isActive = 0;
             }
@@ -163,8 +166,9 @@ void __attribute__((optimize("O0"))) checkCollisions(struct bullet bullets[], in
         if (cirlceTouchingCircle(a->position, a->radius, player->position, player->colliderRadius))
         {
             destroyAsteroid(asteroids, numAsteroids, ai);
-            player->health -= 1;
-            if (player->health == 0)  
+            if(player->health > 0)
+                player->health -= 1;
+            if (player->health <= 0)  
             {
                 xQueueSend(state_queue, &mainMenuStateId, 0);
             }
@@ -186,7 +190,9 @@ void gameDrawTask(void* data)
     generateAsteroids(&asteroids, maxAsteroidCount, initialAsteroidCount, (pointf){0, 0}, 20);
 
     //Game Stats
+    
     int gameStartLifes = 10;
+    
     int gameScore = 0;
 
     int i = 0;
@@ -317,7 +323,7 @@ void gameDrawTask(void* data)
 
             //Score counter on top
 
-            sprintf(str, "%.5i", gameScore++);
+            sprintf(str, "%.5i", player.score);
             gdispDrawString(10, 10, str, font12, White);
             point gameLifePoints[] = {{4,0}, {0,12}, {8,12}};
 
