@@ -31,6 +31,9 @@ void mainMenuInit()
 
 void mainMenuEnter()
 {
+    GDisplay* g = gdispGetDisplay(0);
+    xSemaphoreTake(g->mutex, 0);
+    xSemaphoreGive(g->mutex);
     vTaskResume(mainMenuTaskHandle);
 }
 
@@ -42,12 +45,14 @@ void mainMenuExit()
     //xSemaphoreGive(g->mutex);
 }
 
+#define MAX_ASTEROID_COUNT_MENU 5
+
 void mainMenuDrawTask(void *data)
 {
-    // All about asteroids
-    int asteroidCount = 5;
-    struct asteroid asteroids[asteroidCount];
-    generateAsteroids(&asteroids, asteroidCount, 20);
+
+    int asteroidCount = MAX_ASTEROID_COUNT_MENU;
+    struct asteroid asteroids[MAX_ASTEROID_COUNT_MENU] = {{0}};
+    generateAsteroids(&asteroids, asteroidCount, asteroidCount, (pointf){0, 0}, 20);
     struct buttons buttons;
     
     //UFo
@@ -75,9 +80,9 @@ void mainMenuDrawTask(void *data)
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
         {
             gdispClear(Black);
-
-            drawAsteroids(&asteroids, asteroidCount);
+            drawAsteroids(&asteroids, asteroidCount, HTML2COLOR(0xb3b3b3));
             drawUfo(&myufo);
+
             //gdispImageDraw(&myImage, 30, 30, 28, 25, 0, 56);
             //gdispImageDraw(&titleImage, 30, 30, 210, 40, 0, 0);
 

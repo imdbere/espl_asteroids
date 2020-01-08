@@ -11,6 +11,6 @@ struct asteroid
     point vertices[10];
 };
 
-void generateAsteroids(struct asteroid* asteroids, int asteroidsCount, int radius);
-void drawAsteroids(struct asteroid* asteroids, int asteroidCount);
+void generateAsteroids(struct asteroid *asteroids, int maxAsteroidCount, int asteroidsCount, pointf pos, int radius);
+void drawAsteroids(struct asteroid *asteroids, int asteroidCount, color_t color);
 
