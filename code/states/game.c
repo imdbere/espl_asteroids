@@ -156,7 +156,7 @@ void __attribute__((optimize("O0"))) checkCollisions(struct bullet bullets[], in
             if (pointWithinCircle(a->position, a->radius, b->position))
             {
                 // Collision
-                
+                player->score += 500;
                 destroyAsteroid(asteroids, numAsteroids, ai);
                 b->isActive = 0;
             }
@@ -192,8 +192,6 @@ void gameDrawTask(void* data)
     //Game Stats
     
     int gameStartLifes = 10;
-    
-    int gameScore = 0;
 
     int i = 0;
     struct buttons buttons;
@@ -202,7 +200,6 @@ void gameDrawTask(void* data)
     gdispImageCache(&spriteSheet);
 
     struct player player = {0, {100, 100}, {0, 0}, 20, 5};
-
     float shipMaxSpeed = 2;
     //float maxSpeedY = 2;
 
@@ -323,7 +320,7 @@ void gameDrawTask(void* data)
 
             //Score counter on top
 
-            sprintf(str, "%.5i", player.score);
+            sprintf(str, "%s : %i", player.name, player.score);
             gdispDrawString(10, 10, str, font12, White);
             point gameLifePoints[] = {{4,0}, {0,12}, {8,12}};
 
