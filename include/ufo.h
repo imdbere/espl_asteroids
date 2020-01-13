@@ -13,4 +13,4 @@ struct ufo
 //void generateUfo(struct ufo* ufo);
 void initUfo(struct ufo *ufo);
 void updateUfo(struct ufo *myufo);
-void drawUfo(struct ufo* ufo);
+void drawUfo(struct ufo* ufo, color_t color);

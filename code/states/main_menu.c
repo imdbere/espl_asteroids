@@ -5,6 +5,7 @@
 #include "asteroids.h"
 #include "ufo.h"
 #include "sm.h"
+#include "tools.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
 
@@ -23,10 +24,6 @@ char str[100];
 char playerName[10] = "";
 int framesPerSecond = 0;
 
-int randRange(int lower, int upper)
-{
-    return (rand() % (upper - lower + 1)) + lower;
-}
 
 void mainMenuInit()
 {
@@ -75,8 +72,8 @@ void mainMenuDrawTask(void *data)
     //initUfo(&myufo);
     myufo.position.x = 63;
     myufo.position.y = 33;
-    myufo.speed.x = 3;
-    myufo.speed.y = 2;
+    myufo.speed.x = 0.4;
+    myufo.speed.y = 0.1;
     myufo.size = 2;
 
     //Drawing Menu
@@ -112,14 +109,14 @@ void mainMenuDrawTask(void *data)
             gdispClear(Black);
             drawAsteroids(&asteroids, asteroidCount, Gray);
             updateAsteroids(&asteroids, asteroidCount);
-            drawUfo(&myufo);
+            drawUfo(&myufo, Grey);
             updateUfo(&myufo);
             updateSpeedTime++;
-            if(updateSpeedTime > 200)
+            if(updateSpeedTime > 50)
             {
                 updateSpeedTime = 0;
-                myufo.speed.x = randRange(10,30)/10;
-                myufo.speed.y = randRange(10,30)/10;
+                myufo.speed.x += (randRange(-4,4))/13.0;
+                myufo.speed.y += (randRange(-4,4))/13.0;
             }
             // xTaskGetTickCount
 
@@ -366,7 +363,7 @@ void mainMenuDrawTask(void *data)
                 gdispDrawString(TextOffset + selectedOffsetX[3], 150, str, font16, White);
                 gdispDrawString(TextOffset + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, playerName, font16, White);
 
-                sprintf(str, "Frames %i", framesPerSecond++);
+                sprintf(str, "Frames %f",myufo.speed.x);
                 gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
             }
 

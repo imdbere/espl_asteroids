@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aaron/Dokumente/espl_asteroids
+CMAKE_SOURCE_DIR = /home/adamos/ESPL/espl_asteroids
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aaron/Dokumente/espl_asteroids
+CMAKE_BINARY_DIR = /home/adamos/ESPL/espl_asteroids
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles /home/aaron/Dokumente/espl_asteroids/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles /home/adamos/ESPL/espl_asteroids/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

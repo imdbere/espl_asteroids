@@ -18,6 +18,7 @@ void updateUfo(struct ufo *myufo)
         myufo->position.x = DISPLAY_SIZE_X;
     if (myufo->position.y < 0)
         myufo->position.y = DISPLAY_SIZE_Y;
+}
 void spawnUfo(struct ufo *myufo, uint8_t isSmall)
 {
     myufo->isActive = 1;
@@ -53,7 +54,7 @@ void ufoShoot(struct ufo *myufo, struct player *myplayer, struct bullet *bullets
     generateBullet(bullets, bulletLength, myufo->position, myufo->speed, shootAngle);
 }
 
-void drawUfo(struct ufo *myufo)
+void drawUfo(struct ufo *myufo, color_t color)
 {
     pointf ufoPosition;
 
@@ -64,6 +65,6 @@ void drawUfo(struct ufo *myufo)
 
     point ufoPoints[] = {{5 * scale, 0 * scale}, {8 * scale, 0 * scale}, {9 * scale, 2 * scale}, {13 * scale, 4 * scale}, {8 * scale, 6 * scale}, {5 * scale, 6 * scale}, {0 * scale, 4 * scale}, {4 * scale, 2 * scale}};
     gdispDrawPoly(ufoPosition.x, ufoPosition.y, ufoPoints, 8, White);
-    gdispDrawLine((4 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, (9 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, White);
-    gdispDrawLine((0 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, (13 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, White);
+    gdispDrawLine((4 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, (9 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, color);
+    gdispDrawLine((0 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, (13 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, color);
 }
