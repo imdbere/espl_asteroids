@@ -34,7 +34,7 @@ void ufoShoot(struct ufo *myufo, struct player *myplayer, struct bullet *bullets
 
     //pointf shootSpeed = scalarMult(toVec(shootAngle), 2.0);
 
-    generateBullet(bullets, bulletLength, myufo->position, myufo->speed, shootAngle);
+    generateBullet(bullets, bulletLength, shootAngle, myufo->position, myufo->speed);
 }
 
 void drawUfo(struct ufo *myufo)

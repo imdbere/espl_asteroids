@@ -1,7 +1,7 @@
 #include "includes.h"
 #include "math.h"
 
-pointf addPoints(pointf p1, pointf p2);
+pointf addVec(pointf p1, pointf p2);
 uint8_t cirlceTouchingCircle(pointf pos1, float rad1, pointf pos2, float rad2);
 float floatMod(float a, float b);
 float lerp_angle(float from, float to, float weight);

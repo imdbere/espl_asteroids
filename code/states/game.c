@@ -1,6 +1,7 @@
 #include "states/game.h"
 #include "includes.h"
 #include "asteroids.h"
+#include "bullets.h"
 #include "input.h"
 #include "math.h"
 #include "sm.h"
@@ -150,21 +151,21 @@ void gameDrawTask(void* data)
             
             if (thrustOn) 
             {
-                float angleRad = atan2f(-buttons.joystick.x, buttons.joystick.y);
+                float angleRad = atan2f(-buttons.joystick.y, buttons.joystick.x);
                 float t = 0.1;
 
                 lastAngleRad = lerp_angle(lastAngleRad, angleRad, t);
             }
 
-            float angle = lastAngleRad * 180 / M_PI;
-
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
             {
                 if (buttons.C.risingEdge)
                 {
-                    generateBullet(bullets, sizeof(bullets), player.position, player.speed, lastAngleRad);
+                    generateBullet(bullets, sizeof(bullets), lastAngleRad, player.position, player.speed);
                 }
             }
+
+            float angle = lastAngleRad * 180 / M_PI;
 
             // FPS counter
 			TickType_t nowTime = xTaskGetTickCount();
@@ -206,8 +207,8 @@ void gameDrawTask(void* data)
             point points[] = {{-8,0}, {8,0}, {0,20}, {-5, 0}, {5, 0}, {0, -flameLength-5}};
             for (int i = 0; i<pointCount; i++)
             {
-                int newX = rotatePointX(points[i].x, points[i].y, lastAngleRad);
-                int newY = rotatePointY(points[i].x, points[i].y, lastAngleRad);
+                int newX = rotatePointX(points[i].x, points[i].y, lastAngleRad - M_PI/2);
+                int newY = rotatePointY(points[i].x, points[i].y, lastAngleRad - M_PI/2);
                 points[i] = (point){newX, newY};
             }
 

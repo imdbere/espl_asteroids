@@ -7,7 +7,7 @@ int rotatePointX (int x, int y, float angle)
 
 int rotatePointY (int x, int y, float angle) 
 {
-    return (int) (sin(angle)*(x ) + cos(angle)*(y )) ;
+    return -(int) (sin(angle)*(x ) + cos(angle)*(y )) ;
 }
 
 /*float lerp_angle(float a, float b, float t)
@@ -36,7 +36,7 @@ float lerp_angle(float from, float to, float weight)
     return from + short_angle_dist(from, to) * weight;
 }
 
-pointf addPoints(pointf p1, pointf p2)
+pointf addVec(pointf p1, pointf p2)
 {
     pointf p = {p1.x + p2.x, p1.y + p2.y};
     return p;
@@ -74,7 +74,7 @@ float toAngle(pointf vec)
 
 pointf toVec(float angle)
 {
-	return (pointf) {-cos(angle), sin(angle)};
+	return (pointf) {cos(angle), -sin(angle)};
 }
 
 pointf scalarMult(pointf vec, float scal)
@@ -82,7 +82,7 @@ pointf scalarMult(pointf vec, float scal)
 	return (pointf) {vec.x * scal, vec.y * scal};
 }
 
-void* __attribute__((optimize("O0")))  searchForFreeSpace(void *buffer, size_t structLength, size_t arrayLength)
+void* searchForFreeSpace(void *buffer, size_t structLength, size_t arrayLength)
 {
     int i =0;
     uint8_t* data = (uint8_t*) buffer;
@@ -93,7 +93,7 @@ void* __attribute__((optimize("O0")))  searchForFreeSpace(void *buffer, size_t s
            break;
     }
 
-    if (i != arrayLength)
+    if (i < arrayLength)
     {
         return (void*) buffer + i;
     }
