@@ -23,6 +23,10 @@ char str[100];
 char playerName[10] = "";
 int framesPerSecond = 0;
 
+int randRange(int lower, int upper)
+{
+    return (rand() % (upper - lower + 1)) + lower;
+}
 
 void mainMenuInit()
 {
@@ -62,12 +66,18 @@ void mainMenuDrawTask(void *data)
     generateAsteroids(&asteroids, asteroidCount, asteroidCount, (pointf){0, 0}, 20);
     struct buttons buttons;
 
+    struct userScore UserScore[10];
+
+    UserScore[0].name[10] = "Adam";
 
     //UFo
+    int updateSpeedTime = 0;
     struct ufo myufo;
     initUfo(&myufo);
     myufo.position.x = 63;
     myufo.position.y = 33;
+    myufo.speed.x = 3;
+    myufo.speed.y = 2;
     myufo.size = 2;
 
     //Drawing Menu
@@ -87,6 +97,10 @@ void mainMenuDrawTask(void *data)
 
     //hight score
     uint8_t showHighScore = 0;
+
+    //multiplayer mode
+    uint8_t isMuliPlayer = 0;
+
     //gdispImageOpenFile(&myImage, "sprites.png");
     // gdispImageClose(&myImage);
 
@@ -97,8 +111,18 @@ void mainMenuDrawTask(void *data)
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
         {
             gdispClear(Black);
-            drawAsteroids(&asteroids, asteroidCount, HTML2COLOR(0xb3b3b3));
+            drawAsteroids(&asteroids, asteroidCount, Gray);
+            updateAsteroids(&asteroids, asteroidCount);
             drawUfo(&myufo);
+            updateUfo(&myufo);
+            updateSpeedTime++;
+            if(updateSpeedTime > 200)
+            {
+                updateSpeedTime = 0;
+                myufo.speed.x = randRange(10,30)/10;
+                myufo.speed.y = randRange(10,30)/10;
+            }
+            // xTaskGetTickCount
 
             //gdispImageDraw(&myImage, 30, 30, 28, 25, 0, 56);
             //gdispImageDraw(&titleImage, 30, 30, 210, 40, 0, 0);
@@ -109,9 +133,13 @@ void mainMenuDrawTask(void *data)
                 {
                     if (selected == 0)
                     {
-
                         xQueueSend(state_queue, &gameStateId, 0);
                     }
+                    else if( selected == 1)
+                    {
+                        isMuliPlayer = !isMuliPlayer;                     
+                    }
+                    
                     else if (selected == 2 && !showHighScore)
                     {
                         debug = 1;
@@ -145,16 +173,22 @@ void mainMenuDrawTask(void *data)
                         while (playerName[i] != NULL)
                         {
                             i++;
-                        }
+                        }                            /*  else if (playerName[nameCharIndex] == 74 || playerName[nameCharIndex] == 75)
+                            {
+                                nameShipOffset -= 5;
+                                playerName[nameCharIndex]--;
+                            } */
                         // debug = i;
                         if (i > 0)
                         {
                             playerName[i - 1] = NULL;
                         }
-                        if (nameCharIndex == i-1)
+                        if (nameCharIndex == i - 1)
                         {
                             nameShipOffset -= 12;
+                            nameCharIndex --;
                         }
+                        
                     }
                     else if (showHighScore)
                     {
@@ -185,11 +219,6 @@ void mainMenuDrawTask(void *data)
                             {
                                 playerName[nameCharIndex] = 90;
                             }
-                            /*  else if (playerName[nameCharIndex] == 74 || playerName[nameCharIndex] == 75)
-                            {
-                                nameShipOffset -= 5;
-                                playerName[nameCharIndex]--;
-                            } */
                             else
                             {
                                 playerName[nameCharIndex]--;
@@ -209,11 +238,6 @@ void mainMenuDrawTask(void *data)
                             {
                                 playerName[nameCharIndex] = 65;
                             }
-                            /* else if (playerName[nameCharIndex] == 72 || playerName[nameCharIndex] == 73)
-                            {
-                                nameShipOffset -= 5;
-                                playerName[nameCharIndex]++;
-                            } */
                             else
                             {
                                 playerName[nameCharIndex]++;
@@ -261,9 +285,10 @@ void mainMenuDrawTask(void *data)
                                     if (nameShipOffset < 0)
                                     {
                                         nameShipOffset = 0;
+                                        
                                     }
-                                }
-                                nameCharIndex -= 1;
+                                    nameCharIndex -= 1;
+                                }      
                             }
                         }
                     }
@@ -328,8 +353,11 @@ void mainMenuDrawTask(void *data)
                 sprintf(str, "Mode:");
                 gdispDrawString(TextOffset + selectedOffsetX[1], 90, str, font16, White);
                 int offset = gdispGetStringWidth(str, font16);
-
-                sprintf(str, "  Single Player");
+                
+                if(isMuliPlayer)
+                    sprintf(str, "  Multiplayer");
+                else
+                    sprintf(str, "  Singleplayer");
                 gdispDrawString(TextOffset + offset + selectedOffsetX[1], 90, str, font16, White);
 
                 sprintf(str, "High Score");
@@ -339,7 +367,7 @@ void mainMenuDrawTask(void *data)
                 gdispDrawString(TextOffset + selectedOffsetX[3], 150, str, font16, White);
                 gdispDrawString(TextOffset + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, playerName, font16, White);
 
-                sprintf(str, "Frames %i : %i", selected, debug);
+                sprintf(str, "Frames %i", framesPerSecond++);
                 gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
             }
 

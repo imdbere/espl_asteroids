@@ -57,6 +57,26 @@ void generateAsteroids(struct asteroid *asteroids, int maxAsteroidCount, int ast
     }
 }
 
+void updateAsteroids(struct asteroid *asteroids, int asteroidCount)
+{
+    for (int j = 0; j < asteroidCount; j++)
+    {
+        struct asteroid asteroid = asteroids[j];
+        if (!asteroid.isActive) continue;
+        asteroids[j].position.x += asteroid.speed.x;
+        asteroids[j].position.y += asteroid.speed.y;
+        
+        if (asteroids[j].position.x > DISPLAY_SIZE_X)
+            asteroids[j].position.x = 0;
+        if (asteroids[j].position.y > DISPLAY_SIZE_Y)
+            asteroids[j].position.y = 0;
+        if (asteroids[j].position.x < 0)
+            asteroids[j].position.x = DISPLAY_SIZE_X;
+        if (asteroids[j].position.y < 0)
+            asteroids[j].position.y = DISPLAY_SIZE_Y;
+    }
+}
+
 void drawAsteroids(struct asteroid *asteroids, int asteroidCount, color_t color)
 {
     for (int j = 0; j < asteroidCount; j++)
@@ -76,16 +96,6 @@ void drawAsteroids(struct asteroid *asteroids, int asteroidCount, color_t color)
                 asteroid.vertices[nextVertex].y + asteroid.position.y,
                 color);
         }
-        if (asteroids[j].position.x > DISPLAY_SIZE_X)
-            asteroids[j].position.x = 0;
-        if (asteroids[j].position.y > DISPLAY_SIZE_Y)
-            asteroids[j].position.y = 0;
-        if (asteroids[j].position.x < 0)
-            asteroids[j].position.x = DISPLAY_SIZE_X;
-        if (asteroids[j].position.y < 0)
-            asteroids[j].position.y = DISPLAY_SIZE_Y;
-
-        asteroids[j].position.x += asteroid.speed.x;
-        asteroids[j].position.y += asteroid.speed.y;
+        
     }
 }
