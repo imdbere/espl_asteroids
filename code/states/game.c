@@ -1,10 +1,13 @@
 #include "states/game.h"
 #include "includes.h"
 #include "asteroids.h"
+#include "bullets.h"
 #include "input.h"
 #include "math.h"
 #include "sm.h"
 #include "states/states.h"
+#include "stdlib.h"
+#include "ufo.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
 
@@ -96,44 +99,32 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
 
 void gameDrawTask(void* data)
 {
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    char str[100];    
+
+    //Game Stats
+    int gameStartLifes = 10;
+
+    struct buttons buttons;
+
     //all about asteroid
     int maxAsteroidCount = MAX_ASTEROID_COUNT_GAME;
     int initialAsteroidCount = 7;
     struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME] = {{0}};
+    generateAsteroids((struct asteroid*) &asteroids, sizeof(asteroids), initialAsteroidCount, (pointf){0, 0}, 20);
 
-    generateAsteroids(&asteroids, sizeof(asteroids), initialAsteroidCount, (pointf){0, 0}, 20);
-
-    //Game Stats
-    
-    int gameStartLifes = 10;
-
-    int i = 0;
-    struct buttons buttons;
-    char str[100];
-    gdispImageOpenFile(&spriteSheet, "sprites.bmp");
-    gdispImageCache(&spriteSheet);
-
-    struct player player = {0, {100, 100}, {0, 0}, 20, 5};
-    float shipMaxSpeed = 2;
-    //float maxSpeedY = 2;
-
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-
-    GDisplay* pixmap = gdispPixmapCreate(40, 40);
-    pixel_t* surface = gdispPixmapGetBits(pixmap);
-
-    displayShip(pixmap, 10, 10, 0);
-
-    GDisplay* pixmap1 = gdispPixmapCreate(60, 60);
-    pixel_t* surface1 = gdispPixmapGetBits(pixmap);
-
-    float angle = 45 * M_PI / 180;
-    float lastAngleRad = 0;
-
+    // bullets
     int maxNumBullets = 10;
     struct bullet bullets[maxNumBullets];
-    //List* bulletList = makelist();
-    
+
+    // player
+    float shipMaxSpeed = 2;
+    float lastAngleRad = 0;
+    struct player player = {0, {100, 100}, {0, 0}, 20, 5};
+
+    struct ufo ufo;
+    spawnUfo(&ufo, TRUE);
+
     while (1)
     {
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
@@ -141,36 +132,40 @@ void gameDrawTask(void* data)
             gdispClear(Black);
             //gdispClear(White);
 
-            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player);
             //draw asteroids
-            drawAsteroids(&asteroids, maxAsteroidCount, White);
-            updateAsteroids(&asteroids, maxAsteroidCount);
+            updateAsteroids((struct asteroid*) &asteroids, maxAsteroidCount);
+            drawAsteroids((struct asteroid*) &asteroids, maxAsteroidCount, White);
+
+            updateUfo(&ufo);
+            drawUfo(&ufo, Red);
+
+            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player);
 
             uint8_t thrustOn = buttons.joystick.x != 0 || buttons.joystick.y != 0;
 
             
             if (thrustOn) 
             {
-                float angleRad = atan2f(-buttons.joystick.x, buttons.joystick.y);
+                float angleRad = atan2f(-buttons.joystick.y, buttons.joystick.x);
                 float t = 0.1;
 
                 lastAngleRad = lerp_angle(lastAngleRad, angleRad, t);
             }
 
-            float angle = lastAngleRad * 180 / M_PI;
-
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
             {
                 if (buttons.C.risingEdge)
                 {
-                    generateBullet(bullets, sizeof(bullets), player.position, player.speed, lastAngleRad);
+                    generateBullet(bullets, sizeof(bullets), lastAngleRad, player.position, player.speed);
                 }
             }
+
+            float angle = lastAngleRad * 180 / M_PI;
 
             // FPS counter
 			TickType_t nowTime = xTaskGetTickCount();
 			uint16_t fps = 1000/ (nowTime - xLastWakeTime);
-            snprintf(str, 100, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f", fps, buttons.joystick.x, buttons.joystick.y, angle, i++, player.speed.x, player.speed.y);	
+            snprintf(str, 100, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f", fps, buttons.joystick.x, buttons.joystick.y, angle, player.speed.x, player.speed.y);	
             gdispDrawString(DISPLAY_SIZE_X - gdispGetStringWidth(str, font1) - 10, DISPLAY_SIZE_Y - 20 , str, font1, White);
 
             for (int i=0; i<maxNumBullets; i++)
@@ -207,8 +202,8 @@ void gameDrawTask(void* data)
             point points[] = {{-8,0}, {8,0}, {0,20}, {-5, 0}, {5, 0}, {0, -flameLength-5}};
             for (int i = 0; i<pointCount; i++)
             {
-                int newX = rotatePointX(points[i].x, points[i].y, lastAngleRad);
-                int newY = rotatePointY(points[i].x, points[i].y, lastAngleRad);
+                int newX = rotatePointX(points[i].x, points[i].y, lastAngleRad - M_PI/2);
+                int newY = rotatePointY(points[i].x, points[i].y, lastAngleRad - M_PI/2);
                 points[i] = (point){newX, newY};
             }
 

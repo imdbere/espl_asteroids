@@ -10,7 +10,8 @@ struct ufo
     int size;
 };
 
-//void generateUfo(struct ufo* ufo);
-void initUfo(struct ufo *ufo);
+void changeUfoSpeed(struct ufo *myufo);
+void drawUfo(struct ufo *myufo, color_t color);
+void spawnUfo(struct ufo *myufo, uint8_t isSmall);
+void ufoShoot(struct ufo *myufo, struct player *myplayer, struct bullet *bullets, size_t bulletLength);
 void updateUfo(struct ufo *myufo);
-void drawUfo(struct ufo* ufo, color_t color);

@@ -1,7 +1,7 @@
 #include "asteroids.h"
 #include "includes.h"
 
-void __attribute__((optimize("O0")))  generateAsteroids(struct asteroid *asteroids, int maxAsteroidCount, int asteroidsCount, pointf pos, int radius)
+void generateAsteroids(struct asteroid *asteroids, int maxAsteroidCount, int asteroidsCount, pointf pos, int radius)
 {
     int upper = radius / 2;
     int lower = radius / 2 * (-1);

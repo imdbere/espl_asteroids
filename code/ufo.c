@@ -2,8 +2,16 @@
 #include "includes.h"
 #include "bullets.h"
 
-void initUfo(struct ufo *myufo)
+void spawnUfo(struct ufo *myufo, uint8_t isSmall)
 {
+    myufo->isActive = 1;
+    myufo->position = (pointf) {
+        randRange(0, DISPLAY_SIZE_X), 
+        randRange(0, DISPLAY_SIZE_Y)
+    };
+
+    changeUfoSpeed(myufo);
+    myufo->size = isSmall ? 3 : 5;
 }
 
 void updateUfo(struct ufo *myufo)
@@ -18,17 +26,6 @@ void updateUfo(struct ufo *myufo)
         myufo->position.x = DISPLAY_SIZE_X;
     if (myufo->position.y < 0)
         myufo->position.y = DISPLAY_SIZE_Y;
-}
-void spawnUfo(struct ufo *myufo, uint8_t isSmall)
-{
-    myufo->isActive = 1;
-    myufo->position = (pointf) {
-        randRange(0, DISPLAY_SIZE_X), 
-        randRange(0, DISPLAY_SIZE_Y)
-    };
-
-    changeUfoSpeed(myufo);
-    myufo->size = isSmall ? 3 : 5;
 }
 
 void changeUfoSpeed(struct ufo *myufo)
@@ -51,7 +48,7 @@ void ufoShoot(struct ufo *myufo, struct player *myplayer, struct bullet *bullets
 
     //pointf shootSpeed = scalarMult(toVec(shootAngle), 2.0);
 
-    generateBullet(bullets, bulletLength, myufo->position, myufo->speed, shootAngle);
+    generateBullet(bullets, bulletLength, shootAngle, myufo->position, myufo->speed);
 }
 
 void drawUfo(struct ufo *myufo, color_t color)
