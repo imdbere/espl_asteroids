@@ -13,12 +13,14 @@
 
 TaskHandle_t drawTaskHandle;
 TaskHandle_t generateAsteroidsHandle;
+QueueHandle_t score_queue;
 
 void gameInit()
 {
     xTaskCreate(gameDrawTask, "gameDrawTask", 3000, NULL, 3, &drawTaskHandle);
     //XTaskCreate(generateAsteroid, "generateAsteroidsHandle", 3000, NULL, &generateAsteroidsHandle);
     vTaskSuspend(drawTaskHandle);
+    score_queue = xQueueCreate(1, sizeof(struct player));
 }
 
 void gameEnter() 
@@ -87,6 +89,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
                 player->health -= 1;
             if (player->health <= 0)  
             {
+                xQueueSend(score_queue, player, 0);
                 xQueueSend(state_queue, &mainMenuStateId, 0);
             }
         }
@@ -121,6 +124,9 @@ void gameDrawTask(void* data)
     float shipMaxSpeed = 2;
     float lastAngleRad = 0;
     struct player player = {0, {100, 100}, {0, 0}, 20, 5};
+
+    xQueueReceive(name_queue, &player.name, 0);
+    
 
     struct ufo ufo;
     spawnUfo(&ufo, TRUE);

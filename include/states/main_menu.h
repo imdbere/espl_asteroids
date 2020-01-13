@@ -8,7 +8,6 @@ void mainMenuEnter();
 void mainMenuExit();
 void mainMenuDrawTask(void* data);
 
-extern QueueHandle_t name_queue;
 struct userScore
 {
     char name[10];

@@ -39,6 +39,11 @@
 		 _a > _b ? _a : _b; })
 		 
 extern SemaphoreHandle_t DrawReady;
+
+
+extern QueueHandle_t score_queue;
+extern QueueHandle_t name_queue;
+
 extern font_t font1;
 extern font_t font12;
 extern font_t font16;
