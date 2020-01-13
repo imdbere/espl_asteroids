@@ -60,10 +60,9 @@ void setName(void)
 
 void mainMenuDrawTask(void *data)
 {
-
     int asteroidCount = MAX_ASTEROID_COUNT_MENU;
     struct asteroid asteroids[MAX_ASTEROID_COUNT_MENU] = {{0}};
-    generateAsteroids(&asteroids, asteroidCount, asteroidCount, (pointf){0, 0}, 20);
+    generateAsteroids(&asteroids, sizeof(asteroids), asteroidCount, (pointf){0, 0}, 20);
     struct buttons buttons;
 
     struct userScore UserScore[10];
@@ -73,7 +72,7 @@ void mainMenuDrawTask(void *data)
     //UFo
     int updateSpeedTime = 0;
     struct ufo myufo;
-    initUfo(&myufo);
+    //initUfo(&myufo);
     myufo.position.x = 63;
     myufo.position.y = 33;
     myufo.speed.x = 3;

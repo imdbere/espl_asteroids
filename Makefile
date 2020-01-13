@@ -1681,6 +1681,33 @@ code/asteroids.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/asteroids.c.s
 .PHONY : code/asteroids.c.s
 
+code/bullets.o: code/bullets.c.o
+
+.PHONY : code/bullets.o
+
+# target to build an object file
+code/bullets.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/bullets.c.o
+.PHONY : code/bullets.c.o
+
+code/bullets.i: code/bullets.c.i
+
+.PHONY : code/bullets.i
+
+# target to preprocess a source file
+code/bullets.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/bullets.c.i
+.PHONY : code/bullets.c.i
+
+code/bullets.s: code/bullets.c.s
+
+.PHONY : code/bullets.s
+
+# target to generate assembly for a file
+code/bullets.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/bullets.c.s
+.PHONY : code/bullets.c.s
+
 code/callbacks.o: code/callbacks.c.o
 
 .PHONY : code/callbacks.o
@@ -1842,6 +1869,33 @@ code/states/main_menu.s: code/states/main_menu.c.s
 code/states/main_menu.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/main_menu.c.s
 .PHONY : code/states/main_menu.c.s
+
+code/tools.o: code/tools.c.o
+
+.PHONY : code/tools.o
+
+# target to build an object file
+code/tools.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/tools.c.o
+.PHONY : code/tools.c.o
+
+code/tools.i: code/tools.c.i
+
+.PHONY : code/tools.i
+
+# target to preprocess a source file
+code/tools.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/tools.c.i
+.PHONY : code/tools.c.i
+
+code/tools.s: code/tools.c.s
+
+.PHONY : code/tools.s
+
+# target to generate assembly for a file
+code/tools.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/tools.c.s
+.PHONY : code/tools.c.s
 
 code/uart.o: code/uart.c.o
 
@@ -2076,6 +2130,9 @@ help:
 	@echo "... code/asteroids.o"
 	@echo "... code/asteroids.i"
 	@echo "... code/asteroids.s"
+	@echo "... code/bullets.o"
+	@echo "... code/bullets.i"
+	@echo "... code/bullets.s"
 	@echo "... code/callbacks.o"
 	@echo "... code/callbacks.i"
 	@echo "... code/callbacks.s"
@@ -2094,6 +2151,9 @@ help:
 	@echo "... code/states/main_menu.o"
 	@echo "... code/states/main_menu.i"
 	@echo "... code/states/main_menu.s"
+	@echo "... code/tools.o"
+	@echo "... code/tools.i"
+	@echo "... code/tools.s"
 	@echo "... code/uart.o"
 	@echo "... code/uart.i"
 	@echo "... code/uart.s"
