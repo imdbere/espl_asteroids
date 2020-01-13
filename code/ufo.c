@@ -16,6 +16,11 @@ void spawnUfo(struct ufo *myufo, uint8_t isSmall)
 
 void updateUfo(struct ufo *myufo)
 {
+    if (randRange(0, 1000) < 10)
+    {
+        changeUfoSpeed(myufo, 1);
+    }
+
     myufo->position.x += myufo->speed.x;
     myufo->position.y += myufo->speed.y;
     if (myufo->position.x > DISPLAY_SIZE_X)

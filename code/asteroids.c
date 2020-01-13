@@ -1,7 +1,7 @@
 #include "asteroids.h"
 #include "includes.h"
 
-void generateAsteroids(struct asteroid *asteroids, int maxAsteroidCount, int asteroidsCount, pointf pos, int radius)
+void generateAsteroids(struct asteroid *asteroids, int asteroidsLength, int asteroidsCount, pointf pos, int radius)
 {
     int upper = radius / 2;
     int lower = radius / 2 * (-1);
@@ -11,7 +11,7 @@ void generateAsteroids(struct asteroid *asteroids, int maxAsteroidCount, int ast
 
     for (int j = 0; j < asteroidsCount; j++)
     {
-        struct asteroid* newAsteroid = (struct asteroid*) searchForFreeSpace(asteroids, sizeof(struct asteroid), maxAsteroidCount);
+        struct asteroid* newAsteroid = (struct asteroid*) searchForFreeSpace(asteroids, sizeof(struct asteroid), asteroidsLength);
 
         // Free space available
         if (newAsteroid != NULL)
