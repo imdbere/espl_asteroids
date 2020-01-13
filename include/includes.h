@@ -66,6 +66,7 @@ struct player
     uint8_t isActive;
     pointf position;
     pointf speed;
+    float angleRad;
     float colliderRadius;
     int health;
 	int score;

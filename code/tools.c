@@ -123,3 +123,14 @@ void* searchForFreeSpace(void *buffer, size_t structLength, size_t arrayLength)
 
     return NULL;
 }
+
+void inactivateArray(void *buffer, size_t structLength, size_t arrayLength)
+{
+    int i =0;
+    uint8_t* data = (uint8_t*) buffer;
+
+    for (i=0; i<arrayLength; i+=structLength)
+    {
+        data[i] = 0;
+    }
+}

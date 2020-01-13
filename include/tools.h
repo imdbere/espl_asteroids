@@ -18,3 +18,4 @@ pointf randVect(float lower, float upper);
 float mag(pointf vec);
 float normalizeAngle(float angle);
 void* searchForFreeSpace(void *buffer, size_t structLength, size_t arrayLength);
+void inactivateArray(void *buffer, size_t structLength, size_t arrayLength);
