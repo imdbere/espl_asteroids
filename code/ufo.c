@@ -10,7 +10,7 @@ void spawnUfo(struct ufo *myufo, uint8_t isSmall)
         randRange(0, DISPLAY_SIZE_Y)
     };
 
-    changeUfoSpeed(myufo);
+    changeUfoSpeed(myufo, 1);
     myufo->size = isSmall ? 3 : 5;
 }
 
@@ -28,27 +28,45 @@ void updateUfo(struct ufo *myufo)
         myufo->position.y = DISPLAY_SIZE_Y;
 }
 
-void changeUfoSpeed(struct ufo *myufo)
+void changeUfoSpeed(struct ufo *myufo, float maxSpeed)
 {
     myufo->speed = (pointf) {
-        randRange(-2, 2), 
-        randRange(-2, 2)
+        randRange(-maxSpeed, maxSpeed), 
+        randRange(-maxSpeed, maxSpeed)
     };
 }
 
-void ufoShoot(struct ufo *myufo, struct player *myplayer, struct bullet *bullets, size_t bulletLength)
+uint8_t ufoShouldShoot(struct ufo *myufo)
+{
+    //TickType_t currentTicks = xTaskGetTickCount();
+    // 1/50 chance
+    if (randRange(0, 1000) < 25)
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+void __attribute__((optimize("O0")))  ufoShoot(struct ufo *myufo, struct player *myplayer, struct bullet *bullets, size_t bulletLength)
 {
     pointf positionDifference = (pointf) {
         myplayer->position.x - myufo->position.x,
         myplayer->position.y - myufo->position.y,
     };
 
-    float targetAngle = toAngle(positionDifference);
-    float shootAngle = randRangef(targetAngle - 5, targetAngle + 5);
+    float bulletSpeed = 3.0;
+    // Player movement prediction
+    // Not working correctly, TODO!
+    float alpha = short_angle_dist(toAngle(positionDifference), toAngle(myplayer->speed));
+    float targetAngle = toAngle(positionDifference) + (alpha * mag(myplayer->speed) / bulletSpeed);
+    //float shootJitterDegrees = 5;
+    //float shootJitterRad = shootJitterDegrees / 180 * M_PI;
+
+    //float shootAngle = randRangef(targetAngle - shootJitterRad , targetAngle + shootJitterRad);
 
     //pointf shootSpeed = scalarMult(toVec(shootAngle), 2.0);
 
-    generateBullet(bullets, bulletLength, shootAngle, myufo->position, myufo->speed);
+    generateBullet(bullets, bulletLength, targetAngle, bulletSpeed, 0.0, myufo->position, myufo->speed, FROM_UFO);
 }
 
 void drawUfo(struct ufo *myufo, color_t color)

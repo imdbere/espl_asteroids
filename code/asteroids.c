@@ -22,15 +22,19 @@ void generateAsteroids(struct asteroid *asteroids, int maxAsteroidCount, int ast
             newAsteroid->segmentCount = segmentCount;
             newAsteroid->position = (pointf) {
                 randRange(pos.x - positionRandomness, pos.x + positionRandomness), 
-                randRange(pos.y - positionRandomness, pos.y + positionRandomness)};
-            newAsteroid->speed.x = (randRange(-50, 50)) / 50.0;
-            newAsteroid->speed.y = (randRange(-50, 50)) / 50.0;
+                randRange(pos.y - positionRandomness, pos.y + positionRandomness)
+            };
+            newAsteroid->speed = (pointf) {
+                randRange(-50, 50) / 50.0, 
+                randRange(-50, 50) / 50.0
+            };
             newAsteroid->radius = radius;
 
             for (int i = 0; i < segmentCount; i++)
             {
                 point vertex;
 
+                //vertex = scalarMult(toVec(current), radius);
                 vertex.x = sin(current) * radius;
                 vertex.y = cos(current) * radius;
                 //Add Strange numbers

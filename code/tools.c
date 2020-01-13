@@ -67,9 +67,17 @@ int randRangef(float lower, float upper)
     return (rand() / 65536.0 * (upper - lower)) + lower;
 }
 
+pointf randVect(float lower, float upper)
+{
+    return (pointf) {
+        randRangef(lower, upper),
+        randRangef(lower, upper)
+    };
+}
+
 float toAngle(pointf vec)
 {
-	return atan2f(-vec.x, vec.y);
+	return atan2f(-vec.y, vec.x);
 }
 
 pointf toVec(float angle)
@@ -80,6 +88,21 @@ pointf toVec(float angle)
 pointf scalarMult(pointf vec, float scal)
 {
 	return (pointf) {vec.x * scal, vec.y * scal};
+}
+
+float mag(pointf vec)
+{
+    return sqrtf(square(vec.x) + square(vec.y));
+}
+
+float normalizeAngle(float angle)
+{
+    if (angle > M_PI)
+        return 2*M_PI - angle;
+    if (angle < -M_PI)
+        return 2*M_PI + angle;
+    
+    return angle;
 }
 
 void* searchForFreeSpace(void *buffer, size_t structLength, size_t arrayLength)

@@ -14,4 +14,7 @@ float short_angle_dist(float from, float to);
 float square(float nr);
 float toAngle(pointf vec);
 pointf toVec(float angle);
+pointf randVect(float lower, float upper);
+float mag(pointf vec);
+float normalizeAngle(float angle);
 void* searchForFreeSpace(void *buffer, size_t structLength, size_t arrayLength);
