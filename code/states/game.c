@@ -147,10 +147,9 @@ void gameDrawTask(void* data)
     // player
     float shipMaxSpeed = 2;
     float lastAngleRad = 0;
-    struct player player = {0, {100, 100}, {0, 0}, 20, 5};
+    struct player player = {0, {100, 100}, {0, 0}, 20, 5, 0};
 
     xQueueReceive(name_queue, &player.name, 0);
-    
 
     struct ufo ufo;
     spawnUfo(&ufo, TRUE);

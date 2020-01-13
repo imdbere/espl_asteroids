@@ -12,10 +12,13 @@
 #include <stdlib.h>
 #include <time.h>
 
+#define MAX_ASTEROID_COUNT_MENU 5
+
 TaskHandle_t mainMenuTaskHandle;
 QueueHandle_t name_queue;
 struct userScore userScores[10];
 char debugStr[40];
+
 void mainMenuInit()
 {
     xTaskCreate(mainMenuDrawTask, "mainMenuDrawTask", 2000, NULL, 3, &mainMenuTaskHandle);
@@ -34,7 +37,7 @@ void mainMenuEnter()
     struct player player;
     // sprintf(player.name, "Max");
     // player.score = 1005265;
-    if(xQueueReceive(score_queue, &player, 0) == pdTRUE)
+    if (xQueueReceive(score_queue, &player, 0) == pdTRUE)
     {
         sprintf(debugStr, "%i", player.score);
         for (int i = 0; i < 10; i++)
@@ -48,17 +51,15 @@ void mainMenuEnter()
         int i = 0;
         while (player.score < userScores[i].score)
         {
-             i++;
+            i++;
         }
         sprintf(userScores[i].name, player.name);
         userScores[i].score = player.score;
- 
     }
     else
     {
         sprintf(debugStr, "false");
     }
-    
 }
 
 void mainMenuExit()
@@ -69,9 +70,146 @@ void mainMenuExit()
     //xSemaphoreGive(g->mutex);
 }
 
-#define MAX_ASTEROID_COUNT_MENU 5
+void dispHighScore(int TextOffset)
+{
+    char str[100];
+    sprintf(str, "Highscore");
+    gdispDrawString(TextOffset - 5, 10, str, font32, White);
+    font_t myFont;
+    int highscorOffsetY = 70;
 
-void setName(void)
+    for (int i = 0; i < 10; i++)
+    {
+        if (i == 0)
+            myFont = font24;
+        else if (i == 1)
+            myFont = font20;
+        else if (i == 2)
+            myFont = font16;
+        else
+            myFont = font12;
+        sprintf(str, "%i", i + 1);
+        gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
+        sprintf(str, userScores[i].name);
+        gdispDrawString(60, highscorOffsetY + (i * 30), str, myFont, White);
+        sprintf(str, "%i", userScores[i].score);
+        gdispDrawString(DISPLAY_SIZE_X - (int)(gdispGetStringWidth(str, myFont) + 20), highscorOffsetY + (i * 30), str, myFont, White);
+    }
+}
+
+void writeName(struct buttons *buttons, struct userNameInput *userName)
+{
+    // int nameCharIndex = *_nameCharIndex;
+    if (buttons->joystick.y < -5)
+    {
+        if (userName->lastJoystickPosition == 0)
+        {
+            userName->lastJoystickPosition = 1;
+            if (userName->name[userName->charIndex] == 'A')
+            {
+                userName->name[userName->charIndex] = '9';
+            }
+            else if (userName->name[userName->charIndex] == '0')
+            {
+                userName->name[userName->charIndex] = 'Z';
+            }
+            else
+            {
+                userName->name[userName->charIndex]--;
+            }
+        }
+    }
+    else if (buttons->joystick.y > 5) //Move Down
+    {
+        if (userName->lastJoystickPosition == 0)
+        {
+            userName->lastJoystickPosition = 1;
+            if (userName->name[userName->charIndex] == 'Z')
+            {
+                userName->name[userName->charIndex] = '0';
+            }
+            else if (userName->name[userName->charIndex] == '9')
+            {
+                userName->name[userName->charIndex] = 'A';
+            }
+            else
+            {
+                userName->name[userName->charIndex]++;
+            }
+        }
+    }
+    else if (buttons->joystick.x > 0) //Move Right
+    {
+        if (userName->lastJoystickPosition == 0)
+        {
+            userName->lastJoystickPosition = 1;
+            if (userName->charIndex < 10)
+            {
+                if (userName->name[userName->charIndex] == 'i' || userName->name[userName->charIndex] == 'j')
+                {
+                    userName->cursorOffset += 2;
+                }
+                else
+                {
+                    userName->cursorOffset += 12;
+                }
+                userName->charIndex += 1;
+
+                if (userName->name[userName->charIndex] == '\0')
+                {
+                    userName->name[userName->charIndex] = 'A';
+                }
+            }
+        }
+    }
+    else if (buttons->joystick.x < 0) //Move Left
+    {
+        if (userName->lastJoystickPosition == 0)
+        {
+            userName->lastJoystickPosition = 1;
+            if (userName->charIndex > 0)
+            {
+                if (userName->name[userName->charIndex] == 'i' || userName->name[userName->charIndex] == 'j')
+                {
+                    userName->cursorOffset -= 2;
+                }
+                else
+                {
+                    userName->cursorOffset -= 12;
+                    if (userName->cursorOffset < 0)
+                    {
+                        userName->cursorOffset = 0;
+                    }
+                }
+                userName->charIndex -= 1;
+            }
+        }
+    }
+    else
+    {
+        userName->lastJoystickPosition = 0;
+    }
+
+    if (buttons->B.risingEdge) //Delete last Character
+    {
+        int i = 0;
+        while (userName->name[i] != '\0')
+        {
+            i++;
+        }
+        if (i > 0)
+        {
+            userName->name[i - 1] = '\0';
+        }
+        if (userName->charIndex == i - 1 && userName->charIndex > 1)
+        {
+            userName->cursorOffset -= 12;
+            userName->charIndex--;
+        }
+    }
+}
+
+void dispMenu()
 {
 }
 
@@ -101,20 +239,25 @@ void mainMenuDrawTask(void *data)
     int selectorPositionY = 60;
     int selectedOffsetX[4] = {30, 0, 0, 0};
     int selectedBool = 0;
-    int selectedBool2 = 0;
+    // int selectedBool2 = 0;
     int selected = 0;
     //sprintf(str, "Asteroids %i", swidth);
 
     //Writing Name
-    uint8_t writeName = 0;
-    int nameShipOffset = 0;
-    int nameCharIndex = 0;
+    struct userNameInput userName = {{0}};
+
+    // sprintf(userName.name,"");
+    userName.cursorOffset = 0;
+
+    uint8_t writeNameBool = 0;
+    // int nameShipOffset = 0;
+    // int nameCharIndex = 0;
 
     //hight score
-    uint8_t showHighScore = 0;
+    uint8_t showHighScoreBool = 0;
 
     //multiplayer mode
-    uint8_t isMuliPlayer = 0;
+    uint8_t isMuliPlayerBool = 0;
 
     //gdispImageOpenFile(&myImage, "sprites.png");
     // gdispImageClose(&myImage);
@@ -149,260 +292,126 @@ void mainMenuDrawTask(void *data)
                 {
                     if (selected == 0)
                     {
-                        xQueueSend(name_queue, &playerName, 0);
+                        xQueueSend(name_queue, &userName.name, 0);
 
                         xQueueSend(state_queue, &gameStateId, 0);
                     }
                     else if (selected == 1)
                     {
-                        isMuliPlayer = !isMuliPlayer;
+                        isMuliPlayerBool = !isMuliPlayerBool;
                     }
 
-                    else if (selected == 2 && !showHighScore)
+                    else if (selected == 2 && !showHighScoreBool)
                     {
-                        showHighScore = 1;
+                        showHighScoreBool = 1;
                     }
-                    else if (selected == 3 && !writeName)
+                    else if (selected == 3 && !writeNameBool)
                     {
-                        writeName = 1;
-                        if (playerName[0] == '\0')
+                        writeNameBool = 1;
+                        if (userName.name[0] == '\0')
                         {
-                            playerName[0] = 65;
+                            userName.name[0] = 65;
                         }
                         // sprintf(playerName, nameChar);
                     }
-                    else if (writeName)
+                    else if (writeNameBool)
                     {
                         // sprintf(playerName,"Clicked");
-                        writeName = 0;
+                        writeNameBool = 0;
                         // selected = 3;
                     }
-                    else if (showHighScore)
+                    else if (showHighScoreBool)
                     {
-                        showHighScore = 0;
+                        showHighScoreBool = 0;
                     }
                 }
-                else if (buttons.B.risingEdge)
+
+                if (showHighScoreBool)
                 {
-                    if (writeName)
-                    {
-                        int i = 0;
-                        while (playerName[i] != '\0')
-                        {
-                            i++;
-                        }
-                        if (i > 0)
-                        {
-                            playerName[i - 1] = '\0';
-                        }
-                        if (nameCharIndex == i - 1 && nameCharIndex > 1)
-                        {
-                            nameShipOffset -= 12;
-                            nameCharIndex--;
-                        }
-                    }
-                    else if (showHighScore)
-                    {
-                        showHighScore = 0;
-                    }
+                    dispHighScore(TextOffset);
                 }
-            }
-
-            if (showHighScore)
-            {
-                sprintf(str, "Highscore");
-                gdispDrawString(TextOffset - 5, 10, str, font32, White);
-                font_t myFont;
-                int highscorOffsetY = 70;
-
-                for (int i = 0; i < 10; i++)
+                else
                 {
-                    if (i == 0)
-                        myFont = font24;
-                    else if (i == 1)
-                        myFont = font20;
-                    else if (i == 2)
-                        myFont = font16;
-                    else
-                        myFont = font12;
-                    sprintf(str, "%i", i + 1);
-                    gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
-                    sprintf(str, userScores[i].name);
-                    gdispDrawString(60, highscorOffsetY + (i * 30), str, myFont, White);
-                    sprintf(str, "%i", userScores[i].score);
-                    gdispDrawString(DISPLAY_SIZE_X - (int)(gdispGetStringWidth(str, myFont) + 20), highscorOffsetY + (i * 30), str, myFont, White);
-                }
-            }
-            else
-            {
-                if (writeName)
-                {
-                    if (buttons.joystick.y < -5)
+                    if (writeNameBool)
                     {
-                        if (selectedBool2 == 0)
-                        {
-                            selectedBool2 = 1;
-                            if (playerName[nameCharIndex] == 'A')
-                            {
-                                playerName[nameCharIndex] = '9';
-                            }
-                            else if (playerName[nameCharIndex] == '0')
-                            {
-                                playerName[nameCharIndex] = 'Z';
-                            }
-                            else
-                            {
-                                playerName[nameCharIndex]--;
-                            }
-                        }
+                        writeName(&buttons, &userName);
                     }
-                    else if (buttons.joystick.y > 5) //Move Down
-                    {
-                        if (selectedBool2 == 0)
-                        {
-                            selectedBool2 = 1;
-                            if (playerName[nameCharIndex] == 90)
-                            {
-                                playerName[nameCharIndex] = 48;
-                            }
-                            else if (playerName[nameCharIndex] == 57)
-                            {
-                                playerName[nameCharIndex] = 65;
-                            }
-                            else
-                            {
-                                playerName[nameCharIndex]++;
-                            }
-                        }
-                    }
-                    else if (buttons.joystick.x > 0) //Move Right
-                    {
-                        if (selectedBool2 == 0)
-                        {
-                            selectedBool2 = 1;
-                            if (nameCharIndex < 10)
-                            {
-                                if (playerName[nameCharIndex] == 'i' || playerName[nameCharIndex] == 'j')
-                                {
-                                    nameShipOffset += 2;
-                                }
-                                else
-                                {
-                                    nameShipOffset += 12;
-                                }
 
-                                nameCharIndex += 1;
-                                if (playerName[nameCharIndex] == '\0')
-                                {
-                                    playerName[nameCharIndex] = 'A';
-                                }
-                            }
+                    if (buttons.joystick.y < 0 && selectorPositionY > 60 && !writeNameBool)
+                    {
+                        if (selectedBool == 0)
+                        {
+                            selectorPositionY -= 30;
+                            selected--;
+                            selectedOffsetX[selected] = 30;
+                            selectedOffsetX[selected + 1] = 0;
+                            selectedBool = 1;
                         }
                     }
-                    else if (buttons.joystick.x < 0) //Move Left
+                    else if (buttons.joystick.y > 0 && selectorPositionY < 150 && !writeNameBool)
                     {
-                        if (selectedBool2 == 0)
+                        if (selectedBool == 0)
                         {
-                            selectedBool2 = 1;
-                            if (nameCharIndex > 0)
-                            {
-                                if (playerName[nameCharIndex] == 'i' || playerName[nameCharIndex] == 'j')
-                                {
-                                    nameShipOffset -= 2;
-                                    nameCharIndex -= 1;
-                                }
-                                else
-                                {
-                                    nameShipOffset -= 12;
-                                    if (nameShipOffset < 0)
-                                    {
-                                        nameShipOffset = 0;
-                                    }
-                                    nameCharIndex -= 1;
-                                }
-                            }
+                            selectorPositionY += 30;
+                            selected++;
+                            selectedOffsetX[selected] = 30;
+                            selectedOffsetX[selected - 1] = 0;
+                            selectedBool = 1;
                         }
                     }
                     else
                     {
-                        selectedBool2 = 0;
+                        selectedBool = 0;
                     }
-                }
 
-                if (buttons.joystick.y < 0 && selectorPositionY > 60 && !writeName)
-                {
-                    if (selectedBool == 0)
+                    point pointsShip[] = {{0, 0}, {0, 16}, {20, 8}};
+                    point pointsShipVertical[] = {{0, 0}, {-8, 20}, {8, 20}};
+
+                    if (!writeNameBool)
                     {
-                        selectorPositionY -= 30;
-                        selected--;
-                        selectedOffsetX[selected] = 30;
-                        selectedOffsetX[selected + 1] = 0;
-                        selectedBool = 1;
+                        gdispFillConvexPoly(TextOffset, selectorPositionY, pointsShip, 3, White);
                     }
-                }
-                else if (buttons.joystick.y > 0 && selectorPositionY < 150 && !writeName)
-                {
-                    if (selectedBool == 0)
+                    else
                     {
-                        selectorPositionY += 30;
-                        selected++;
-                        selectedOffsetX[selected] = 30;
-                        selectedOffsetX[selected - 1] = 0;
-                        selectedBool = 1;
+                        gdispFillConvexPoly(TextOffset + selectedOffsetX[3] +
+                                                gdispGetStringWidth("Name: ", font16) + 5 +  userName.cursorOffset,
+                                            170,
+                                            pointsShipVertical, 3, White);
                     }
+
+                    sprintf(str, "Asteroids");
+                    gdispDrawString(TextOffset - 5, 10, str, font32, White);
+
+                    sprintf(str, "Start Game");
+                    if (!writeNameBool)
+                    {
+                        gdispDrawString(TextOffset + selectedOffsetX[0] + gdispGetStringWidth(str, font16) + 10, 60, userName.name, font16, White);
+                    }
+                    gdispDrawString(TextOffset + selectedOffsetX[0], 60, str, font16, White);
+
+                    sprintf(str, "Mode:");
+                    gdispDrawString(TextOffset + selectedOffsetX[1], 90, str, font16, White);
+                    int offset = gdispGetStringWidth(str, font16);
+
+                    if (isMuliPlayerBool)
+                        sprintf(str, "  Multiplayer");
+                    else
+                        sprintf(str, "  Singleplayer");
+                    gdispDrawString(TextOffset + offset + selectedOffsetX[1], 90, str, font16, White);
+
+                    sprintf(str, "High Score");
+                    gdispDrawString(TextOffset + selectedOffsetX[2], 120, str, font16, White);
+
+                    sprintf(str, "Name: ");
+                    gdispDrawString(TextOffset + selectedOffsetX[3], 150, str, font16, White);
+                    gdispDrawString(TextOffset + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, userName.name, font16, White);
+
+                    sprintf(str, "Frames %s", debugStr);
+                    gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
                 }
-                else
-                {
-                    selectedBool = 0;
-                }
 
-                point pointsShip[] = {{0, 0}, {0, 16}, {20, 8}};
-                point pointsShipVertical[] = {{0, 0}, {-8, 20}, {8, 20}};
-
-                if (!writeName)
-                {
-                    gdispFillConvexPoly(TextOffset, selectorPositionY, pointsShip, 3, White);
-                }
-                else
-                {
-                    gdispFillConvexPoly(TextOffset + selectedOffsetX[3] +
-                                            gdispGetStringWidth("Name: ", font16) + 5 + nameShipOffset,
-                                        170,
-                                        pointsShipVertical, 3, White);
-                }
-
-                sprintf(str, "Asteroids");
-                gdispDrawString(TextOffset - 5, 10, str, font32, White);
-
-                sprintf(str, "Start Game");
-                if (!writeName)
-                {
-                    gdispDrawString(TextOffset + selectedOffsetX[0] + gdispGetStringWidth(str, font16) + 10, 60, playerName, font16, White);
-                }
-                gdispDrawString(TextOffset + selectedOffsetX[0], 60, str, font16, White);
-
-                sprintf(str, "Mode:");
-                gdispDrawString(TextOffset + selectedOffsetX[1], 90, str, font16, White);
-                int offset = gdispGetStringWidth(str, font16);
-
-                if (isMuliPlayer)
-                    sprintf(str, "  Multiplayer");
-                else
-                    sprintf(str, "  Singleplayer");
-                gdispDrawString(TextOffset + offset + selectedOffsetX[1], 90, str, font16, White);
-
-                sprintf(str, "High Score");
-                gdispDrawString(TextOffset + selectedOffsetX[2], 120, str, font16, White);
-
-                sprintf(str, "Name: ");
-                gdispDrawString(TextOffset + selectedOffsetX[3], 150, str, font16, White);
-                gdispDrawString(TextOffset + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, playerName, font16, White);
-
-                sprintf(str, "Frames %s", debugStr);
-                gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
+                // sprintf(str, "", swi)
             }
-
-            // sprintf(str, "", swi)
         }
     }
 }
