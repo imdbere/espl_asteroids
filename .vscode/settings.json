@@ -6,6 +6,7 @@
         "includes.h": "c",
         "main_menu.h": "c",
         "gdisp_driver.h": "c",
-        "gos_freertos.h": "c"
+        "gos_freertos.h": "c",
+        "asteroids.h": "c"
     }
 }

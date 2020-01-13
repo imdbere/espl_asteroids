@@ -70,4 +70,6 @@ struct player
     pointf speed;
     float colliderRadius;
     int health;
+	int score;
+    char name[10];
 };
