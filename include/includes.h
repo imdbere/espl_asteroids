@@ -53,4 +53,23 @@ struct pointf
 	float y;
 };
 
+
 typedef struct pointf pointf;
+
+struct bullet 
+{
+    uint8_t isActive;
+    pointf position;
+    pointf speed;
+};
+
+struct player
+{
+    uint8_t isActive;
+    pointf position;
+    pointf speed;
+    float colliderRadius;
+    int health;
+	int score;
+    char name[10];
+};

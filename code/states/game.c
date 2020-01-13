@@ -78,25 +78,6 @@ float lerp_angle(float from, float to, float weight)
     return from + short_angle_dist(from, to) * weight;
 }
 
-struct bullet 
-{
-    uint8_t isActive;
-    pointf position;
-    pointf speed;
-};
-
-struct player
-{
-    uint8_t isActive;
-    pointf position;
-    pointf speed;
-    float colliderRadius;
-    int health;
-    int score;
-    char name[10];
-};
-
-
 void generateBullet(struct bullet* b, pointf pos, pointf playerSpeed, float angle)
 {
     float speedMagnitude = 5.0;
