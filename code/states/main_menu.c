@@ -183,7 +183,7 @@ void mainMenuDrawTask(void *data)
                         {
                             playerName[i - 1] = NULL;
                         }
-                        if (nameCharIndex == i - 1)
+                        if (nameCharIndex == i - 1 && nameCharIndex > 0)
                         {
                             nameShipOffset -= 12;
                             nameCharIndex --;
