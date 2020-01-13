@@ -2,6 +2,23 @@
 #include "includes.h"
 #include "bullets.h"
 
+void initUfo(struct ufo *myufo)
+{
+}
+
+void updateUfo(struct ufo *myufo)
+{
+    myufo->position.x += myufo->speed.x;
+    myufo->position.y += myufo->speed.y;
+    if (myufo->position.x > DISPLAY_SIZE_X)
+        myufo->position.x = 0;
+    if (myufo->position.y > DISPLAY_SIZE_Y)
+        myufo->position.y = 0;
+    if (myufo->position.x < 0)
+        myufo->position.x = DISPLAY_SIZE_X;
+    if (myufo->position.y < 0)
+        myufo->position.y = DISPLAY_SIZE_Y;
+}
 void spawnUfo(struct ufo *myufo, uint8_t isSmall)
 {
     myufo->isActive = 1;
@@ -37,24 +54,17 @@ void ufoShoot(struct ufo *myufo, struct player *myplayer, struct bullet *bullets
     generateBullet(bullets, bulletLength, shootAngle, myufo->position, myufo->speed);
 }
 
-void drawUfo(struct ufo *myufo)
+void drawUfo(struct ufo *myufo, color_t color)
 {
     pointf ufoPosition;
-    
+
     int scale = myufo->size;
 
     ufoPosition.x = myufo->position.x - 6.5*scale;
     ufoPosition.y = myufo->position.y - 3*scale;
 
-    point ufoPoints[] = {{5*scale,0*scale}, {8*scale,0*scale}, 
-                            {9*scale,2*scale}, {13*scale,4*scale}, 
-                                {8*scale,6*scale}, {5*scale,6*scale}, 
-                                    {0*scale,4*scale}, {4*scale,2*scale}};
+    point ufoPoints[] = {{5 * scale, 0 * scale}, {8 * scale, 0 * scale}, {9 * scale, 2 * scale}, {13 * scale, 4 * scale}, {8 * scale, 6 * scale}, {5 * scale, 6 * scale}, {0 * scale, 4 * scale}, {4 * scale, 2 * scale}};
     gdispDrawPoly(ufoPosition.x, ufoPosition.y, ufoPoints, 8, White);
-    gdispDrawLine((4*scale)+ufoPosition.x,(2*scale)+ufoPosition.y, (9*scale)+ufoPosition.x,(2*scale)+ufoPosition.y, White);
-    gdispDrawLine((0*scale)+ufoPosition.x,(4*scale)+ufoPosition.y, (13*scale)+ufoPosition.x,(4*scale)+ufoPosition.y, White);
-    // gdispFillCircle(myufo->position.x, myufo->position.y, 40, White);
-    // gdispFillEllipse(myufo->position.x, myufo->position.y+10, 60, 20, White);
-    
-    
+    gdispDrawLine((4 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, (9 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, color);
+    gdispDrawLine((0 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, (13 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, color);
 }

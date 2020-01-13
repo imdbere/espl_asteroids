@@ -145,6 +145,7 @@ void gameDrawTask(void* data)
             checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player);
             //draw asteroids
             drawAsteroids(&asteroids, maxAsteroidCount, White);
+            updateAsteroids(&asteroids, maxAsteroidCount);
 
             uint8_t thrustOn = buttons.joystick.x != 0 || buttons.joystick.y != 0;
 
