@@ -6,6 +6,7 @@
 #include "math.h"
 #include "sm.h"
 #include "states/states.h"
+#include "stdlib.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
 
@@ -109,7 +110,7 @@ void gameDrawTask(void* data)
     int maxAsteroidCount = MAX_ASTEROID_COUNT_GAME;
     int initialAsteroidCount = 7;
     struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME] = {{0}};
-    generateAsteroids(&asteroids, sizeof(asteroids), initialAsteroidCount, (pointf){0, 0}, 20);
+    generateAsteroids((struct asteroid*) &asteroids, sizeof(asteroids), initialAsteroidCount, (pointf){0, 0}, 20);
 
     // bullets
     int maxNumBullets = 10;
@@ -120,6 +121,8 @@ void gameDrawTask(void* data)
     float lastAngleRad = 0;
     struct player player = {0, {100, 100}, {0, 0}, 20, 5};
 
+    // 
+
     while (1)
     {
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
@@ -129,8 +132,8 @@ void gameDrawTask(void* data)
 
             checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player);
             //draw asteroids
-            drawAsteroids(&asteroids, maxAsteroidCount, White);
-            updateAsteroids(&asteroids, maxAsteroidCount);
+            drawAsteroids((struct asteroid*) &asteroids, maxAsteroidCount, White);
+            updateAsteroids((struct asteroid*) &asteroids, maxAsteroidCount);
 
             uint8_t thrustOn = buttons.joystick.x != 0 || buttons.joystick.y != 0;
 
@@ -156,7 +159,7 @@ void gameDrawTask(void* data)
             // FPS counter
 			TickType_t nowTime = xTaskGetTickCount();
 			uint16_t fps = 1000/ (nowTime - xLastWakeTime);
-            snprintf(str, 100, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f", fps, buttons.joystick.x, buttons.joystick.y, angle, i++, player.speed.x, player.speed.y);	
+            snprintf(str, 100, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f", fps, buttons.joystick.x, buttons.joystick.y, angle, player.speed.x, player.speed.y);	
             gdispDrawString(DISPLAY_SIZE_X - gdispGetStringWidth(str, font1) - 10, DISPLAY_SIZE_Y - 20 , str, font1, White);
 
             for (int i=0; i<maxNumBullets; i++)

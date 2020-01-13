@@ -15,19 +15,9 @@
 #define PI 3.14159265358979323846
 
 TaskHandle_t mainMenuTaskHandle;
-static gdispImage myImage;
-static gdispImage titleImage;
-
-int i, j;
-char str[100];
-char playerName[10] = "";
-int framesPerSecond = 0;
-
 
 void mainMenuInit()
 {
-
-    sprintf(str, "Hello");
     xTaskCreate(mainMenuDrawTask, "mainMenuDrawTask", 2000, NULL, 3, &mainMenuTaskHandle);
     vTaskSuspend(mainMenuTaskHandle);
 }
@@ -61,6 +51,9 @@ void mainMenuDrawTask(void *data)
     generateAsteroids(&asteroids, sizeof(asteroids), asteroidCount, (pointf){0, 0}, 20);
     struct buttons buttons;
 
+    char str[100];  
+    char playerName[10];  
+
     struct userScore userScores[10];
 
     sprintf(userScores[0].name, "Adam");
@@ -89,7 +82,6 @@ void mainMenuDrawTask(void *data)
     uint8_t writeName = 0;
     int nameShipOffset = 0;
     int nameCharIndex = 0;
-    int debug = 0;
 
     //hight score
     uint8_t showHighScore = 0;
@@ -100,7 +92,7 @@ void mainMenuDrawTask(void *data)
     //gdispImageOpenFile(&myImage, "sprites.png");
     // gdispImageClose(&myImage);
 
-    gdispImageOpenFile(&titleImage, "mainTextAsteroids.png");
+    //gdispImageOpenFile(&titleImage, "mainTextAsteroids.png");
     // gdispImageClose(&myImage);
     while (1)
     {
@@ -140,13 +132,12 @@ void mainMenuDrawTask(void *data)
                     
                     else if (selected == 2 && !showHighScore)
                     {
-                        debug = 1;
                         showHighScore = 1;
                     }
                     else if (selected == 3 && !writeName)
                     {
                         writeName = 1;
-                        if (playerName[0] == NULL)
+                        if (playerName[0] == '\0')
                         {
                             playerName[0] = 65;
                         }
@@ -168,7 +159,7 @@ void mainMenuDrawTask(void *data)
                     if (writeName)
                     {
                         int i = 0;
-                        while (playerName[i] != NULL)
+                        while (playerName[i] != '\0')
                         {
                             i++;
                         }                            /*  else if (playerName[nameCharIndex] == 74 || playerName[nameCharIndex] == 75)
@@ -179,7 +170,7 @@ void mainMenuDrawTask(void *data)
                         // debug = i;
                         if (i > 0)
                         {
-                            playerName[i - 1] = NULL;
+                            playerName[i - 1] = '\0';
                         }
                         if (nameCharIndex == i - 1 && nameCharIndex > 0)
                         {
@@ -259,7 +250,7 @@ void mainMenuDrawTask(void *data)
                                 }
 
                                 nameCharIndex += 1;
-                                if (playerName[nameCharIndex] == NULL)
+                                if (playerName[nameCharIndex] == '\0')
                                 {
                                     playerName[nameCharIndex] = 'A';
                                 }

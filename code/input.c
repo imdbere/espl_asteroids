@@ -1,4 +1,5 @@
 #include "input.h"
+#include "stdlib.h"
 
 QueueHandle_t ButtonQueue;
 void checkInputs(void *params);
