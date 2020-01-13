@@ -5,7 +5,6 @@
 #include "asteroids.h"
 #include "ufo.h"
 #include "sm.h"
-#include "tools.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
 
@@ -62,9 +61,10 @@ void mainMenuDrawTask(void *data)
     generateAsteroids(&asteroids, sizeof(asteroids), asteroidCount, (pointf){0, 0}, 20);
     struct buttons buttons;
 
-    struct userScore UserScore[10];
+    struct userScore userScores[10];
 
-    UserScore[0].name[10] = "Adam";
+    sprintf(userScores[0].name, "Adam");
+    userScores[0].score = 23526;
 
     //UFo
     int updateSpeedTime = 0;
@@ -115,8 +115,9 @@ void mainMenuDrawTask(void *data)
             if(updateSpeedTime > 50)
             {
                 updateSpeedTime = 0;
-                myufo.speed.x += (randRange(-4,4))/13.0;
+                
                 myufo.speed.y += (randRange(-4,4))/13.0;
+                myufo.speed.x += (randRange(-4,4))/13.0;
             }
             // xTaskGetTickCount
 
@@ -129,6 +130,7 @@ void mainMenuDrawTask(void *data)
                 {
                     if (selected == 0)
                     {
+                        
                         xQueueSend(state_queue, &gameStateId, 0);
                     }
                     else if( selected == 1)
@@ -363,7 +365,7 @@ void mainMenuDrawTask(void *data)
                 gdispDrawString(TextOffset + selectedOffsetX[3], 150, str, font16, White);
                 gdispDrawString(TextOffset + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, playerName, font16, White);
 
-                sprintf(str, "Frames %f",myufo.speed.x);
+                sprintf(str, "Frames %s", userScores[0].name);
                 gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
             }
 
