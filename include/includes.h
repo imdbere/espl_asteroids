@@ -56,13 +56,6 @@ struct pointf
 
 typedef struct pointf pointf;
 
-struct bullet 
-{
-    uint8_t isActive;
-    pointf position;
-    pointf speed;
-};
-
 struct player
 {
     uint8_t isActive;

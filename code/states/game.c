@@ -56,19 +56,28 @@ void destroyAsteroid(struct asteroid asteroids[], int numAsteroids, int index)
         generateAsteroids(asteroids,  numAsteroids * sizeof(struct asteroid), 2, a->position, radius);
 }
 
-void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player* player)
+void damagePlayer(struct player* player)
 {
+    if(player->health > 0)
+        player->health -= 1;
+    if (player->health <= 0)  
+    {
+        xQueueSend(state_queue, &mainMenuStateId, 0);
+    }
+}
 
+void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player* player, struct ufo* ufo)
+{
     for (int ai=0; ai<numAsteroids; ai++)
     {
         struct asteroid* a = &asteroids[ai];
         if (!a->isActive) continue;
 
-        // Between bullets and asteroids
+        // Between player bullets and asteroids
         for (int bi=0; bi<numBullets; bi++)
         {
             struct bullet* b = &bullets[bi];
-            if (!b->isActive) continue;
+            if (!b->isActive || b->type == FROM_UFO) continue;
 
             if (pointWithinCircle(a->position, a->radius, b->position))
             {
@@ -83,14 +92,29 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
         if (cirlceTouchingCircle(a->position, a->radius, player->position, player->colliderRadius))
         {
             destroyAsteroid(asteroids, numAsteroids, ai);
-            if(player->health > 0)
-                player->health -= 1;
-            if (player->health <= 0)  
-            {
-                xQueueSend(state_queue, &mainMenuStateId, 0);
-            }
+            damagePlayer(player);
+        }
+    }
+
+    for (int bi=0; bi<numBullets; bi++)
+    {
+        struct bullet* b = &bullets[bi];
+        if (!b->isActive) continue;
+
+        // Between bullets and ufo
+        if (ufo->isActive && b->type == FROM_PLAYER && pointWithinCircle(ufo->position, ufo->size * 10, b->position))
+        {
+            player->score += 1000;
+            b->isActive = 0;
+            ufo->isActive = 0;
         }
 
+        // Between bullets and player
+        if (b->type == FROM_UFO && pointWithinCircle(player->position, player->colliderRadius, b->position))
+        {
+            b->isActive = 0;
+            damagePlayer(player);
+        }
     }
 }
 
@@ -109,7 +133,7 @@ void gameDrawTask(void* data)
 
     //all about asteroid
     int maxAsteroidCount = MAX_ASTEROID_COUNT_GAME;
-    int initialAsteroidCount = 7;
+    int initialAsteroidCount = 5;
     struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME] = {{0}};
     generateAsteroids((struct asteroid*) &asteroids, sizeof(asteroids), initialAsteroidCount, (pointf){0, 0}, 20);
 
@@ -136,14 +160,20 @@ void gameDrawTask(void* data)
             updateAsteroids((struct asteroid*) &asteroids, maxAsteroidCount);
             drawAsteroids((struct asteroid*) &asteroids, maxAsteroidCount, White);
 
-            updateUfo(&ufo);
-            drawUfo(&ufo, Red);
+            if (ufo.isActive)
+            {
+                updateUfo(&ufo);
+                if (ufoShouldShoot(&ufo))
+                {
+                    ufoShoot(&ufo, &player, &bullets, sizeof(bullets));
+                }
 
-            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player);
+                drawUfo(&ufo, Red);
+            }
 
-            uint8_t thrustOn = buttons.joystick.x != 0 || buttons.joystick.y != 0;
+            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo);
 
-            
+            uint8_t thrustOn = buttons.joystick.x != 0 || buttons.joystick.y != 0;        
             if (thrustOn) 
             {
                 float angleRad = atan2f(-buttons.joystick.y, buttons.joystick.x);
@@ -156,7 +186,7 @@ void gameDrawTask(void* data)
             {
                 if (buttons.C.risingEdge)
                 {
-                    generateBullet(bullets, sizeof(bullets), lastAngleRad, player.position, player.speed);
+                    generateBullet(bullets, sizeof(bullets), lastAngleRad, 5.0, 1.0, player.position, player.speed, FROM_PLAYER);
                 }
             }
 
@@ -168,25 +198,7 @@ void gameDrawTask(void* data)
             snprintf(str, 100, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f", fps, buttons.joystick.x, buttons.joystick.y, angle, player.speed.x, player.speed.y);	
             gdispDrawString(DISPLAY_SIZE_X - gdispGetStringWidth(str, font1) - 10, DISPLAY_SIZE_Y - 20 , str, font1, White);
 
-            for (int i=0; i<maxNumBullets; i++)
-            {
-                struct bullet* b = &bullets[i];
-                if (b->isActive)
-                {
-                    gdispFillCircle(b->position.x, b->position.y, 3, Red);
-
-                    b->position.x += b->speed.x;
-                    b->position.y += b->speed.y;
-
-                    if (b->position.x > DISPLAY_SIZE_X ||
-                        b->position.y > DISPLAY_SIZE_Y ||
-                        b->position.x < 0 ||
-                        b->position.y < 0)
-                    {
-                        b->isActive = 0;
-                    }
-                }
-            }
+            drawBullets(&bullets, maxNumBullets);
 
             player.speed.x += buttons.joystick.x / 2000.0;
             if (player.speed.x > shipMaxSpeed) player.speed.x = shipMaxSpeed;

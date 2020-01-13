@@ -3,8 +3,8 @@
 extern QueueHandle_t UartPacketQueue;
 
 struct uartFramePacket {
-    struct player ownPlayer;
-    struct bullet newBullet;
+    //struct player ownPlayer;
+    //struct bullet newBullet;
 };
 
 struct uartInitPacket {
