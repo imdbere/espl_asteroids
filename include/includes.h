@@ -73,3 +73,5 @@ struct player
 	int score;
     char name[10];
 };
+
+#include "tools.h"

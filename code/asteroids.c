@@ -1,12 +1,7 @@
 #include "asteroids.h"
 #include "includes.h"
 
-int randRange(int lower, int upper)
-{
-    return (rand() % (upper - lower + 1)) + lower;
-}
-
-void generateAsteroids(struct asteroid *asteroids, int maxAsteroidCount, int asteroidsCount, pointf pos, int radius)
+void __attribute__((optimize("O0")))  generateAsteroids(struct asteroid *asteroids, int maxAsteroidCount, int asteroidsCount, pointf pos, int radius)
 {
     int upper = radius / 2;
     int lower = radius / 2 * (-1);
@@ -16,17 +11,11 @@ void generateAsteroids(struct asteroid *asteroids, int maxAsteroidCount, int ast
 
     for (int j = 0; j < asteroidsCount; j++)
     {
-        int i =0;
-        for (i=0; i<maxAsteroidCount; i++)
-        {
-            if (!asteroids[i].isActive)
-                break;
-        }
+        struct asteroid* newAsteroid = (struct asteroid*) searchForFreeSpace(asteroids, sizeof(struct asteroid), maxAsteroidCount);
 
         // Free space available
-        if (i != maxAsteroidCount)
+        if (newAsteroid != NULL)
         {
-            struct asteroid* newAsteroid = &asteroids[i];
             newAsteroid->isActive = 1;
 
             int segmentCount = randRange(5, 10); //attention

@@ -42,73 +42,6 @@ void displayShip(GDisplay* g, int x, int y, uint8_t thrustOn)
         gdispGImageDraw(g, &spriteSheet, x, y, 13, 18, 0, 14);
 }
 
-int rotatePointX (int x, int y, float angle) 
-{
-    return (int) (cos(angle)*(x ) - sin(angle)*(y )) ;
-}
-
-int rotatePointY (int x, int y, float angle) 
-{
-    return (int) (sin(angle)*(x ) + cos(angle)*(y )) ;
-}
-
-/*float lerp_angle(float a, float b, float t)
-{https://www.google.com/
-    if (abs(a-b) >= M_PI)
-        if (a > b):
-            a = normalize_angle(a) - 2.0 * M_PI
-        else
-            b = normalize_angle(b) - 2.0 * M_PI
-    return lerp(a, b, t)
-}*/
-float floatMod(float a, float b)
-{
-    return (a - b * floor(a / b));
-}
-
-float short_angle_dist(float from, float to)
-{
-    float max_angle = M_PI * 2;
-    float difference = floatMod(to - from, max_angle);
-    return floatMod(2 * difference, max_angle) - difference;
-}
-
-float lerp_angle(float from, float to, float weight)
-{
-    return from + short_angle_dist(from, to) * weight;
-}
-
-void generateBullet(struct bullet* b, pointf pos, pointf playerSpeed, float angle)
-{
-    float speedMagnitude = 5.0;
-    float playerSpeedInheritanceAmount = 1;
-
-    b->isActive = 1;
-    b->position = pos;
-    b->speed.x = -speedMagnitude * sin(angle) + playerSpeed.x * playerSpeedInheritanceAmount;
-    b->speed.y = speedMagnitude * cos(angle) + playerSpeed.y * playerSpeedInheritanceAmount;
-}
-
-pointf addPoints(pointf p1, pointf p2)
-{
-    pointf p = {p1.x + p2.x, p1.y + p2.y};
-    return p;
-}
-
-float square(float nr)
-{
-    return nr * nr;
-}
-
-uint8_t cirlceTouchingCircle(pointf pos1, float rad1, pointf pos2, float rad2)
-{
-    return square(pos1.x - pos2.x) + square(pos1.y - pos2.y) < square(rad1 + rad2);
-}
-
-uint8_t pointWithinCircle(pointf circlePos, float circleRadius, pointf point)
-{
-    return cirlceTouchingCircle(circlePos, circleRadius, point, 0);
-}
 
 void destroyAsteroid(struct asteroid asteroids[], int numAsteroids, int index)
 {
@@ -117,10 +50,10 @@ void destroyAsteroid(struct asteroid asteroids[], int numAsteroids, int index)
     int radius = a->radius - 10;
 
     if (radius > 0)
-        generateAsteroids(asteroids, numAsteroids, 2, a->position, radius);
+        generateAsteroids(asteroids,  numAsteroids * sizeof(struct asteroid), 2, a->position, radius);
 }
 
-void __attribute__((optimize("O0"))) checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player* player)
+void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player* player)
 {
 
     for (int ai=0; ai<numAsteroids; ai++)
@@ -168,7 +101,7 @@ void gameDrawTask(void* data)
     int initialAsteroidCount = 7;
     struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME] = {{0}};
 
-    generateAsteroids(&asteroids, maxAsteroidCount, initialAsteroidCount, (pointf){0, 0}, 20);
+    generateAsteroids(&asteroids, sizeof(asteroids), initialAsteroidCount, (pointf){0, 0}, 20);
 
     //Game Stats
     
@@ -229,23 +162,7 @@ void gameDrawTask(void* data)
             {
                 if (buttons.C.risingEdge)
                 {
-                    /*struct bullet* newBullet = malloc(sizeof(struct bullet));
-                    generateBullet(newBullet, player.position, lastAngleRad);
-                    add(newBullet, bulletList);*/
-
-                    // Search free array space
-                    int i =0;
-                    for (i=0; i<maxNumBullets; i++)
-                    {
-                        if (!bullets[i].isActive)
-                            break;
-                    }
-
-                    if (i != maxNumBullets)
-                    {
-                        struct bullet* newBullet = &bullets[i];
-                        generateBullet(newBullet, player.position, player.speed, lastAngleRad);
-                    }
+                    generateBullet(bullets, sizeof(bullets), player.position, player.speed, lastAngleRad);
                 }
             }
 
@@ -336,9 +253,4 @@ void gameDrawTask(void* data)
             //gdispImageClose(&spriteSheet);
         }
     }
-}
-
-void generateAsteroid(void* data) 
-{
-    
 }
