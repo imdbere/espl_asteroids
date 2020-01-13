@@ -15,19 +15,25 @@ void sendBuffer(uint8_t *buffer, size_t length)
     }
 }
 
-uint8_t calculateChecksum(struct uartPacket *packet)
+uint8_t calculateChecksum(void *packet, size_t length)
 {
-    struct uartPacket p = *packet;
-    return p.screenOffsetX ^ p.screenOffsetY ^ p.buttonACounter ^ p.buttonBCounter ^ p.buttonCCounter ^ p.buttonDCounter;
+    uint8_t checksum = 0;
+    uint8_t* data = (uint8_t*) packet;
+
+    for (int i=0; i<length; i++)
+    {
+        checksum ^= data[i];
+    }
+    return checksum;
 }
 
-void sendPacket(struct uartPacket *packet)
+void sendPacket(void *packet, size_t length)
 {
-    uint8_t checksum = calculateChecksum(packet);
+    uint8_t checksum = calculateChecksum(packet, length);
 
     UART_SendData(startByte);
 
-    sendBuffer((uint8_t *)packet, sizeof(struct uartPacket));
+    sendBuffer((uint8_t *)packet, length);
 
     UART_SendData(checksum);
     UART_SendData(stopByte);
@@ -37,6 +43,7 @@ void receivePacketTask(void *params)
 {
     uint8_t state = 0;
     uint8_t input;
+    uint8_t length;
 
     uint8_t pos = 0;
     uint8_t buffer[40];
@@ -53,32 +60,39 @@ void receivePacketTask(void *params)
                 state = 1;
         }
 
+        // Reading packet length
+        if (state == 1)
+        {
+            length = input;
+            state = 2;
+        }
+
         // Reading Data
-        else if (state == 1)
+        else if (state == 2)
         {
             buffer[pos] = input;
             pos++;
 
-            if (pos == sizeof(struct uartPacket))
+            if (pos == length)
             {
                 pos = 0;
-                state = 2;
+                state = 3;
             }
         }
 
         // Waiting for checksum
-        else if (state == 2)
+        else if (state == 3)
         {
-            struct uartPacket *packet = (struct uartPacket *)buffer;
-            uint8_t desiredChecksum = calculateChecksum(packet);
+            //struct uartPacket *packet = (struct uartPacket *)buffer;
+            uint8_t desiredChecksum = calculateChecksum(buffer, length);
             if (input == desiredChecksum)
-                state = 3;
+                state = 4;
             else
                 state = 0;
         }
 
         // Waiting for STOP
-        else if (state == 3)
+        else if (state == 4)
         {
             if (input == stopByte)
             {

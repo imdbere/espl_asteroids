@@ -1870,6 +1870,33 @@ code/uart.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/uart.c.s
 .PHONY : code/uart.c.s
 
+code/ufo.o: code/ufo.c.o
+
+.PHONY : code/ufo.o
+
+# target to build an object file
+code/ufo.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/ufo.c.o
+.PHONY : code/ufo.c.o
+
+code/ufo.i: code/ufo.c.i
+
+.PHONY : code/ufo.i
+
+# target to preprocess a source file
+code/ufo.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/ufo.c.i
+.PHONY : code/ufo.c.i
+
+code/ufo.s: code/ufo.c.s
+
+.PHONY : code/ufo.s
+
+# target to generate assembly for a file
+code/ufo.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/ufo.c.s
+.PHONY : code/ufo.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -2070,6 +2097,9 @@ help:
 	@echo "... code/uart.o"
 	@echo "... code/uart.i"
 	@echo "... code/uart.s"
+	@echo "... code/ufo.o"
+	@echo "... code/ufo.i"
+	@echo "... code/ufo.s"
 .PHONY : help
 
 
