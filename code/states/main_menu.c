@@ -130,7 +130,7 @@ void mainMenuDrawTask(void *data)
                 {
                     if (selected == 0)
                     {
-                        
+
                         xQueueSend(state_queue, &gameStateId, 0);
                     }
                     else if( selected == 1)
@@ -181,7 +181,7 @@ void mainMenuDrawTask(void *data)
                         {
                             playerName[i - 1] = NULL;
                         }
-                        if (nameCharIndex == i - 1 && nameCharIndex > 0)
+                        if (nameCharIndex == i - 1 && nameCharIndex > 1)
                         {
                             nameShipOffset -= 12;
                             nameCharIndex --;
