@@ -68,6 +68,27 @@ void damagePlayer(struct player* player)
     }
 }
 
+uint8_t checkWinCondition(struct asteroid asteroids[], int numAsteroids, struct player* player, struct ufo* ufo)
+{
+    if (ufo->isActive) return FALSE;
+
+    for (int ai=0; ai<numAsteroids; ai++)
+    {
+        struct asteroid* a = &asteroids[ai];
+        if (a->isActive) return FALSE;
+    }
+
+    return TRUE;
+}
+
+void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player* player, struct ufo* ufo)
+{
+    if (checkWinCondition(asteroids, numAsteroids, player, ufo))
+    {
+        xQueueSend(state_queue, &mainMenuStateId, 0);
+    }
+}
+
 void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player* player, struct ufo* ufo)
 {
     for (int ai=0; ai<numAsteroids; ai++)
@@ -86,6 +107,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
                 // Collision
                 player->score += 500;
                 destroyAsteroid(asteroids, numAsteroids, ai);
+                checkGameWin(asteroids, numAsteroids, player, ufo);
                 b->isActive = 0;
             }
         }
@@ -94,6 +116,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
         if (cirlceTouchingCircle(a->position, a->radius, player->position, player->colliderRadius))
         {
             destroyAsteroid(asteroids, numAsteroids, ai);
+            checkGameWin(asteroids, numAsteroids, player, ufo);
             damagePlayer(player);
         }
     }
@@ -109,6 +132,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
             player->score += 1000;
             b->isActive = 0;
             ufo->isActive = 0;
+            checkGameWin(asteroids, numAsteroids, player, ufo);
         }
 
         // Between bullets and player
