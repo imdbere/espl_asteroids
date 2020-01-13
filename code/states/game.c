@@ -97,44 +97,29 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
 
 void gameDrawTask(void* data)
 {
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    char str[100];    
+
+    //Game Stats
+    int gameStartLifes = 10;
+
+    struct buttons buttons;
+
     //all about asteroid
     int maxAsteroidCount = MAX_ASTEROID_COUNT_GAME;
     int initialAsteroidCount = 7;
     struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME] = {{0}};
-
     generateAsteroids(&asteroids, sizeof(asteroids), initialAsteroidCount, (pointf){0, 0}, 20);
 
-    //Game Stats
-    
-    int gameStartLifes = 10;
-
-    int i = 0;
-    struct buttons buttons;
-    char str[100];
-    gdispImageOpenFile(&spriteSheet, "sprites.bmp");
-    gdispImageCache(&spriteSheet);
-
-    struct player player = {0, {100, 100}, {0, 0}, 20, 5};
-    float shipMaxSpeed = 2;
-    //float maxSpeedY = 2;
-
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-
-    GDisplay* pixmap = gdispPixmapCreate(40, 40);
-    pixel_t* surface = gdispPixmapGetBits(pixmap);
-
-    displayShip(pixmap, 10, 10, 0);
-
-    GDisplay* pixmap1 = gdispPixmapCreate(60, 60);
-    pixel_t* surface1 = gdispPixmapGetBits(pixmap);
-
-    float angle = 45 * M_PI / 180;
-    float lastAngleRad = 0;
-
+    // bullets
     int maxNumBullets = 10;
     struct bullet bullets[maxNumBullets];
-    //List* bulletList = makelist();
-    
+
+    // player
+    float shipMaxSpeed = 2;
+    float lastAngleRad = 0;
+    struct player player = {0, {100, 100}, {0, 0}, 20, 5};
+
     while (1)
     {
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
