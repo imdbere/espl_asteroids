@@ -7,6 +7,7 @@
 #include "sm.h"
 #include "states/states.h"
 #include "stdlib.h"
+#include "ufo.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
 
@@ -121,7 +122,8 @@ void gameDrawTask(void* data)
     float lastAngleRad = 0;
     struct player player = {0, {100, 100}, {0, 0}, 20, 5};
 
-    // 
+    struct ufo ufo;
+    spawnUfo(&ufo, TRUE);
 
     while (1)
     {
@@ -130,10 +132,14 @@ void gameDrawTask(void* data)
             gdispClear(Black);
             //gdispClear(White);
 
-            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player);
             //draw asteroids
-            drawAsteroids((struct asteroid*) &asteroids, maxAsteroidCount, White);
             updateAsteroids((struct asteroid*) &asteroids, maxAsteroidCount);
+            drawAsteroids((struct asteroid*) &asteroids, maxAsteroidCount, White);
+
+            updateUfo(&ufo);
+            drawUfo(&ufo, Red);
+
+            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player);
 
             uint8_t thrustOn = buttons.joystick.x != 0 || buttons.joystick.y != 0;
 

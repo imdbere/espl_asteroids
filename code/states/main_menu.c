@@ -52,7 +52,7 @@ void mainMenuDrawTask(void *data)
     struct buttons buttons;
 
     char str[100];  
-    char playerName[10];  
+    char playerName[10] = "";  
 
     struct userScore userScores[10];
 
