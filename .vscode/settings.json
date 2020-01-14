@@ -13,6 +13,8 @@
         "gfx.h": "c",
         "freertos.h": "c",
         "string.h": "c",
-        "uart.h": "c"
+        "uart.h": "c",
+        "game.h": "c",
+        "level_change_screen.h": "c"
     }
 }

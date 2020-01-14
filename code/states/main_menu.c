@@ -288,7 +288,7 @@ void mainMenuDrawTask(void *data)
                         strcpy(gameStart.name, userName.name);
 
                         xQueueSend(game_start_queue, &gameStart, 0);
-                        xQueueSend(state_queue, &gameStateId, 0);
+                        xQueueSend(state_queue, &levelChangeScreenId, 0);
                     }
                     else if (selected == 1)
                     {
