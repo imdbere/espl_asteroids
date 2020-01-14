@@ -66,6 +66,8 @@ struct player
     pointf position;
     pointf speed;
     float angleRad;
+    uint8_t isThrusting;
+    uint8_t flameLength;
     float colliderRadius;
     int health;
 	int score;

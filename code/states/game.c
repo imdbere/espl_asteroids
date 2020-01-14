@@ -5,6 +5,7 @@
 #include "input.h"
 #include "math.h"
 #include "sm.h"
+#include "uart.h"
 #include "states/states.h"
 #include "stdlib.h"
 #include "ufo.h"
@@ -136,6 +137,64 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
     }
 }
 
+void updatePlayer(struct player* player, int joyX, int joyY)
+{
+    float shipMaxSpeed = 2;
+        
+    player->speed.x += joyX / 2000.0;
+    if (player->speed.x > shipMaxSpeed)
+        player->speed.x = shipMaxSpeed;
+    if (player->speed.x < -shipMaxSpeed)
+        player->speed.x = -shipMaxSpeed;
+
+    player->speed.y += joyY / 2000.0;
+    if (player->speed.y > shipMaxSpeed)
+        player->speed.y = shipMaxSpeed;
+    if (player->speed.y < -shipMaxSpeed)
+        player->speed.y = -shipMaxSpeed;
+    
+
+    player->position.x += player->speed.x;
+    player->position.y += player->speed.y;
+
+    if (player->position.x > DISPLAY_SIZE_X)
+        player->position.x = 0;
+    if (player->position.y > DISPLAY_SIZE_Y)
+        player->position.y = 0;
+    if (player->position.x < 0)
+        player->position.x = DISPLAY_SIZE_X;
+    if (player->position.y < 0)
+        player->position.y = DISPLAY_SIZE_Y;
+
+    player->isThrusting = joyX != 0 || joyY != 0;
+    if (player->isThrusting)
+    {
+        float angleRad = atan2f(-joyY, joyX);
+        float t = 0.1;
+
+        player->angleRad = lerp_angle(player->angleRad, angleRad, t);
+    }
+
+    player->flameLength = max(abs(joyX), abs(joyY)) * 12 / 127.0;
+}
+
+void drawPlayer(struct player* player)
+{
+    int pointCount = 6;
+
+    point points[] = {{-8, 0}, {8, 0}, {0, 20}, {-5, 0}, {5, 0}, {0, -player->flameLength - 5}};
+    for (int i = 0; i < pointCount; i++)
+    {
+        int newX = rotatePointX(points[i].x, points[i].y, player->angleRad - M_PI / 2);
+        int newY = rotatePointY(points[i].x, points[i].y, player->angleRad - M_PI / 2);
+        points[i] = (point){newX, newY};
+    }
+
+    gdispFillConvexPoly(player->position.x, player->position.y, points, 3, White);
+    if (player->isThrusting)
+        gdispFillConvexPoly(player->position.x, player->position.y, points + 3, 3, Orange);
+}
+
 void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroids, size_t asteroidLength)
 {
     player->health = 4;
@@ -177,7 +236,6 @@ void gameDrawTask(void *data)
     struct bullet bullets[maxNumBullets];
 
     // player
-    float shipMaxSpeed = 2;
     struct player player;
 
     // Ufo
@@ -206,31 +264,41 @@ void gameDrawTask(void *data)
             gdispClear(Black);
             //gdispClear(White);
 
-            //draw asteroids
-            updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
-            drawAsteroids((struct asteroid *)&asteroids, maxAsteroidCount, White);
-
-            if (ufo.isActive)
+            if (!isMultiplayer || isMaster)
             {
-                updateUfo(&ufo);
-                if (ufoShouldShoot(&ufo))
+                updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
+                checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo);
+
+                if (isMultiplayer)
                 {
-                    ufoShoot(&ufo, &player, &bullets, sizeof(bullets));
+                    // MASTER
+                    // Send asteroids, bullets
                 }
-
-                drawUfo(&ufo, Red);
             }
 
-            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo);
-
-            uint8_t thrustOn = buttons.joystick.x != 0 || buttons.joystick.y != 0;
-            if (thrustOn)
+            if (isMultiplayer)
             {
-                float angleRad = atan2f(-buttons.joystick.y, buttons.joystick.x);
-                float t = 0.1;
-
-                player.angleRad = lerp_angle(player.angleRad, angleRad, t);
+                // Receive/Send Player position
+                sendFramePacket(&player);
+                struct uartFramePacket framePacket;
+                if (xQueueReceive(uartFramePacketQueue, &framePacket, 0) == pdTRUE)
+                {
+                    ufo.position = framePacket.playerPosition;
+                    ufo.speed = framePacket.playerSpeed;
+                }
             }
+            else
+            {
+                if (ufo.isActive)
+                {
+                    updateUfo(&ufo);
+                    if (ufoShouldShoot(&ufo))
+                    {
+                        ufoShoot(&ufo, &player, &bullets, sizeof(bullets));
+                    }
+                }
+            }
+        
 
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
             {
@@ -240,49 +308,21 @@ void gameDrawTask(void *data)
                 }
             }
 
-            float angleDeg = player.angleRad * 180 / M_PI;
+            updatePlayer(&player, buttons.joystick.x, buttons.joystick.y);
 
-            // FPS counter
-            TickType_t nowTime = xTaskGetTickCount();
-            uint16_t fps = 1000 / (nowTime - xLastWakeTime);
-            snprintf(str, 100, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f", fps, buttons.joystick.x, buttons.joystick.y, angleDeg, player.speed.x, player.speed.y);
-            gdispDrawString(DISPLAY_SIZE_X - gdispGetStringWidth(str, font1) - 10, DISPLAY_SIZE_Y - 20, str, font1, White);
+            // DRAWING
 
+            drawAsteroids((struct asteroid *)&asteroids, maxAsteroidCount, White);
+            drawPlayer(&player);
+            drawUfo(&ufo, Red);
             drawBullets(&bullets, maxNumBullets);
 
-            player.speed.x += buttons.joystick.x / 2000.0;
-            if (player.speed.x > shipMaxSpeed)
-                player.speed.x = shipMaxSpeed;
-            if (player.speed.x < -shipMaxSpeed)
-                player.speed.x = -shipMaxSpeed;
-
-            player.speed.y += buttons.joystick.y / 2000.0;
-            if (player.speed.y > shipMaxSpeed)
-                player.speed.y = shipMaxSpeed;
-            if (player.speed.y < -shipMaxSpeed)
-                player.speed.y = -shipMaxSpeed;
-
-            int pointCount = 6;
-            int flameLength = max(abs(buttons.joystick.x), abs(buttons.joystick.y)) * 12 / 127.0;
-
-            point points[] = {{-8, 0}, {8, 0}, {0, 20}, {-5, 0}, {5, 0}, {0, -flameLength - 5}};
-            for (int i = 0; i < pointCount; i++)
-            {
-                int newX = rotatePointX(points[i].x, points[i].y, player.angleRad - M_PI / 2);
-                int newY = rotatePointY(points[i].x, points[i].y, player.angleRad - M_PI / 2);
-                points[i] = (point){newX, newY};
-            }
-
-            gdispFillConvexPoly(player.position.x, player.position.y, points, 3, White);
-            if (thrustOn)
-                gdispFillConvexPoly(player.position.x, player.position.y, points + 3, 3, Orange);
-
             //Score counter on top
-
             sprintf(str, "%s : %i", player.name, player.score);
             gdispDrawString(10, 10, str, font12, White);
             point gameLifePoints[] = {{4, 0}, {0, 12}, {8, 12}};
 
+            // Life indicator
             for (int i = 0; i < player.health; i++)
             {
                 gdispFillConvexPoly(maxLifes * 12 - (i * 12), 30, gameLifePoints, 3, White);
@@ -292,26 +332,12 @@ void gameDrawTask(void *data)
                 gdispDrawPoly(maxLifes * 12 - (i * 12), 30, gameLifePoints, 3, White);
             }
 
-            //Loosig a life
-            if (buttons.B.fallingEdge && player.health > 0)
-            {
-                player.health--;
-            }
-            //gdispDrawThickLine(points[0].x + shipX, points[0].y + shipY, points[1]. x + shipX, points[1].y + shipY, White, 4, 1);
-            //gdispBlitArea((int)shipX, (int)shipY, 60, 60, surface1);
-            //displayShip((int)shipX, (int)shipY, thrustOn);
-
-            player.position.x += player.speed.x;
-            player.position.y += player.speed.y;
-
-            if (player.position.x > DISPLAY_SIZE_X)
-                player.position.x = 0;
-            if (player.position.y > DISPLAY_SIZE_Y)
-                player.position.y = 0;
-            if (player.position.x < 0)
-                player.position.x = DISPLAY_SIZE_X;
-            if (player.position.y < 0)
-                player.position.y = DISPLAY_SIZE_Y;
+            // Debug view
+            TickType_t nowTime = xTaskGetTickCount();
+            float angleDeg = player.angleRad * 180 / M_PI;
+            uint16_t fps = 1000 / (nowTime - xLastWakeTime);
+            snprintf(str, 10, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f, MP: %i", fps, buttons.joystick.x, buttons.joystick.y, angleDeg, player.speed.x, player.speed.y, isMultiplayer);
+            gdispDrawString(DISPLAY_SIZE_X - gdispGetStringWidth(str, font1) - 10, DISPLAY_SIZE_Y - 20, str, font1, White);
 
             xLastWakeTime = nowTime;
             //gdispImageClose(&spriteSheet);

@@ -8,6 +8,7 @@ SemaphoreHandle_t xSendMutex;
 
 QueueHandle_t uartHandshakeQueue;
 QueueHandle_t uartInviteQueue;
+QueueHandle_t uartFramePacketQueue;
 
 static const uint8_t startByte = 0xAA, stopByte = 0x55;
 
@@ -16,6 +17,7 @@ void initUartQueues()
 {
     uartHandshakeQueue = xQueueCreate(2, sizeof(struct uartHandshakePacket));
     uartInviteQueue = xQueueCreate(2, sizeof(struct uartGameInvitePacket));
+    uartFramePacketQueue = xQueueCreate(2, sizeof(struct uartFramePacket));
 
     xTaskCreate(receivePacketTask, "receivePacketTask", 100, NULL, 2, NULL);
     xSendMutex = xSemaphoreCreateMutex();
@@ -29,13 +31,22 @@ void sendHandshake(uint8_t isMaster)
     sendPacket(HandshakePacket, &packet);
 }
 
-void sendGameInvitation(uint8_t isMaster, char* name)
+void sendGameInvitation(uint8_t isAck, char* name)
 {
     struct uartGameInvitePacket packet;
-    packet.fromMaster = isMaster;
+    packet.isAck = isAck;
     strcpy(packet.name, name);
 
     sendPacket(GameInvitePacket, &packet);
+}
+
+void sendFramePacket(struct player* player)
+{
+    struct uartFramePacket packet;
+    packet.playerPosition = player->position;
+    packet.playerSpeed = player->speed;
+
+    sendPacket(FramePacket, &packet);
 }
 
 void sendBuffer(uint8_t *buffer, size_t length)
@@ -98,6 +109,9 @@ void handleGotPacket(enum packetType type, uint8_t* buffer)
             break;
         case GameInvitePacket:
             xQueueSend(uartInviteQueue, buffer, 0);
+            break;
+        case FramePacket:
+            xQueueSend(uartFramePacketQueue, buffer, 0);
             break;
     }
 }
