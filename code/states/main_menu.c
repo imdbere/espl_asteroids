@@ -19,12 +19,15 @@
 #define MAX_ASTEROID_COUNT_MENU 5
 
 TaskHandle_t mainMenuTaskHandle;
+SemaphoreHandle_t disconnectSemaphore;
+
 struct userScore userScores[10];
 char debugStr[40];
 
 void mainMenuInit()
 {
     xTaskCreate(mainMenuDrawTask, "mainMenuDrawTask", 2000, NULL, 3, &mainMenuTaskHandle);
+    disconnectSemaphore = xSemaphoreCreateBinary();
     vTaskSuspend(mainMenuTaskHandle);
 }
 
@@ -215,6 +218,11 @@ void dispMenu()
 {
 }
 
+void disconnectTimerElapsed(TimerHandle_t xTimer)
+{
+    xSemaphoreGive(disconnectSemaphore);
+}
+
 void mainMenuDrawTask(void *data)
 {
     int asteroidCount = MAX_ASTEROID_COUNT_MENU;
@@ -254,6 +262,8 @@ void mainMenuDrawTask(void *data)
     uint8_t isMuliPlayerBool = 0;
     uint8_t otherUserConnected = 0;
     uint8_t isMaster = 1;
+    TimerHandle_t disconnectTimer;
+    disconnectTimer = xTimerCreate("disconnectTimer", pdMS_TO_TICKS(500), pdTRUE, NULL, disconnectTimerElapsed);
 
     while (1)
     {
@@ -373,19 +383,22 @@ void mainMenuDrawTask(void *data)
             // Send master handshake if multiplayer is selected
             if (isMuliPlayerBool)
             {
-                sendHandshake(TRUE);
+                sendHandshake(isMaster);
             }
 
             struct uartHandshakePacket handshakePacket;
             // When handshake received
             if (xQueueReceive(uartHandshakeQueue, &handshakePacket, 0) == pdTRUE)
             {
-                isMaster = !handshakePacket.isMaster;
+                xTimerReset(disconnectTimer, 0);
+                isMaster = !handshakePacket.fromMaster;
                 otherUserConnected = TRUE;
-                if (!isMaster)
-                {
-                    sendHandshake(isMaster);
-                }
+                isMuliPlayerBool = TRUE;
+            }
+
+            if (xSemaphoreTake(disconnectSemaphore, 0) == pdTRUE)
+            {
+                otherUserConnected = FALSE;
             }
 
             if (showHighScoreBool)

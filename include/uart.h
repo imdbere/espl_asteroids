@@ -1,6 +1,7 @@
 #include <includes.h>
 
 extern QueueHandle_t uartHandshakeQueue;
+extern QueueHandle_t uartInviteQueue;
 
 struct uartFramePacket {
     //struct player ownPlayer;
@@ -8,7 +9,12 @@ struct uartFramePacket {
 };
 
 struct uartHandshakePacket {
-    uint8_t isMaster;
+    uint8_t fromMaster;
+};
+
+struct uartGameInvitePacket {
+    uint8_t fromMaster;
+    char name[10]
 };
 
 struct uartInitPacket {
@@ -17,7 +23,7 @@ struct uartInitPacket {
 
 enum packetType {
     FramePacket,
-    LevelInitPacket,
+    GameInvitePacket,
     HandshakePacket
 };
 
@@ -46,7 +52,9 @@ enum packetType {
 */
 
 void initUartQueues();
-void sendHandshake(uint8_t isMaster);
 size_t getPacketSize(enum packetType type);
 void sendPacket(enum packetType type, void *packet);
 void receivePacketTask(void * params);
+
+void sendHandshake(uint8_t isMaster);
+void sendGameInvitation(uint8_t isMaster, char* name);

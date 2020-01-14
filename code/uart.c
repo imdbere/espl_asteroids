@@ -1,10 +1,13 @@
 
 #include "includes.h"
 #include "uart.h"
+#include "string.h"
 
 QueueHandle_t ESPL_RxQueue; // Already defined in ESPL_Functions.h
-QueueHandle_t uartHandshakeQueue;
 SemaphoreHandle_t xSendMutex;
+
+QueueHandle_t uartHandshakeQueue;
+QueueHandle_t uartInviteQueue;
 
 static const uint8_t startByte = 0xAA, stopByte = 0x55;
 
@@ -12,6 +15,8 @@ static const uint8_t startByte = 0xAA, stopByte = 0x55;
 void initUartQueues()
 {
     uartHandshakeQueue = xQueueCreate(2, sizeof(struct uartHandshakePacket));
+    uartInviteQueue = xQueueCreate(2, sizeof(struct uartGameInvitePacket));
+
     xTaskCreate(receivePacketTask, "receivePacketTask", 100, NULL, 2, NULL);
     xSendMutex = xSemaphoreCreateMutex();
 }
@@ -19,9 +24,18 @@ void initUartQueues()
 void sendHandshake(uint8_t isMaster)
 {
     struct uartHandshakePacket packet;
-    packet.isMaster = isMaster;
+    packet.fromMaster = isMaster;
 
-    sendPacket(HandshakePacket, &packet) ;
+    sendPacket(HandshakePacket, &packet);
+}
+
+void sendGameInvitation(uint8_t isMaster, char* name)
+{
+    struct uartGameInvitePacket packet;
+    packet.fromMaster = isMaster;
+    strcpy(packet.name, name);
+
+    sendPacket(GameInvitePacket, &packet);
 }
 
 void sendBuffer(uint8_t *buffer, size_t length)
@@ -62,12 +76,14 @@ void sendPacket(enum packetType type, void *packet)
     }
 }
 
-size_t  __attribute__((optimize("O0")))  getPacketSize(enum packetType type)
+size_t getPacketSize(enum packetType type)
 {
     switch(type)
     {
         case HandshakePacket:
             return sizeof(struct uartHandshakePacket);
+        case GameInvitePacket:
+            return sizeof(struct uartGameInvitePacket);
         case FramePacket:
             return sizeof(struct uartFramePacket);
     }
@@ -80,10 +96,13 @@ void handleGotPacket(enum packetType type, uint8_t* buffer)
         case HandshakePacket:
             xQueueSend(uartHandshakeQueue, buffer, 0);
             break;
+        case GameInvitePacket:
+            xQueueSend(uartInviteQueue, buffer, 0);
+            break;
     }
 }
 
-void  __attribute__((optimize("O0")))  receivePacketTask(void *params)
+void receivePacketTask(void *params)
 {
     uint8_t state = 0;
     uint8_t input;
