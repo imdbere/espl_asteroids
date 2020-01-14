@@ -11,12 +11,13 @@
 
 
 TaskHandle_t levelChangeScreenTaskHandle;
+QueueHandle_t levelChangeQueue;
 
 void levelChangeScreenInit()
 {
     xTaskCreate(levelChangeScreenDraw, "levelChangeScreenDraw", 2000, NULL, 3, &levelChangeScreenTaskHandle);
     vTaskSuspend(levelChangeScreenTaskHandle);
-
+    
 }
 
 void levelChangeScreenEnter()
@@ -37,7 +38,6 @@ void levelChangeScreenExit()
 
 void levelChangeScreenDraw(void* data)
 {
-
     uint8_t resetBool = 0;
     char str[100];
     uint32_t lastTime;

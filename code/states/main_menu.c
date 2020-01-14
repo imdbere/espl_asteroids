@@ -322,7 +322,6 @@ void mainMenuDrawTask(void *data)
 
                 if (showHighScoreBool)
                 {
-                    dispHighScore(TextOffset);
                 }
                 else
                 {
@@ -356,7 +355,7 @@ void mainMenuDrawTask(void *data)
                     else
                     {
                         selectedBool = 0;
-                    } 
+                    }
                 }
 
                 // sprintf(str, "", swi)
@@ -380,52 +379,59 @@ void mainMenuDrawTask(void *data)
                 }
             }
 
-            point pointsShip[] = {{0, 0}, {0, 16}, {20, 8}};
-            point pointsShipVertical[] = {{0, 0}, {-8, 20}, {8, 20}};
-
-            if (!writeNameBool)
+            if (showHighScoreBool)
             {
-                gdispFillConvexPoly(TextOffset, selectorPositionY, pointsShip, 3, White);
+                dispHighScore(TextOffset);
             }
             else
             {
-                gdispFillConvexPoly(TextOffset + selectedOffsetX[3] +
-                    gdispGetStringWidth("Name: ", font16) + 5 +  userName.cursorOffset,
-                    170,
-                    pointsShipVertical, 3, White);
-            }
+                point pointsShip[] = {{0, 0}, {0, 16}, {20, 8}};
+                point pointsShipVertical[] = {{0, 0}, {-8, 20}, {8, 20}};
 
-            sprintf(str, "Asteroids");
-            gdispDrawString(TextOffset - 5, 10, str, font32, White);
+                if (!writeNameBool)
+                {
+                    gdispFillConvexPoly(TextOffset, selectorPositionY, pointsShip, 3, White);
+                }
+                else
+                {
+                    gdispFillConvexPoly(TextOffset + selectedOffsetX[3] +
+                                            gdispGetStringWidth("Name: ", font16) + 5 + userName.cursorOffset,
+                                        170,
+                                        pointsShipVertical, 3, White);
+                }
+                
+                sprintf(str, "Asteroids");
+                gdispDrawString(TextOffset - 5, 10, str, font32, White);
 
-            sprintf(str, "Start Game");
-            if (!writeNameBool)
-            {
-                gdispDrawString(TextOffset + selectedOffsetX[0] + gdispGetStringWidth(str, font16) + 10, 60, userName.name, font16, White);
-            }
-            gdispDrawString(TextOffset + selectedOffsetX[0], 60, str, font16, White);
+                sprintf(str, "Start Game");
+                if (!writeNameBool)
+                {
+                    gdispDrawString(TextOffset + selectedOffsetX[0] + gdispGetStringWidth(str, font16) + 10, 60, userName.name, font16, White);
+                }
+                gdispDrawString(TextOffset + selectedOffsetX[0], 60, str, font16, White);
 
-            sprintf(str, "Mode:");
-            gdispDrawString(TextOffset + selectedOffsetX[1], 90, str, font16, White);
-            int offset = gdispGetStringWidth(str, font16);
+                sprintf(str, "Mode:");
+                gdispDrawString(TextOffset + selectedOffsetX[1], 90, str, font16, White);
+                int offset = gdispGetStringWidth(str, font16);
 
-            if (isMuliPlayerBool)
-                sprintf(str, "  Multiplayer");
-            else
-                sprintf(str, "  Singleplayer");
-            gdispDrawString(TextOffset + offset + selectedOffsetX[1], 90, str, font16, White);
+                if (isMuliPlayerBool)
+                    sprintf(str, "  Multiplayer");
+                else
+                    sprintf(str, "  Singleplayer");
+                gdispDrawString(TextOffset + offset + selectedOffsetX[1], 90, str, font16, White);
 
-            sprintf(str, "High Score");
-            gdispDrawString(TextOffset + selectedOffsetX[2], 120, str, font16, White);
+                sprintf(str, "High Score");
+                gdispDrawString(TextOffset + selectedOffsetX[2], 120, str, font16, White);
 
-            sprintf(str, "Name: ");
-            gdispDrawString(TextOffset + selectedOffsetX[3], 150, str, font16, White);
-            gdispDrawString(TextOffset + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, userName.name, font16, White);
+                sprintf(str, "Name: ");
+                gdispDrawString(TextOffset + selectedOffsetX[3], 150, str, font16, White);
+                gdispDrawString(TextOffset + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, userName.name, font16, White);
 
-            if (otherUserConnected)
-            {
-                sprintf(str, "Connected");
-                gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
+                if (otherUserConnected)
+                {
+                    sprintf(str, "Connected");
+                    gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
+                }
             }
         }
     }

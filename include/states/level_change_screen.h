@@ -5,6 +5,8 @@ void levelChangeScreenEnter();
 void levelChangeScreenExit();
 void levelChangeScreenDraw(void* data);
 
+extern QueueHandle_t levelChangeQueue;
+
 struct changeScreenData
 {
     char text[20];
