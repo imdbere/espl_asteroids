@@ -3,6 +3,8 @@
 #include "states/main_menu.h"
 #include "states/game.h"
 #include "input.h"
+#include "uart.h"
+
 #define STATE_COUNT 3
 
 #define STATE_EX_TWO 0
@@ -59,6 +61,7 @@ int main(void)
 	initStateMachine();
 
 	initInputTask();
+	initUartQueues();
 	// Start FreeRTOS Scheduler
 	vTaskStartScheduler();
 }
