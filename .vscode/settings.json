@@ -9,6 +9,8 @@
         "gos_freertos.h": "c",
         "asteroids.h": "c",
         "unordered_map": "c",
-        "string_view": "c"
+        "string_view": "c",
+        "game.h": "c",
+        "level_change_screen.h": "c"
     }
 }

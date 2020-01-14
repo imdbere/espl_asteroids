@@ -1843,6 +1843,33 @@ code/states/game.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/game.c.s
 .PHONY : code/states/game.c.s
 
+code/states/level_change_screen.o: code/states/level_change_screen.c.o
+
+.PHONY : code/states/level_change_screen.o
+
+# target to build an object file
+code/states/level_change_screen.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/level_change_screen.c.o
+.PHONY : code/states/level_change_screen.c.o
+
+code/states/level_change_screen.i: code/states/level_change_screen.c.i
+
+.PHONY : code/states/level_change_screen.i
+
+# target to preprocess a source file
+code/states/level_change_screen.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/level_change_screen.c.i
+.PHONY : code/states/level_change_screen.c.i
+
+code/states/level_change_screen.s: code/states/level_change_screen.c.s
+
+.PHONY : code/states/level_change_screen.s
+
+# target to generate assembly for a file
+code/states/level_change_screen.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/states/level_change_screen.c.s
+.PHONY : code/states/level_change_screen.c.s
+
 code/states/main_menu.o: code/states/main_menu.c.o
 
 .PHONY : code/states/main_menu.o
@@ -2148,6 +2175,9 @@ help:
 	@echo "... code/states/game.o"
 	@echo "... code/states/game.i"
 	@echo "... code/states/game.s"
+	@echo "... code/states/level_change_screen.o"
+	@echo "... code/states/level_change_screen.i"
+	@echo "... code/states/level_change_screen.s"
 	@echo "... code/states/main_menu.o"
 	@echo "... code/states/main_menu.i"
 	@echo "... code/states/main_menu.s"

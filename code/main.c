@@ -2,6 +2,7 @@
 #include "sm.h"
 #include "states/main_menu.h"
 #include "states/game.h"
+#include "states/level_change_screen.h"
 #include "input.h"
 #define STATE_COUNT 3
 
@@ -28,8 +29,10 @@ SemaphoreHandle_t DrawReady; // After swapping buffer calll drawing
 // Task handles, used for task control
 TaskHandle_t frameSwapHandle;
 
+
 int mainMenuStateId;
 int gameStateId;
+int levelChangeScreenId;
 
 int main(void)
 {
@@ -56,6 +59,7 @@ int main(void)
 
 	mainMenuStateId = addState(mainMenuInit, mainMenuEnter, mainMenuExit, NULL);
 	gameStateId = addState(gameInit, gameEnter, gameExit, NULL);
+	levelChangeScreenId = addState(levelChangeScreenInit, levelChangeScreenEnter, levelChangeScreenExit, NULL);
 	initStateMachine();
 
 	initInputTask();
