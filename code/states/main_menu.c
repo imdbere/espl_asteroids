@@ -7,6 +7,7 @@
 #include "sm.h"
 #include "uart.h"
 #include "states/game.h"
+#include "states/level_change_screen.h"
 #include "string.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
@@ -226,6 +227,14 @@ void startGame(uint8_t isMultiplayer, uint8_t isMaster, char* name)
     gameStart.isMaster = isMaster;
     strcpy(gameStart.name, name);
 
+    struct changeScreenData changeScreenData = {{0}};
+    sprintf(changeScreenData.Title, "Level 1");
+    sprintf(changeScreenData.Subtext, name);
+    changeScreenData.msWaitingTime = 3000;
+    changeScreenData.showCountdown = 1;
+    changeScreenData.nextState = gameStateId;
+
+    xQueueSend(levelChange_queue, &changeScreenData, 0);
     xQueueSend(game_start_queue, &gameStart, 0);
     xQueueSend(state_queue, &levelChangeScreenId, 0);
 }
@@ -264,6 +273,9 @@ void mainMenuDrawTask(void *data)
 
     //hight score
     uint8_t showHighScoreBool = 0;
+    
+    //Cheats
+    uint8_t gameMode = 0;
 
     //multiplayer mode
     uint8_t isMuliPlayerBool = 0;
@@ -313,6 +325,7 @@ void mainMenuDrawTask(void *data)
                     else if (selected == 1)
                     {
                         isMuliPlayerBool = !isMuliPlayerBool;
+                        
                     }
 
                     else if (selected == 2 && !showHighScoreBool)
