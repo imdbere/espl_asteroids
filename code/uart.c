@@ -4,13 +4,16 @@
 
 QueueHandle_t ESPL_RxQueue; // Already defined in ESPL_Functions.h
 QueueHandle_t uartHandshakeQueue;
+SemaphoreHandle_t xSendMutex;
 
 static const uint8_t startByte = 0xAA, stopByte = 0x55;
+
 
 void initUartQueues()
 {
     uartHandshakeQueue = xQueueCreate(2, sizeof(struct uartHandshakePacket));
     xTaskCreate(receivePacketTask, "receivePacketTask", 100, NULL, 2, NULL);
+    xSendMutex = xSemaphoreCreateMutex();
 }
 
 void sendHandshake(uint8_t isMaster)
@@ -43,16 +46,20 @@ uint8_t calculateChecksum(void *packet, size_t length)
 
 void sendPacket(enum packetType type, void *packet)
 {
-    size_t length = getPacketSize(type);
-    uint8_t checksum = calculateChecksum(packet, length);
+    if(xSemaphoreTake(xSendMutex, 5) == pdTRUE)
+    {
+        size_t length = getPacketSize(type);
+        uint8_t checksum = calculateChecksum(packet, length);
 
-    UART_SendData(startByte);
-    UART_SendData(type);
+        UART_SendData(startByte);
+        UART_SendData(type);
 
-    sendBuffer((uint8_t *)packet, length);
+        sendBuffer((uint8_t *)packet, length);
 
-    UART_SendData(checksum);
-    UART_SendData(stopByte);
+        UART_SendData(checksum);
+        UART_SendData(stopByte);
+        xSemaphoreGive(xSendMutex);
+    }
 }
 
 size_t  __attribute__((optimize("O0")))  getPacketSize(enum packetType type)
@@ -99,7 +106,7 @@ void  __attribute__((optimize("O0")))  receivePacketTask(void *params)
         }
 
         // Reading packet type
-        if (state == 1)
+        else if (state == 1)
         {
             type = input;
             packetLength = getPacketSize(type);
