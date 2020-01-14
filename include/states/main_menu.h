@@ -14,7 +14,6 @@ struct userScore
     int score;
 };
 
-
 struct userNameInput
 {
     char name[10];

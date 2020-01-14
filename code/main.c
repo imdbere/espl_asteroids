@@ -39,7 +39,6 @@ int levelChangeScreenId;
 int main(void)
 {
 	// Initialize Board functions and graphics
-	unsigned int _mainMenuId;
 
 	ESPL_SystemInit();
 
