@@ -15,6 +15,7 @@
 TaskHandle_t drawTaskHandle;
 TaskHandle_t generateAsteroidsHandle;
 QueueHandle_t score_queue;
+QueueHandle_t game_start_queue;
 
 void gameInit()
 {
@@ -22,6 +23,7 @@ void gameInit()
     //XTaskCreate(generateAsteroid, "generateAsteroidsHandle", 3000, NULL, &generateAsteroidsHandle);
     vTaskSuspend(drawTaskHandle);
     score_queue = xQueueCreate(1, sizeof(struct player));
+    game_start_queue = xQueueCreate(1, sizeof(struct gameStartInfo));
 }
 
 void gameEnter()
@@ -40,24 +42,7 @@ void gameExit()
     vTaskSuspend(drawTaskHandle);
 }
 
-gdispImage spriteSheet;
-void displayShip(GDisplay *g, int x, int y, uint8_t thrustOn)
-{
-    if (thrustOn)
-        gdispGImageDraw(g, &spriteSheet, x, y, 13, 18, 15, 14);
-    else
-        gdispGImageDraw(g, &spriteSheet, x, y, 13, 18, 0, 14);
-}
 
-void destroyAsteroid(struct asteroid asteroids[], int numAsteroids, int index)
-{
-    struct asteroid *a = &asteroids[index];
-    a->isActive = 0;
-    int radius = a->radius - 10;
-
-    if (radius > 0)
-        generateAsteroids(asteroids, numAsteroids * sizeof(struct asteroid), 2, a->position, radius);
-}
 
 void damagePlayer(struct player *player)
 {
@@ -159,7 +144,6 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
     player->speed = (pointf){0.0, 0.0};
     player->angleRad = 0;
     player->colliderRadius = 25;
-    xQueueReceive(name_queue, player->name, 0);
 
     int initialAsteroidCount = 5;
     int asteroidsRadius = 20;
@@ -199,12 +183,22 @@ void gameDrawTask(void *data)
     // Ufo
     struct ufo ufo;
 
+    uint8_t isMultiplayer;
+    uint8_t isMaster;
+
     resetGame(&player, &ufo, &asteroids, sizeof(asteroids));
     while (1)
     {
         if (ulTaskNotifyTake(pdTRUE, 0) == 1)
         {
             resetGame(&player, &ufo, &asteroids, sizeof(asteroids));
+            struct gameStartInfo gameStart;
+            if (xQueueReceive(game_start_queue, &gameStart, 0) == pdTRUE)
+            {
+                isMultiplayer = gameStart.isMultiplayer;
+                isMaster = gameStart.isMaster;
+                strcpy(player.name, gameStart.name);
+            }
         }
 
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)

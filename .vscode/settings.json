@@ -10,6 +10,10 @@
         "asteroids.h": "c",
         "unordered_map": "c",
         "string_view": "c",
+        "gfx.h": "c",
+        "freertos.h": "c",
+        "string.h": "c",
+        "uart.h": "c",
         "game.h": "c",
         "level_change_screen.h": "c"
     }

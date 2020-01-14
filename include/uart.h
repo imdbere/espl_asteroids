@@ -1,10 +1,14 @@
 #include <includes.h>
 
-extern QueueHandle_t UartPacketQueue;
+extern QueueHandle_t uartHandshakeQueue;
 
 struct uartFramePacket {
     //struct player ownPlayer;
     //struct bullet newBullet;
+};
+
+struct uartHandshakePacket {
+    uint8_t isMaster;
 };
 
 struct uartInitPacket {
@@ -41,5 +45,8 @@ enum packetType {
 
 */
 
-void sendPacket(void *packet, size_t length);
+void initUartQueues();
+void sendHandshake(uint8_t isMaster);
+size_t getPacketSize(enum packetType type);
+void sendPacket(enum packetType type, void *packet);
 void receivePacketTask(void * params);

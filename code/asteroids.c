@@ -50,6 +50,16 @@ void generateAsteroids(struct asteroid *asteroids, int asteroidsLength, int aste
     }
 }
 
+void destroyAsteroid(struct asteroid asteroids[], int numAsteroids, int index)
+{
+    struct asteroid *a = &asteroids[index];
+    a->isActive = 0;
+    int radius = a->radius - 10;
+
+    if (radius > 0)
+        generateAsteroids(asteroids, numAsteroids * sizeof(struct asteroid), 2, a->position, radius);
+}
+
 void updateAsteroids(struct asteroid *asteroids, int asteroidCount)
 {
     for (int j = 0; j < asteroidCount; j++)
