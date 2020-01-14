@@ -336,7 +336,7 @@ void gameDrawTask(void *data)
             TickType_t nowTime = xTaskGetTickCount();
             float angleDeg = player.angleRad * 180 / M_PI;
             uint16_t fps = 1000 / (nowTime - xLastWakeTime);
-            snprintf(str, 10, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f, MP: %i", fps, buttons.joystick.x, buttons.joystick.y, angleDeg, player.speed.x, player.speed.y, isMultiplayer);
+            snprintf(str, 100, "FPS: %i, X: %i, Y: %i, Ag: %.2f, Sx: %.2f, Sy: %.2f, MP: %i", fps, buttons.joystick.x, buttons.joystick.y, angleDeg, player.speed.x, player.speed.y, isMultiplayer);
             gdispDrawString(DISPLAY_SIZE_X - gdispGetStringWidth(str, font1) - 10, DISPLAY_SIZE_Y - 20, str, font1, White);
 
             xLastWakeTime = nowTime;
