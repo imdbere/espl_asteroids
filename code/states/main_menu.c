@@ -257,6 +257,9 @@ void mainMenuDrawTask(void *data)
 
     //hight score
     uint8_t showHighScoreBool = 0;
+    
+    //Cheats
+    uint8_t gameMode = 0;
 
     //multiplayer mode
     uint8_t isMuliPlayerBool = 0;
@@ -312,6 +315,7 @@ void mainMenuDrawTask(void *data)
                     else if (selected == 1)
                     {
                         isMuliPlayerBool = !isMuliPlayerBool;
+                        
                     }
 
                     else if (selected == 2 && !showHighScoreBool)
