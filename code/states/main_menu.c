@@ -292,8 +292,8 @@ void mainMenuDrawTask(void *data)
                 {
                     if (selected == 0)
                     {
+                        
                         xQueueSend(name_queue, &userName.name, 0);
-
                         xQueueSend(state_queue, &levelChangeScreenId, 0);
                     }
                     else if (selected == 1)
