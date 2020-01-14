@@ -11,10 +11,13 @@
 
 
 TaskHandle_t levelChangeScreenTaskHandle;
-QueueHandle_t levelChangeQueue;
+QueueHandle_t levelChange_queue;
+
+struct changeScreenData myChangeScreenData;
 
 void levelChangeScreenInit()
 {
+    levelChange_queue = xQueueCreate(1, sizeof(struct changeScreenData));
     xTaskCreate(levelChangeScreenDraw, "levelChangeScreenDraw", 2000, NULL, 3, &levelChangeScreenTaskHandle);
     vTaskSuspend(levelChangeScreenTaskHandle);
     
@@ -22,11 +25,13 @@ void levelChangeScreenInit()
 
 void levelChangeScreenEnter()
 {
+    
     GDisplay *g = gdispGetDisplay(0);
     xSemaphoreTake(g->mutex, 0);
     xSemaphoreGive(g->mutex);
     vTaskResume(levelChangeScreenTaskHandle);
     xTaskNotifyGive(levelChangeScreenTaskHandle);
+    xQueueReceive(levelChange_queue, &myChangeScreenData, 0);
 }
 
 void levelChangeScreenExit()
@@ -39,7 +44,7 @@ void levelChangeScreenExit()
 void levelChangeScreenDraw(void* data)
 {
     uint8_t resetBool = 0;
-    char str[100];
+    char str[25];
     uint32_t lastTime;
     uint32_t continueDelayTime = 1500;//in ms
 
@@ -53,14 +58,21 @@ void levelChangeScreenDraw(void* data)
                 resetBool = 1;
             }
             gdispClear(Black);
-            sprintf(str, "Level 1");
+            sprintf(str, myChangeScreenData.Title);
             gdispDrawString((DISPLAY_SIZE_X/2) - (gdispGetStringWidth(str, font32)/2), 40, str, font32, White);
+            sprintf(str, myChangeScreenData.Subtext);
+            gdispDrawString((DISPLAY_SIZE_X/2) - (gdispGetStringWidth(str, font24)/2), 90, str, font24, White);
+            if(myChangeScreenData.showCountdown)
+            {
+                sprintf(str, "start in: %i", ((myChangeScreenData.msWaitingTime - (xTaskGetTickCount() - lastTime))/1000)+1);
+                gdispDrawString((DISPLAY_SIZE_X/2) - (gdispGetStringWidth(str, font20)/2), 120, str, font20, White);
+            }
 
-            if((xTaskGetTickCount() - lastTime) >= continueDelayTime)
+            if((xTaskGetTickCount() - lastTime) >= myChangeScreenData.msWaitingTime)
             {
                 resetBool = 0;
                 gdispDrawString((DISPLAY_SIZE_X/2) - (gdispGetStringWidth(str, font16)/2), DISPLAY_SIZE_Y/2 + 50, str, font16, White);
-                xQueueSend(state_queue, &gameStateId, 0);
+                xQueueSend(state_queue, &myChangeScreenData.nextState, 0);
             }
 
         }

@@ -6,6 +6,7 @@
 #include "math.h"
 #include "sm.h"
 #include "states/states.h"
+#include "states/level_change_screen.h"
 #include "stdlib.h"
 #include "ufo.h"
 #include "string.h"
@@ -50,8 +51,16 @@ void damagePlayer(struct player *player)
         player->health -= 1;
     if (player->health <= 0)
     {
+        struct changeScreenData changeScreen = {{0}};
+        changeScreen.msWaitingTime = 2000;
+        changeScreen.nextState = mainMenuStateId;
+        changeScreen.showCountdown = 0;
+        sprintf(changeScreen.Title, "Game over");
+        sprintf(changeScreen.Subtext, "Score: %i", player->score);
+    
+        xQueueSend(levelChange_queue, &changeScreen, 0);
         xQueueSend(score_queue, player, 0);
-        xQueueSend(state_queue, &mainMenuStateId, 0);
+        xQueueSend(state_queue, &levelChangeScreenId, 0);
     }
 }
 
@@ -74,7 +83,16 @@ void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player *
 {
     if (checkWinCondition(asteroids, numAsteroids, player, ufo))
     {
-        xQueueSend(state_queue, &mainMenuStateId, 0);
+        struct changeScreenData changeScreen = {{0}};
+        changeScreen.msWaitingTime = 2000;
+        changeScreen.nextState = mainMenuStateId;
+        changeScreen.showCountdown = 0;
+        sprintf(changeScreen.Title, "You Win!");
+        sprintf(changeScreen.Subtext, "Score: %i", player->score);
+    
+        xQueueSend(levelChange_queue, &changeScreen, 0);
+        xQueueSend(score_queue, player, 0);
+        xQueueSend(state_queue, &levelChangeScreenId, 0);
     }
 }
 

@@ -7,6 +7,7 @@
 #include "sm.h"
 #include "uart.h"
 #include "states/game.h"
+#include "states/level_change_screen.h"
 #include "string.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
@@ -287,6 +288,14 @@ void mainMenuDrawTask(void *data)
                         gameStart.isMaster = TRUE;
                         strcpy(gameStart.name, userName.name);
 
+                        struct changeScreenData changeScreenData = {{0}};
+                        sprintf(changeScreenData.Title, "Level 1");
+                        sprintf(changeScreenData.Subtext, userName.name);
+                        changeScreenData.msWaitingTime = 3000;
+                        changeScreenData.showCountdown = 1;
+                        changeScreenData.nextState = gameStateId;
+
+                        xQueueSend(levelChange_queue, &changeScreenData, 0);
                         xQueueSend(game_start_queue, &gameStart, 0);
                         xQueueSend(state_queue, &levelChangeScreenId, 0);
                     }
@@ -399,7 +408,7 @@ void mainMenuDrawTask(void *data)
                                         170,
                                         pointsShipVertical, 3, White);
                 }
-                
+
                 sprintf(str, "Asteroids");
                 gdispDrawString(TextOffset - 5, 10, str, font32, White);
 
