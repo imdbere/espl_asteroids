@@ -74,4 +74,6 @@ struct player
     char name[10];
 };
 
+#define MAX_ASTEROID_COUNT_GAME 10
+
 #include "tools.h"

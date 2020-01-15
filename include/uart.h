@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "asteroids.h"
 
 extern QueueHandle_t uartHandshakeQueue;
 extern QueueHandle_t uartInviteQueue;
@@ -6,7 +7,9 @@ extern QueueHandle_t uartFramePacketQueue;
 
 struct uartFramePacket {
     pointf playerPosition;
-    pointf playerSpeed
+    pointf playerSpeed;
+
+    struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME];
 };
 
 struct uartHandshakePacket {
@@ -59,4 +62,4 @@ void receivePacketTask(void * params);
 
 void sendHandshake(uint8_t isMaster);
 void sendGameInvitation(uint8_t isAck, char* name);
-void sendFramePacket(struct player* player);
+void sendFramePacket(struct player* player, struct asteroid* asteroids, size_t asteroidsLength);

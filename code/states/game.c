@@ -231,8 +231,8 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
     spawnUfo(ufo, TRUE);
 }
 
+
 //void gfxMutexExit(gfxMutex *pmutex);
-#define MAX_ASTEROID_COUNT_GAME 20
 
 void gameDrawTask(void *data)
 {
@@ -297,12 +297,13 @@ void gameDrawTask(void *data)
             if (isMultiplayer)
             {
                 // Receive/Send Player position
-                sendFramePacket(&player);
+                sendFramePacket(&player, asteroids, sizeof(asteroids));
                 struct uartFramePacket framePacket;
                 if (xQueueReceive(uartFramePacketQueue, &framePacket, 0) == pdTRUE)
                 {
                     ufo.position = framePacket.playerPosition;
                     ufo.speed = framePacket.playerSpeed;
+                    memcpy(asteroids, framePacket.asteroids, sizeof(asteroids));
                 }
             }
             else
