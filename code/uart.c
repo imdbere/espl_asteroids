@@ -2,6 +2,7 @@
 #include "includes.h"
 #include "uart.h"
 #include "string.h"
+#include "sm.h"
 
 QueueHandle_t ESPL_RxQueue; // Already defined in ESPL_Functions.h
 SemaphoreHandle_t xSendMutex;
@@ -71,7 +72,9 @@ uint8_t calculateChecksum(void *packet, size_t length)
 
 void sendPacket(enum packetType type, void *packet)
 {
-    if(xSemaphoreTake(xSendMutex, 5) == pdTRUE)
+    // Prevents sending of multiple packets at the same time and
+    // changing states while sending
+    if(xSemaphoreTake(semaphore_state_change, 5) == pdTRUE)
     {
         size_t length = getPacketSize(type);
         uint8_t checksum = calculateChecksum(packet, length);
@@ -83,7 +86,7 @@ void sendPacket(enum packetType type, void *packet)
 
         UART_SendData(checksum);
         UART_SendData(stopByte);
-        xSemaphoreGive(xSendMutex);
+        xSemaphoreGive(semaphore_state_change);
     }
 }
 

@@ -5,6 +5,9 @@
 #define STATE_MACHINE_STATE_QUEUE_LENGTH 10
 #define STATE_MACHINE_INTERVAL 10
 
+QueueHandle_t state_queue = NULL;
+SemaphoreHandle_t semaphore_state_change;
+
 typedef struct system_state {
 	unsigned int _ID;
 
@@ -30,8 +33,6 @@ struct state_machine {
 
 	unsigned char _initialized : 1;
 } sm = { 0 };
-
-QueueHandle_t state_queue = NULL;
 
 unsigned int addState(void (*init)(void *), void (*enter)(void *),
 		      /*void (*run)(void *),*/ void (*exit)(void *), void *data)
@@ -91,6 +92,8 @@ unsigned char smInit(void)
 	state_queue = xQueueCreate(STATE_MACHINE_STATE_QUEUE_LENGTH,
 				   sizeof(unsigned int));
 
+	semaphore_state_change = xSemaphoreCreateMutex();
+
 	if (!state_queue) {
 		fprintf(stderr, "State queue creation failed\n");
 		//exit(EXIT_FAILURE);
@@ -122,15 +125,21 @@ void statesHandlerTask(void* params)
 	while (1) {
 		while (xQueueReceive(state_queue, &state_in, portMAX_DELAY) != pdTRUE);
 
-		sm.next = findState(state_in);
-		if (sm.current != sm.next) {
-			if (sm.current->exit)
-				(sm.current->exit)(sm.current->data);
+		if(xSemaphoreTake(semaphore_state_change, 500) == pdTRUE)
+        {
+			sm.next = findState(state_in);
+			if (sm.current != sm.next) {
+				if (sm.current->exit)
+					(sm.current->exit)(sm.current->data);
 
-			if (sm.next->enter)
-				(sm.next->enter)(sm.next->data);
+				if (sm.next->enter)
+					(sm.next->enter)(sm.next->data);
 
-			sm.current = sm.next;
-		}
+				sm.current = sm.next;
+			}
+            xSemaphoreGive(semaphore_state_change);
+        }
+
+
 	}
 }
