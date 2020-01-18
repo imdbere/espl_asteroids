@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aaron/Dokumente/espl_asteroids
+CMAKE_SOURCE_DIR = /home/adamos/ESPL/espl_asteroids
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aaron/Dokumente/espl_asteroids
+CMAKE_BINARY_DIR = /home/adamos/ESPL/espl_asteroids
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles /home/aaron/Dokumente/espl_asteroids/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles /home/adamos/ESPL/espl_asteroids/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaron/Dokumente/espl_asteroids/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adamos/ESPL/espl_asteroids/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -1789,6 +1789,33 @@ code/main.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/main.c.s
 .PHONY : code/main.c.s
 
+code/player.o: code/player.c.o
+
+.PHONY : code/player.o
+
+# target to build an object file
+code/player.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/player.c.o
+.PHONY : code/player.c.o
+
+code/player.i: code/player.c.i
+
+.PHONY : code/player.i
+
+# target to preprocess a source file
+code/player.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/player.c.i
+.PHONY : code/player.c.i
+
+code/player.s: code/player.c.s
+
+.PHONY : code/player.s
+
+# target to generate assembly for a file
+code/player.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/player.c.s
+.PHONY : code/player.c.s
+
 code/sm.o: code/sm.c.o
 
 .PHONY : code/sm.o
@@ -2169,6 +2196,9 @@ help:
 	@echo "... code/main.o"
 	@echo "... code/main.i"
 	@echo "... code/main.s"
+	@echo "... code/player.o"
+	@echo "... code/player.i"
+	@echo "... code/player.s"
 	@echo "... code/sm.o"
 	@echo "... code/sm.i"
 	@echo "... code/sm.s"

@@ -1,5 +1,6 @@
 #include "includes.h"
 #include "bullets.h"
+#include "player.h"
 
 struct ufo
 {

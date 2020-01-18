@@ -30,8 +30,8 @@ void drawPlayer(struct player* player)
     point points[] = {{-8, 0}, {8, 0}, {0, 20}, {-5, 0}, {5, 0}, {0, -player->flameLength - 5}};
     for (int i = 0; i < pointCount; i++)
     {
-        pointf rotatedPoint = rotatePoint(points[i], player->angleRad - M_PI / 2); // Player has a default rotation of 90°
-        points[i] = (point){(int) rotatedPoint.x, (int) rotatedPoint.y};
+        pointf rotatedPoint = rotatePoint(toPointf(points[i]), player->angleRad - M_PI / 2); // Player has a default rotation of 90°
+        points[i] = toPoint(rotatedPoint);
     }
 
     gdispFillConvexPoly(player->position.x, player->position.y, points, 3, White);

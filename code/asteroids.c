@@ -28,11 +28,11 @@ void generateAsteroids(struct asteroid *asteroids, int asteroidsLength, int aste
             float currentAngle = 0;
             for (int i = 0; i < segmentCount; i++)
             {
-                point vertex = scalarMult(toVec(currentAngle), radius);
+                pointf vertex = scalarMult(toVec(currentAngle), radius);
                 // Randomize Asteroid
                 addToVec(&vertex, randVect(lower, upper));
 
-                newAsteroid->vertices[i] = vertex;
+                newAsteroid->vertices[i] = toPoint(vertex);
                 currentAngle += (2 * M_PI) / segmentCount;
             }
         }
@@ -75,9 +75,12 @@ void drawAsteroids(struct asteroid *asteroids, int asteroidCount, color_t color)
             if (nextVertex == asteroid.segmentCount)
                 nextVertex = 0;
 
-            pointf lineStart = addVec(asteroid.position, asteroid.vertices[i]);
-            pointf lineEnd = addVec(asteroid.position, asteroid.vertices[nextVertex]);
-            gdispDrawLine(lineStart.x, lineStart.y, lineEnd.x, lineEnd.y, color);
+            gdispDrawLine(
+                asteroid.vertices[i].x + asteroid.position.x,
+                asteroid.vertices[i].y + asteroid.position.y,
+                asteroid.vertices[nextVertex].x + asteroid.position.x,
+                asteroid.vertices[nextVertex].y + asteroid.position.y,
+                color);
         }
         
     }

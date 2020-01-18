@@ -13,6 +13,7 @@
 #include "string.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
+#include "player.h"
 
 TaskHandle_t drawTaskHandle;
 TaskHandle_t generateAsteroidsHandle;
@@ -237,7 +238,7 @@ void gameDrawTask(void *data)
             if (isMultiplayer)
             {
                 // Receive/Send Player position
-                sendFramePacket(&player, asteroids, sizeof(asteroids));
+                sendFramePacket(&player, &asteroids, sizeof(asteroids));
                 struct uartFramePacket framePacket;
                 if (xQueueReceive(uartFramePacketQueue, &framePacket, 0) == pdTRUE)
                 {

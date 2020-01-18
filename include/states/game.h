@@ -10,7 +10,7 @@ struct gameStartInfo
     uint8_t isMultiplayer;
     uint8_t isMaster;
     uint8_t mode;
-    char name[10]
+    char name[10];
 };
 
 extern QueueHandle_t game_start_queue;

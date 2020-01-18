@@ -3,7 +3,9 @@
 
 pointf addVec(pointf p1, pointf p2);
 pointf subVec(pointf p1, pointf p2);
-pointf addToVec(pointf target, pointf toAdd);
+point toPoint(pointf p);
+pointf toPointf(point p);
+void addToVec(pointf *target, pointf toAdd);
 uint8_t cirlceTouchingCircle(pointf pos1, float rad1, pointf pos2, float rad2);
 float floatMod(float a, float b);
 float lerp_angle(float from, float to, float weight);

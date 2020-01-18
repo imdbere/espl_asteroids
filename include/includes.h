@@ -57,22 +57,7 @@ struct pointf
 	float y;
 };
 
-
 typedef struct pointf pointf;
-
-struct player
-{
-    uint8_t isActive;
-    pointf position;
-    pointf speed;
-    float angleRad;
-    uint8_t isThrusting;
-    uint8_t flameLength;
-    float colliderRadius;
-    int health;
-	int score;
-    char name[10];
-};
 
 #define MAX_ASTEROID_COUNT_GAME 10
 

@@ -6,7 +6,7 @@ pointf rotatePoint(pointf p, float angle)
     return (pointf) {
         (cos(angle)*p.x - sin(angle)*p.y),
         -(sin(angle)*p.x + cos(angle)*p.y)
-    }
+    };
 }
 
 /*float lerp_angle(float a, float b, float t)
@@ -35,6 +35,16 @@ float lerp_angle(float from, float to, float weight)
     return from + short_angle_dist(from, to) * weight;
 }
 
+point toPoint(pointf p)
+{
+    return (point) {(int)p.x, (int)p.y};
+}
+
+pointf toPointf(point p)
+{
+    return (pointf) {(float)p.x, (float)p.y};
+}
+
 pointf addVec(pointf p1, pointf p2)
 {
     return (pointf) {p1.x + p2.x, p1.y + p2.y};
@@ -45,7 +55,7 @@ pointf subVec(pointf p1, pointf p2)
     return (pointf) {p1.x - p2.x, p1.y - p2.y};
 }
 
-pointf addToVec(pointf target, pointf toAdd)
+void addToVec(pointf *target, pointf toAdd)
 {
     target->x += toAdd.x;
     target->y += toAdd.y;

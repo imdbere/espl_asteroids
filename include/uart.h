@@ -1,5 +1,8 @@
+#pragma once
+
 #include "includes.h"
 #include "asteroids.h"
+#include "player.h"
 
 extern QueueHandle_t uartHandshakeQueue;
 extern QueueHandle_t uartInviteQueue;
@@ -18,7 +21,7 @@ struct uartHandshakePacket {
 
 struct uartGameInvitePacket {
     uint8_t isAck;
-    char name[10]
+    char name[10];
 };
 
 struct uartInitPacket {

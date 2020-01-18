@@ -36,7 +36,7 @@ void changeUfoSpeed(struct ufo *ufo, float maxSpeed)
 uint8_t ufoShouldShoot(struct ufo *ufo)
 {
     // 1/50 chance
-    return randRange(0, 1000) < 25);
+    return randRange(0, 1000) < 25;
 }
 
 void ufoShoot(struct ufo *ufo, struct player *myplayer, struct bullet *bullets, size_t bulletLength)

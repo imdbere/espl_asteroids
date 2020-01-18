@@ -11,6 +11,7 @@
 #include "string.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
+#include "player.h"
 
 #include <math.h>
 #include <stdlib.h>

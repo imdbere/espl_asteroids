@@ -1,8 +1,9 @@
 
-#include "includes.h"
 #include "uart.h"
+#include "includes.h"
 #include "string.h"
 #include "sm.h"
+
 
 QueueHandle_t ESPL_RxQueue; // Already defined in ESPL_Functions.h
 SemaphoreHandle_t xSendMutex;
@@ -148,6 +149,8 @@ size_t getPacketSize(enum packetType type)
         case FramePacket:
             return sizeof(struct uartFramePacket);
     }
+
+    return 0;
 }
 
 void handleGotPacket(enum packetType type, uint8_t* buffer)
