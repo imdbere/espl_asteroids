@@ -128,7 +128,7 @@ void gpioInit() {
 	USART_InitTypeDef USART_InitStruct;
 	NVIC_InitTypeDef NVIC_InitStruct;
 
-	USART_InitStruct.USART_BaudRate = 19200;
+	USART_InitStruct.USART_BaudRate = 2000000;
 	USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	USART_InitStruct.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
 	USART_InitStruct.USART_Parity = USART_Parity_No;

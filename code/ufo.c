@@ -13,6 +13,8 @@ void spawnUfo(struct ufo *ufo, uint8_t isSmall)
 
     changeUfoSpeed(ufo, 1);
     ufo->size = isSmall ? 3 : 5;
+    ufo->health = 1;
+    ufo->colliderRadius = 35;
 }
 
 void updateUfo(struct ufo *ufo)

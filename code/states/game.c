@@ -34,8 +34,8 @@ void gameEnter()
     GDisplay *g = gdispGetDisplay(0);
     xSemaphoreTake(g->mutex, 0);
     xSemaphoreGive(g->mutex);
-    vTaskResume(drawTaskHandle);
     xTaskNotifyGive(drawTaskHandle);
+    vTaskResume(drawTaskHandle);
 }
 
 void gameExit()
@@ -61,6 +61,15 @@ void damagePlayer(struct player *player)
         xQueueSend(levelChange_queue, &changeScreen, 0);
         xQueueSend(score_queue, player, 0);
         xQueueSend(state_queue, &levelChangeScreenId, 0);
+    }
+}
+
+void damageUfo(struct ufo* ufo)
+{
+    ufo->health -= 1;
+    if (ufo->health <= 0)
+    {
+        ufo->isActive = 0;
     }
 }
 
@@ -139,6 +148,13 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
             checkGameWin(asteroids, numAsteroids, player, ufo);
             damagePlayer(player);
         }
+
+        // Between ufo and asteroids (in case of multiplayer)
+        if (ufo->collidesWithAsteroids && cirlceTouchingCircle(a->position, a->radius, ufo->position, ufo->colliderRadius))
+        {
+            destroyAsteroid(asteroids, numAsteroids, ai);
+            damageUfo(ufo);
+        }
     }
 
     for (int bi = 0; bi < numBullets; bi++)
@@ -148,16 +164,16 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
             continue;
 
         // Between bullets and ufo
-        if (ufo->isActive && b->type == FROM_PLAYER && pointWithinCircle(ufo->position, ufo->size * 10, b->position))
+        if (ufo->isActive && b->type == FROM_PLAYER && pointWithinCircle(ufo->position, ufo->colliderRadius, b->position))
         {
             player->score += POINTS_DESTROY_UFO;
             b->isActive = 0;
-            ufo->isActive = 0;
+            damageUfo(ufo);
             checkGameWin(asteroids, numAsteroids, player, ufo);
         }
 
         // Between bullets and player
-        if (b->type == FROM_UFO && pointWithinCircle(player->position, player->colliderRadius, b->position))
+        if (b->type != FROM_PLAYER && pointWithinCircle(player->position, player->colliderRadius, b->position))
         {
             b->isActive = 0;
             damagePlayer(player);
@@ -166,23 +182,33 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
 }
 
 
-void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroids, size_t asteroidLength)
+void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroids, size_t asteroidLength, uint8_t isMultiplayer, uint8_t isMaster)
 {
+    spawnUfo(ufo, TRUE);
+
     player->health = INITIAL_HEALTH_COUNT;
+    if (isMultiplayer)
+        ufo->health = INITIAL_HEALTH_COUNT;
+
     player->position = (pointf){DISPLAY_SIZE_X / 2.0, DISPLAY_SIZE_Y / 2.0};
     player->score = 0;
     player->scoreOld = 0;
     player->speed = (pointf){0.0, 0.0};
     player->angleRad = 0;
+
     player->colliderRadius = RADIUS_COLLIDER;
+    if (isMultiplayer)
+        ufo->colliderRadius = RADIUS_COLLIDER;
 
     int initialAsteroidCount = INITIAL_ASTEROID_COUNT;
     int asteroidsRadius = RADIUS_BIG_ASTEROID;
 
     //memset(asteroids, 0, asteroidLength);
     inactivateArray(asteroids, sizeof(struct asteroid), asteroidLength);
-    generateAsteroids(asteroids, asteroidLength, initialAsteroidCount, (pointf){0, 0}, asteroidsRadius);
-    spawnUfo(ufo, TRUE);
+    //inactivateArray(bullets, sizeof(struct asteroid), asteroidLength);
+    if (!isMultiplayer || isMaster)
+        generateAsteroids(asteroids, asteroidLength, initialAsteroidCount, (pointf){0, 0}, asteroidsRadius);
+
 }
 
 //void gfxMutexExit(gfxMutex *pmutex);
@@ -215,12 +241,11 @@ void gameDrawTask(void *data)
     uint8_t isMultiplayer;
     uint8_t isMaster;
 
-    resetGame(&player, &ufo, &asteroids, sizeof(asteroids));
+    //resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer);
     while (1)
     {
         if (ulTaskNotifyTake(pdTRUE, 0) == 1)
         {
-            resetGame(&player, &ufo, &asteroids, sizeof(asteroids));
             struct gameStartInfo gameStart;
             if (xQueueReceive(game_start_queue, &gameStart, 0) == pdTRUE)
             {
@@ -228,54 +253,40 @@ void gameDrawTask(void *data)
                 isMaster = gameStart.isMaster;
                 strcpy(player.name, gameStart.name);
             }
+
+            resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer, isMaster);
+
+            if (isMultiplayer)
+            {
+                if (isMaster)
+                {
+                    sendGameSetup(&asteroids, sizeof(asteroids));
+                }
+                else
+                {
+                    struct uartGameSetupPacket gameSetup;
+                    if (xQueueReceive(uartGameSetupQueue, &gameSetup, 100) == pdTRUE)
+                    {
+                        memcpy(&asteroids, &gameSetup.asteroids, sizeof(asteroids));
+                    }
+                }
+                
+            }
         }
 
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
         {
-            gdispClear(Black);
-            //gdispClear(White);
-
-            if (!isMultiplayer || isMaster)
-            {
-                updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
-                checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo);
-
-                if (isMultiplayer)
-                {
-                    // MASTER
-                    // Send asteroids, bullets
-                }
-            }
-
-            if (isMultiplayer)
-            {
-                // Receive/Send Player position
-                sendFramePacket(&player, &asteroids, sizeof(asteroids));
-                struct uartFramePacket framePacket;
-                if (xQueueReceive(uartFramePacketQueue, &framePacket, 0) == pdTRUE)
-                {
-                    ufo.position = framePacket.playerPosition;
-                    ufo.speed = framePacket.playerSpeed;
-                    memcpy(asteroids, framePacket.asteroids, sizeof(asteroids));
-                }
-            }
-            else
-            {
-                if (ufo.isActive)
-                {
-                    updateUfo(&ufo);
-                    if (ufoShouldShoot(&ufo))
-                    {
-                        ufoShoot(&ufo, &player, &bullets, sizeof(bullets));
-                    }
-                }
-            }
+            struct uartFramePacket framePacket = {{0}};
 
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
             {
                 if (buttons.C.risingEdge)
                 {
-                    generateBullet(bullets, sizeof(bullets), player.angleRad, 5.0, 1.0, player.position, player.speed, FROM_PLAYER);
+                    struct bullet* newBullet = generateBullet(bullets, sizeof(bullets), player.angleRad, 5.0, 1.0, player.position, player.speed, FROM_PLAYER);
+                    if (isMultiplayer)
+                    {
+                        memcpy(&framePacket.newBullet, newBullet, sizeof(struct bullet));
+                    }
                 }
                 else if (buttons.D.risingEdge)
                 {
@@ -292,14 +303,56 @@ void gameDrawTask(void *data)
                 }
             }
 
+            if (isMultiplayer)
+            {
+                // Receive/Send Player position
+                framePacket.playerPosition = player.position;
+                framePacket.playerSpeed = player.speed;
+
+                sendFramePacket(&framePacket);
+                
+                if (xQueueReceive(uartFramePacketQueue, &framePacket, 0) == pdTRUE)
+                {
+                    ufo.position = framePacket.playerPosition;
+                    ufo.speed = framePacket.playerSpeed;
+                    // Generate bullet triggered by other player
+                    if (framePacket.newBullet.isActive)
+                    {
+                        struct bullet* b = (struct bullet*) searchForFreeSpace(bullets, sizeof(struct bullet), 1);
+                        memcpy(b, &framePacket.newBullet, sizeof(struct bullet));
+                        b->type = FROM_PLAYER_UFO;
+                    }
+                    //memcpy(asteroids, framePacket.asteroids, sizeof(asteroids));
+                }
+            }
+            else
+            {
+                if (ufo.isActive)
+                {
+                    updateUfo(&ufo);
+                    if (ufoShouldShoot(&ufo))
+                    {
+                        ufoShoot(&ufo, &player, &bullets, sizeof(bullets));
+                    }
+                }
+            }
+
+            updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
+            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo);
+
             updateBullets(&bullets, maxNumBullets);
             updatePlayer(&player, buttons.joystick.x, buttons.joystick.y);
 
             // DRAWING
+            gdispClear(Black);
 
             drawAsteroids((struct asteroid *)&asteroids, maxAsteroidCount, White);
             drawPlayer(&player);
-            drawUfo(&ufo, Red);
+            if (ufo.isActive)
+            {
+                drawUfo(&ufo, Red);
+            }
+
             drawBullets(&bullets, maxNumBullets);
 
             //Score counter on top

@@ -3,16 +3,18 @@
 #include "includes.h"
 #include "asteroids.h"
 #include "player.h"
+#include "bullets.h"
 
 extern QueueHandle_t uartHandshakeQueue;
 extern QueueHandle_t uartInviteQueue;
 extern QueueHandle_t uartFramePacketQueue;
-
+extern QueueHandle_t uartGameSetupQueue;
 struct uartFramePacket {
     pointf playerPosition;
     pointf playerSpeed;
 
-    struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME];
+    struct bullet newBullet;
+    //struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME];
 };
 
 struct uartHandshakePacket {
@@ -24,6 +26,10 @@ struct uartGameInvitePacket {
     char name[10];
 };
 
+struct uartGameSetupPacket {
+    struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME];
+};
+
 struct uartInitPacket {
     long seed;
 };
@@ -31,6 +37,7 @@ struct uartInitPacket {
 enum packetType {
     FramePacket,
     GameInvitePacket,
+    GameSetupPacket,
     HandshakePacket
 };
 
@@ -65,4 +72,6 @@ void receivePacketTask(void * params);
 
 void sendHandshake(uint8_t isMaster);
 void sendGameInvitation(uint8_t isAck, char* name);
-void sendFramePacket(struct player* player, struct asteroid* asteroids, size_t asteroidsLength);
+void sendGameSetup(struct asteroid* asteroids, size_t asteroidsLength);
+//void sendFramePacket(struct player* player, struct asteroid* asteroids, size_t asteroidsLength);
+void sendFramePacket(struct uartFramePacket* packet);
