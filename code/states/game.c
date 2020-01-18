@@ -44,8 +44,6 @@ void gameExit()
     vTaskSuspend(drawTaskHandle);
 }
 
-
-
 void damagePlayer(struct player *player)
 {
     if (player->health > 0)
@@ -58,7 +56,7 @@ void damagePlayer(struct player *player)
         changeScreen.showCountdown = 0;
         sprintf(changeScreen.Title, "Game over");
         sprintf(changeScreen.Subtext, "Score: %i", player->score);
-    
+
         xQueueSend(levelChange_queue, &changeScreen, 0);
         xQueueSend(score_queue, player, 0);
         xQueueSend(state_queue, &levelChangeScreenId, 0);
@@ -90,7 +88,7 @@ void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player *
         changeScreen.showCountdown = 0;
         sprintf(changeScreen.Title, "You Win!");
         sprintf(changeScreen.Subtext, "Score: %i", player->score);
-    
+
         xQueueSend(levelChange_queue, &changeScreen, 0);
         xQueueSend(score_queue, player, 0);
         xQueueSend(state_queue, &levelChangeScreenId, 0);
@@ -155,10 +153,10 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
     }
 }
 
-void updatePlayer(struct player* player, int joyX, int joyY)
+void updatePlayer(struct player *player, int joyX, int joyY)
 {
     float shipMaxSpeed = 2;
-        
+
     player->speed.x += joyX / 2000.0;
     if (player->speed.x > shipMaxSpeed)
         player->speed.x = shipMaxSpeed;
@@ -170,7 +168,6 @@ void updatePlayer(struct player* player, int joyX, int joyY)
         player->speed.y = shipMaxSpeed;
     if (player->speed.y < -shipMaxSpeed)
         player->speed.y = -shipMaxSpeed;
-    
 
     player->position.x += player->speed.x;
     player->position.y += player->speed.y;
@@ -196,7 +193,7 @@ void updatePlayer(struct player* player, int joyX, int joyY)
     player->flameLength = max(abs(joyX), abs(joyY)) * 12 / 127.0;
 }
 
-void drawPlayer(struct player* player)
+void drawPlayer(struct player *player)
 {
     int pointCount = 6;
 
@@ -230,7 +227,6 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
     generateAsteroids(asteroids, asteroidLength, initialAsteroidCount, (pointf){0, 0}, asteroidsRadius);
     spawnUfo(ufo, TRUE);
 }
-
 
 //void gfxMutexExit(gfxMutex *pmutex);
 
@@ -317,13 +313,25 @@ void gameDrawTask(void *data)
                     }
                 }
             }
-        
 
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
             {
                 if (buttons.C.risingEdge)
                 {
                     generateBullet(bullets, sizeof(bullets), player.angleRad, 5.0, 1.0, player.position, player.speed, FROM_PLAYER);
+                }
+                else if (buttons.D.risingEdge)
+                {
+                    struct changeScreenData changeScreen = {{0}};
+                    
+                    changeScreen.isPauseScreen = 1;
+                    sprintf(changeScreen.Title, "Game Over");
+                    sprintf(changeScreen.Subtext, "Score: %i", player.score);
+                    changeScreen.nextState = mainMenuStateId;
+                    
+
+                    xQueueSend(levelChange_queue, &changeScreen, 0);
+                    xQueueSend(state_queue, &levelChangeScreenId, 0);
                 }
             }
 

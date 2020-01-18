@@ -23,7 +23,6 @@ void updateButton(struct button *button, unsigned char currentState)
 	{
 		(*button).fallingEdge = 1;
 	}
-
 	(*button).previousState = currentState;
 }
 

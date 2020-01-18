@@ -13,5 +13,6 @@ struct changeScreenData
     char Subtext[20];
     int msWaitingTime;
     uint8_t showCountdown;
+    uint8_t isPauseScreen;
     int nextState;
 };

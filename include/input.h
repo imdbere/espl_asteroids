@@ -9,8 +9,8 @@ struct button {
 	unsigned char previousState;
 	unsigned char risingEdge;
 	unsigned char fallingEdge;
-
 	int pressCounter;
+    long lastDebounceTime; 
 };
 
 struct buttons {
