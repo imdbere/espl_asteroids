@@ -16,4 +16,5 @@ struct bullet
 };
 
 void generateBullet(struct bullet* bullets, size_t length, float angle, float speed, float speedInheritance, pointf pos, pointf playerSpeed, enum BulletType type);
-void drawBullets(struct bullet* bullets, int numBullets);
+void updateBullets(struct bullet* bullets, int bulletsLength);
+void drawBullets(struct bullet* bullets, int bulletsLength);

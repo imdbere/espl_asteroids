@@ -44,8 +44,6 @@ void gameExit()
     vTaskSuspend(drawTaskHandle);
 }
 
-
-
 void damagePlayer(struct player *player)
 {
     if (player->health > 0)
@@ -155,63 +153,6 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
     }
 }
 
-void updatePlayer(struct player* player, int joyX, int joyY)
-{
-    float shipMaxSpeed = 2;
-        
-    player->speed.x += joyX / 2000.0;
-    if (player->speed.x > shipMaxSpeed)
-        player->speed.x = shipMaxSpeed;
-    if (player->speed.x < -shipMaxSpeed)
-        player->speed.x = -shipMaxSpeed;
-
-    player->speed.y += joyY / 2000.0;
-    if (player->speed.y > shipMaxSpeed)
-        player->speed.y = shipMaxSpeed;
-    if (player->speed.y < -shipMaxSpeed)
-        player->speed.y = -shipMaxSpeed;
-    
-
-    player->position.x += player->speed.x;
-    player->position.y += player->speed.y;
-
-    if (player->position.x > DISPLAY_SIZE_X)
-        player->position.x = 0;
-    if (player->position.y > DISPLAY_SIZE_Y)
-        player->position.y = 0;
-    if (player->position.x < 0)
-        player->position.x = DISPLAY_SIZE_X;
-    if (player->position.y < 0)
-        player->position.y = DISPLAY_SIZE_Y;
-
-    player->isThrusting = joyX != 0 || joyY != 0;
-    if (player->isThrusting)
-    {
-        float angleRad = atan2f(-joyY, joyX);
-        float t = 0.1;
-
-        player->angleRad = lerp_angle(player->angleRad, angleRad, t);
-    }
-
-    player->flameLength = max(abs(joyX), abs(joyY)) * 12 / 127.0;
-}
-
-void drawPlayer(struct player* player)
-{
-    int pointCount = 6;
-
-    point points[] = {{-8, 0}, {8, 0}, {0, 20}, {-5, 0}, {5, 0}, {0, -player->flameLength - 5}};
-    for (int i = 0; i < pointCount; i++)
-    {
-        int newX = rotatePointX(points[i].x, points[i].y, player->angleRad - M_PI / 2);
-        int newY = rotatePointY(points[i].x, points[i].y, player->angleRad - M_PI / 2);
-        points[i] = (point){newX, newY};
-    }
-
-    gdispFillConvexPoly(player->position.x, player->position.y, points, 3, White);
-    if (player->isThrusting)
-        gdispFillConvexPoly(player->position.x, player->position.y, points + 3, 3, Orange);
-}
 
 void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroids, size_t asteroidLength)
 {
@@ -327,6 +268,7 @@ void gameDrawTask(void *data)
                 }
             }
 
+            updateBullets(&bullets, maxNumBullets);
             updatePlayer(&player, buttons.joystick.x, buttons.joystick.y);
 
             // DRAWING
