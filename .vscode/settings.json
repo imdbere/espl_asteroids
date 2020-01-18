@@ -17,6 +17,7 @@
         "game.h": "c",
         "level_change_screen.h": "c",
         "time.h": "c",
-        "states.h": "c"
+        "states.h": "c",
+        "romfs_files.h": "c"
     }
 }

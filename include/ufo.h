@@ -5,10 +5,12 @@
 struct ufo
 {
     uint8_t isActive;
-    uint8_t multiPlayerMode;
+    uint8_t collidesWithAsteroids;
     pointf position;
     pointf speed;
     int size;
+    float colliderRadius;
+    int health;
     //TickType_t lastShootTick;
 };
 

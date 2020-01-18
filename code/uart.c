@@ -26,15 +26,8 @@ void sendByteToTxBuffer(uint8_t byte)
 
 DMA_InitTypeDef dmaInit;
 
-void initUartQueues()
+void initDma()
 {
-    uartHandshakeQueue = xQueueCreate(2, sizeof(struct uartHandshakePacket));
-    uartInviteQueue = xQueueCreate(2, sizeof(struct uartGameInvitePacket));
-    uartFramePacketQueue = xQueueCreate(2, sizeof(struct uartFramePacket));
-
-    xTaskCreate(receivePacketTask, "receivePacketTask", 100, NULL, 2, NULL);
-    xSendMutex = xSemaphoreCreateMutex();
-
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     //RCC_AHB2PeriphResetCmd(RCC_AHB1Periph_DMA2, ENABLE);
 
@@ -61,6 +54,19 @@ void initUartQueues()
     DMA_Cmd(DMA2_Stream7, ENABLE);
 
     USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
+}
+
+void initUartQueues()
+{
+    uartHandshakeQueue = xQueueCreate(2, sizeof(struct uartHandshakePacket));
+    uartInviteQueue = xQueueCreate(2, sizeof(struct uartGameInvitePacket));
+    uartGameSetupQueue = xQueueCreate(2, sizeof(struct uartGameSetupPacket));
+    uartFramePacketQueue = xQueueCreate(2, sizeof(struct uartFramePacket));
+
+    xTaskCreate(receivePacketTask, "receivePacketTask", 100, NULL, 2, NULL);
+    xSendMutex = xSemaphoreCreateMutex();
+
+    //initDma();
 }
 
 void reinitDma(int packetLength)
@@ -117,24 +123,27 @@ void sendGameSetup(struct asteroid* asteroids, size_t asteroidsLength)
     struct uartGameSetupPacket packet;
     memcpy(packet.asteroids, asteroids, asteroidsLength);
 
-    sendPacket(FramePacket, &packet);
+    sendPacket(GameSetupPacket, &packet);
 }
 
-void sendFramePacket(struct player* player, struct asteroid* asteroids, size_t asteroidsLength)
+void sendFramePacket(struct uartFramePacket* packet)
 {
-    struct uartFramePacket packet;
-    packet.playerPosition = player->position;
-    packet.playerSpeed = player->speed;
-    //memcpy(packet.asteroids, asteroids, asteroidsLength);
+    sendPacket(FramePacket, packet);
+}
 
-    sendPacket(FramePacket, &packet);
+void sendBufferDma(uint8_t *buffer, size_t length)
+{
+    for (int i = 0; i < length; i++)
+    {
+        sendByteToTxBuffer(buffer[i]);
+    }
 }
 
 void sendBuffer(uint8_t *buffer, size_t length)
 {
     for (int i = 0; i < length; i++)
     {
-        sendByteToTxBuffer(buffer[i]);
+        UART_SendData(buffer[i]);
     }
 }
 
@@ -150,7 +159,7 @@ uint8_t calculateChecksum(void *packet, size_t length)
     return checksum;
 }
 
-void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *packet)
+void __attribute__((optimize("O0"))) sendPacketDma(enum packetType type, void *packet)
 {
     // Prevents sending of multiple packets at the same time and
     // changing states while sending
@@ -175,6 +184,27 @@ void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *pack
             reinitDma(txBufferPos);
             startTransfer();
         }
+
+        xSemaphoreGive(semaphore_state_change);
+    }
+}
+
+void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *packet)
+{
+    // Prevents sending of multiple packets at the same time and
+    // changing states while sending
+    if(xSemaphoreTake(semaphore_state_change, 5) == pdTRUE)
+    {
+        size_t length = getPacketSize(type);
+        uint8_t checksum = calculateChecksum(packet, length);
+
+        UART_SendData(startByte);
+        UART_SendData(type);
+
+        sendBuffer((uint8_t *)packet, length);
+
+        UART_SendData(checksum);
+        UART_SendData(stopByte);
 
         xSemaphoreGive(semaphore_state_change);
     }
@@ -223,7 +253,7 @@ void receivePacketTask(void *params)
     enum packetType type;
     size_t packetLength;
 
-    uint8_t pos = 0;
+    int pos = 0;
     uint8_t buffer[40];
 
     while (1)
