@@ -44,20 +44,20 @@ void mainMenuEnter()
     // player.score = 1005265;
     if (xQueueReceive(score_queue, &player, 0) == pdTRUE)
     {
-        sprintf(debugStr, "%i", player.score);
-        for (int i = 0; i < sizeof(userScoresSp); i++)
-        {
-            sprintf(userScoresSp[i].name, "");
-            userScoresSp[i].score = 0;
-        }
         int i = 0;
         while (player.score < userScoresSp[i].score)
         {
             i++;
         }
 
+        for(int j = HIGHSCORE_DISPLAY_COUNT-1; j > i; j--)
+        {
+            userScoresSp[j].score = userScoresSp[j-1].score;
+            sprintf(userScoresSp[j].name,userScoresSp[j-1].name);
+        }
         sprintf(userScoresSp[i].name, player.name);
         userScoresSp[i].score = player.score;
+        // sprintf(debugStr, "%i : %i : %i",player.score, userScoresSp[0].score, i);
     }
     else
     {
@@ -81,14 +81,14 @@ void mainMenuExit()
 void dispHighScore(int TextOffset, uint8_t isMulitpayer)
 {
     char str[100];
-    font_t myFont;
+    font_t myFont = font1;
     int highscorOffsetY = 70;
 
     if (isMulitpayer)
     {
         sprintf(str, "Highscore MP");
         gdispDrawString(TextOffset - 5, 10, str, font32, White);
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
         {
             if (i == 0)
                 myFont = font24;
@@ -97,7 +97,8 @@ void dispHighScore(int TextOffset, uint8_t isMulitpayer)
             else if (i == 2)
                 myFont = font16;
             else
-                myFont = font12;
+                myFont = font16;
+
             sprintf(str, "%i", i + 1);
             gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
             sprintf(str, userScoresMp[i].name);
@@ -110,16 +111,16 @@ void dispHighScore(int TextOffset, uint8_t isMulitpayer)
     {
         sprintf(str, "Highscore SP");
         gdispDrawString(TextOffset - 5, 10, str, font32, White);
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
         {
-            if (i == 0)
+           /*  if (i == 0)
                 myFont = font24;
             else if (i == 1)
                 myFont = font20;
             else if (i == 2)
                 myFont = font16;
             else
-                myFont = font12;
+                myFont = font12; */
             sprintf(str, "%i", i + 1);
             gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
             sprintf(str, userScoresSp[i].name);
@@ -176,7 +177,7 @@ void writeName(struct buttons *buttons, struct userNameInput *userName)
         if (userName->lastJoystickPosition == 0)
         {
             userName->lastJoystickPosition = 1;
-            if (userName->charIndex < 10)
+            if (userName->charIndex < 8)
             {
                 if (userName->name[userName->charIndex] == 'i' || userName->name[userName->charIndex] == 'j')
                 {
@@ -230,7 +231,7 @@ void writeName(struct buttons *buttons, struct userNameInput *userName)
         {
             i++;
         }
-        if (i > 0)
+        if (i > 1)
         {
             userName->name[i - 1] = '\0';
         }
@@ -256,9 +257,7 @@ void startGame(uint8_t isMultiplayer, uint8_t isMaster, char *name)
     if(name[0] == '\0')
     {
         // int i = 0;
-        sprintf(name, "Player");
-        
-        
+        sprintf(name, "PLAYER"); 
     }
 
     strcpy(gameStart.name, name);
@@ -326,8 +325,8 @@ void mainMenuDrawTask(void *data)
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
         {
             gdispClear(Black);
-            // drawAsteroids(&asteroids, asteroidCount, Gray);
-            // updateAsteroids(&asteroids, asteroidCount);
+            drawAsteroids(&asteroids, asteroidCount, Gray);
+            updateAsteroids(&asteroids, asteroidCount);
             drawUfo(&myufo, Grey);
             updateUfo(&myufo);
             updateSpeedTime++;
@@ -517,6 +516,8 @@ void mainMenuDrawTask(void *data)
                     sprintf(str, "Connected");
                     gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
                 }
+                
+                gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, debugStr, font16, White);
             }
         }
     }
