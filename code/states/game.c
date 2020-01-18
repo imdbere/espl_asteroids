@@ -216,6 +216,23 @@ void gameDrawTask(void *data)
                 isMaster = gameStart.isMaster;
                 strcpy(player.name, gameStart.name);
             }
+
+            if (isMultiplayer)
+            {
+                if (isMaster)
+                {
+                    sendGameSetup(&asteroids, sizeof(asteroids));
+                }
+                else
+                {
+                    struct uartGameSetupPacket gameSetup;
+                    if (xQueueReceive(uartGameSetupQueue, &gameSetup, 10) == pdTRUE)
+                    {
+                        memcpy(&asteroids, &gameSetup.asteroids, sizeof(asteroids));
+                    }
+                }
+                
+            }
         }
 
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
@@ -223,10 +240,11 @@ void gameDrawTask(void *data)
             gdispClear(Black);
             //gdispClear(White);
 
+            updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
+            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo);
             if (!isMultiplayer || isMaster)
             {
-                updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
-                checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo);
+                
 
                 if (isMultiplayer)
                 {
@@ -244,7 +262,7 @@ void gameDrawTask(void *data)
                 {
                     ufo.position = framePacket.playerPosition;
                     ufo.speed = framePacket.playerSpeed;
-                    memcpy(asteroids, framePacket.asteroids, sizeof(asteroids));
+                    //memcpy(asteroids, framePacket.asteroids, sizeof(asteroids));
                 }
             }
             else

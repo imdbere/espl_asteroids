@@ -11,10 +11,12 @@ SemaphoreHandle_t xSendMutex;
 QueueHandle_t uartHandshakeQueue;
 QueueHandle_t uartInviteQueue;
 QueueHandle_t uartFramePacketQueue;
+QueueHandle_t uartGameSetupQueue;
 
 static const uint8_t startByte = 0xAA, stopByte = 0x55;
 
-uint8_t bufferToSend[100];
+int dmaPacketSize = 50;
+uint8_t bufferToSend[100] = {{0}};
 int txBufferPos = 0;
 
 void sendByteToTxBuffer(uint8_t byte)
@@ -38,7 +40,7 @@ void initUartQueues()
 
     DMA_StructInit(&dmaInit);
     dmaInit.DMA_Channel = DMA_Channel_4;
-	dmaInit.DMA_BufferSize = sizeof(bufferToSend);
+	dmaInit.DMA_BufferSize = dmaPacketSize;
 	dmaInit.DMA_DIR = DMA_DIR_MemoryToPeripheral;
 	dmaInit.DMA_Memory0BaseAddr = &bufferToSend;
     dmaInit.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
@@ -51,24 +53,46 @@ void initUartQueues()
     //dmaInit.DMA_PeripheralBurst
 
     DMA_Init(DMA2_Stream7, &dmaInit);
+    //DMA_ITConfig(DMA2_Stream7, DMA_IT_TC, ENABLE);
+
+    //NVIC_SetPriority(DMA2_Stream7_IRQn, 0);
+    //NVIC_EnableIRQ(DMA2_Stream7_IRQn);
+
     DMA_Cmd(DMA2_Stream7, ENABLE);
 
     USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
-
 }
 
 void reinitDma(int packetLength)
 {
-    DMA_DeInit(DMA2_Stream7);
-    txBufferPos = 0;
     DMA_Cmd(DMA2_Stream7, DISABLE);
+    DMA_DeInit(DMA2_Stream7);
+
+    txBufferPos = 0;
     dmaInit.DMA_BufferSize = packetLength;
+    
+    //DMA2_Stream7->MAX = packetLength;
     DMA_Init(DMA2_Stream7, &dmaInit);
+    //DMA_Cmd(DMA2_Stream7, ENABLE);
 }
 
 void startTransfer()
 {
     DMA_Cmd(DMA2_Stream7, ENABLE);
+    txBufferPos = 0;
+}
+
+
+void DMA2_Stream7_IRQHandler(void) {
+    if(DMA_GetITStatus(DMA2_Stream7, DMA_IT_TCIF7) == SET) {
+        DMA_Cmd(DMA2_Stream7, DISABLE);
+        DMA_ClearITPendingBit(DMA2_Stream7, DMA_IT_TCIF7);
+        //static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        //xSemaphoreGiveFromISR( semaphore_state_change, NULL);
+
+        //if (xHigherPriorityTaskWoken)
+        //    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    }
 }
 
 void sendHandshake(uint8_t isMaster)
@@ -88,12 +112,20 @@ void sendGameInvitation(uint8_t isAck, char* name)
     sendPacket(GameInvitePacket, &packet);
 }
 
+void sendGameSetup(struct asteroid* asteroids, size_t asteroidsLength)
+{
+    struct uartGameSetupPacket packet;
+    memcpy(packet.asteroids, asteroids, asteroidsLength);
+
+    sendPacket(FramePacket, &packet);
+}
+
 void sendFramePacket(struct player* player, struct asteroid* asteroids, size_t asteroidsLength)
 {
     struct uartFramePacket packet;
     packet.playerPosition = player->position;
     packet.playerSpeed = player->speed;
-    memcpy(packet.asteroids, asteroids, asteroidsLength);
+    //memcpy(packet.asteroids, asteroids, asteroidsLength);
 
     sendPacket(FramePacket, &packet);
 }
@@ -128,7 +160,7 @@ void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *pack
         uint8_t checksum = calculateChecksum(packet, length);
 
         int totalLength = length + 4;
-        reinitDma(totalLength);
+        //reinitDma(totalLength);
 
         sendByteToTxBuffer(startByte);
         sendByteToTxBuffer(type);
@@ -138,7 +170,12 @@ void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *pack
         sendByteToTxBuffer(checksum);
         sendByteToTxBuffer(stopByte);
 
-        startTransfer();
+        if (txBufferPos >= dmaPacketSize)
+        {
+            reinitDma(txBufferPos);
+            startTransfer();
+        }
+
         xSemaphoreGive(semaphore_state_change);
     }
 }
@@ -151,6 +188,8 @@ size_t getPacketSize(enum packetType type)
             return sizeof(struct uartHandshakePacket);
         case GameInvitePacket:
             return sizeof(struct uartGameInvitePacket);
+        case GameSetupPacket:
+            return sizeof(struct uartGameSetupPacket);
         case FramePacket:
             return sizeof(struct uartFramePacket);
     }
@@ -167,6 +206,9 @@ void handleGotPacket(enum packetType type, uint8_t* buffer)
             break;
         case GameInvitePacket:
             xQueueSend(uartInviteQueue, buffer, 0);
+            break;
+        case GameSetupPacket:
+            xQueueSend(uartGameSetupQueue, buffer, 0);
             break;
         case FramePacket:
             xQueueSend(uartFramePacketQueue, buffer, 0);
