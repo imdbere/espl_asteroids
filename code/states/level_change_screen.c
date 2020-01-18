@@ -23,13 +23,12 @@ void levelChangeScreenInit()
 
 void levelChangeScreenEnter()
 {
-
+    xTaskNotifyGive(levelChangeScreenTaskHandle);
+    xQueueReceive(levelChange_queue, &changeScreenData, 0);
     GDisplay *g = gdispGetDisplay(0);
     xSemaphoreTake(g->mutex, 0);
     xSemaphoreGive(g->mutex);
     vTaskResume(levelChangeScreenTaskHandle);
-    xTaskNotifyGive(levelChangeScreenTaskHandle);
-    xQueueReceive(levelChange_queue, &changeScreenData, 0);
 }
 
 void levelChangeScreenExit()
@@ -82,12 +81,12 @@ void levelChangeScreenDraw(void *data)
                 gdispDrawString((DISPLAY_SIZE_X / 2) - (gdispGetStringWidth(str, font32) / 2), 40, str, font32, White);
                 sprintf(str, "Press D to continue");
                 gdispDrawString((DISPLAY_SIZE_X / 2) - (gdispGetStringWidth(str, font24) / 2), 90, str, font24, White);
-                sprintf(str, "Press A to Exit");
-                gdispDrawString((DISPLAY_SIZE_X / 2) - (gdispGetStringWidth(str, font24) / 2), 110, str, font24, White);
+                sprintf(str, "Press A to exit");
+                gdispDrawString((DISPLAY_SIZE_X / 2) - (gdispGetStringWidth(str, font24) / 2), 130, str, font24, White);
 
                 if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
                 {
-                    if(buttons.B.risingEdge)
+                    if(buttons.D.risingEdge)
                     {
                         xQueueSend(state_queue, &gameStateId, 0);
                     }
