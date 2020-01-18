@@ -81,9 +81,11 @@ int randRange(int lower, int upper)
     return (rand() % (upper - lower + 1)) + lower;
 }
 
-int randRangef(float lower, float upper)
+float  __attribute__((optimize("O0"))) randRangef(float lower, float upper)
 {
-    return (rand() / 65536.0 * (upper - lower)) + lower;
+    int ranI = rand() % 65536;
+    float ran = (float)ranI;
+    return (ran / 65536.0 * (upper - lower)) + lower;
 }
 
 pointf randVect(float lower, float upper)

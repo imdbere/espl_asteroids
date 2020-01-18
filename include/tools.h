@@ -1,6 +1,8 @@
 #include "includes.h"
 #include "math.h"
 
+//uint32_t rand(void);
+
 pointf addVec(pointf p1, pointf p2);
 pointf subVec(pointf p1, pointf p2);
 point toPoint(pointf p);
@@ -11,9 +13,8 @@ float floatMod(float a, float b);
 float lerp_angle(float from, float to, float weight);
 uint8_t pointWithinCircle(pointf circlePos, float circleRadius, pointf point);
 int randRange(int lower, int upper);
+float randRangef(float lower, float upper);
 pointf rotatePoint(pointf p, float angle);
-//int rotatePointX(int x, int y, float angle);
-//int rotatePointY(int x, int y, float angle);
 pointf scalarMult(pointf vec, float scal);
 float short_angle_dist(float from, float to);
 float square(float nr);
