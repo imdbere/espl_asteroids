@@ -216,13 +216,29 @@ void writeName(struct buttons *buttons, struct userNameInput *userName)
     }
 }
 
-void dispMenu()
-{
-}
 
 void disconnectTimerElapsed(TimerHandle_t xTimer)
 {
     xSemaphoreGive(disconnectSemaphore);
+}
+
+void startGame(uint8_t isMultiplayer, uint8_t isMaster, char* name)
+{
+    struct gameStartInfo gameStart;
+    gameStart.isMultiplayer = isMultiplayer;
+    gameStart.isMaster = isMaster;
+    strcpy(gameStart.name, name);
+
+    struct changeScreenData changeScreenData = {{0}};
+    sprintf(changeScreenData.Title, "Level 1");
+    sprintf(changeScreenData.Subtext, name);
+    changeScreenData.msWaitingTime = 3000;
+    changeScreenData.showCountdown = 1;
+    changeScreenData.nextState = gameStateId;
+
+    xQueueSend(levelChange_queue, &changeScreenData, 0);
+    xQueueSend(game_start_queue, &gameStart, 0);
+    xQueueSend(state_queue, &levelChangeScreenId, 0);
 }
 
 void mainMenuDrawTask(void *data)
@@ -298,21 +314,15 @@ void mainMenuDrawTask(void *data)
                 {
                     if (selected == 0)
                     {
-                        struct gameStartInfo gameStart;
-                        gameStart.isMultiplayer = isMuliPlayerBool;
-                        gameStart.isMaster = TRUE;
-                        strcpy(gameStart.name, userName.name);
-
-                        struct changeScreenData changeScreenData = {{0}};
-                        sprintf(changeScreenData.Title, "Level 1");
-                        sprintf(changeScreenData.Subtext, userName.name);
-                        changeScreenData.msWaitingTime = 3000;
-                        changeScreenData.showCountdown = 1;
-                        changeScreenData.nextState = gameStateId;
-
-                        xQueueSend(levelChange_queue, &changeScreenData, 0);
-                        xQueueSend(game_start_queue, &gameStart, 0);
-                        xQueueSend(state_queue, &levelChangeScreenId, 0);
+                        // Start Game
+                        if (isMuliPlayerBool)
+                        {
+                            sendGameInvitation(FALSE, userName.name);
+                        }
+                        else
+                        {
+                            startGame(isMuliPlayerBool, isMaster, userName.name);
+                        }
                     }
                     else if (selected == 1)
                     {
@@ -347,6 +357,7 @@ void mainMenuDrawTask(void *data)
 
                 if (showHighScoreBool)
                 {
+                    dispHighScore(TextOffset);
                 }
                 else
                 {
@@ -380,20 +391,20 @@ void mainMenuDrawTask(void *data)
                     else
                     {
                         selectedBool = 0;
-                    }
+                    } 
                 }
 
                 // sprintf(str, "", swi)
             }
 
-            // Send master handshake if multiplayer is selected
+            // Continuously send handshake if multiplayer is selected
             if (isMuliPlayerBool)
             {
                 sendHandshake(isMaster);
             }
 
-            struct uartHandshakePacket handshakePacket;
             // When handshake received
+            struct uartHandshakePacket handshakePacket;
             if (xQueueReceive(uartHandshakeQueue, &handshakePacket, 0) == pdTRUE)
             {
                 xTimerReset(disconnectTimer, 0);
@@ -402,9 +413,22 @@ void mainMenuDrawTask(void *data)
                 isMuliPlayerBool = TRUE;
             }
 
+            // When disconnected
             if (xSemaphoreTake(disconnectSemaphore, 0) == pdTRUE)
             {
                 otherUserConnected = FALSE;
+            }
+
+            // When other user started game
+            struct uartGameInvitePacket invitePacket;
+            if (xQueueReceive(uartInviteQueue, &invitePacket, 0) == pdTRUE)
+            {
+                if (!invitePacket.isAck)
+                {
+                    sendGameInvitation(TRUE, userName.name);
+                }
+
+                startGame(isMuliPlayerBool, isMaster, userName.name);
             }
 
             if (showHighScoreBool)
@@ -413,6 +437,7 @@ void mainMenuDrawTask(void *data)
             }
             else
             {
+                // Drawing
                 point pointsShip[] = {{0, 0}, {0, 16}, {20, 8}};
                 point pointsShipVertical[] = {{0, 0}, {-8, 20}, {8, 20}};
 
@@ -423,9 +448,9 @@ void mainMenuDrawTask(void *data)
                 else
                 {
                     gdispFillConvexPoly(TextOffset + selectedOffsetX[3] +
-                                            gdispGetStringWidth("Name: ", font16) + 5 + userName.cursorOffset,
-                                        170,
-                                        pointsShipVertical, 3, White);
+                        gdispGetStringWidth("Name: ", font16) + 5 +  userName.cursorOffset,
+                        170,
+                        pointsShipVertical, 3, White);
                 }
 
                 sprintf(str, "Asteroids");

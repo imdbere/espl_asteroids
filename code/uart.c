@@ -2,23 +2,67 @@
 #include "includes.h"
 #include "uart.h"
 #include "string.h"
+#include "sm.h"
 
 QueueHandle_t ESPL_RxQueue; // Already defined in ESPL_Functions.h
 SemaphoreHandle_t xSendMutex;
 
 QueueHandle_t uartHandshakeQueue;
 QueueHandle_t uartInviteQueue;
+QueueHandle_t uartFramePacketQueue;
 
 static const uint8_t startByte = 0xAA, stopByte = 0x55;
 
+uint8_t bufferToSend[100];
+int txBufferPos = 0;
+
+void sendByteToTxBuffer(uint8_t byte)
+{
+    bufferToSend[txBufferPos++] = byte;
+}
+
+DMA_InitTypeDef dmaInit;
 
 void initUartQueues()
 {
     uartHandshakeQueue = xQueueCreate(2, sizeof(struct uartHandshakePacket));
     uartInviteQueue = xQueueCreate(2, sizeof(struct uartGameInvitePacket));
+    uartFramePacketQueue = xQueueCreate(2, sizeof(struct uartFramePacket));
 
     xTaskCreate(receivePacketTask, "receivePacketTask", 100, NULL, 2, NULL);
     xSendMutex = xSemaphoreCreateMutex();
+
+    RCC_AHB1PeriphResetCmd(RCC_AHB1Periph_DMA1, ENABLE);
+
+	dmaInit.DMA_BufferSize = sizeof(bufferToSend);
+	dmaInit.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+	dmaInit.DMA_Memory0BaseAddr = &bufferToSend;
+    dmaInit.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+    dmaInit.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    dmaInit.DMA_Mode = DMA_Mode_Normal;
+    dmaInit.DMA_PeripheralBaseAddr = &USART1->DR;
+    dmaInit.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    dmaInit.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+    dmaInit.DMA_Priority = DMA_Priority_High;
+
+    DMA_Init(DMA1_Stream1, &dmaInit);
+    DMA_Cmd(DMA1_Stream1, ENABLE);
+
+    USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
+
+}
+
+void reinitDma(int packetLength)
+{
+    txBufferPos = 0;
+    DMA_Cmd(DMA1_Stream1, DISABLE);
+    dmaInit.DMA_BufferSize = packetLength;
+    DMA_Init(DMA1_Stream1, &dmaInit);
+}
+
+void startTransfer()
+{
+    DMA_Cmd(DMA1_Stream1, ENABLE);
 }
 
 void sendHandshake(uint8_t isMaster)
@@ -29,20 +73,30 @@ void sendHandshake(uint8_t isMaster)
     sendPacket(HandshakePacket, &packet);
 }
 
-void sendGameInvitation(uint8_t isMaster, char* name)
+void sendGameInvitation(uint8_t isAck, char* name)
 {
     struct uartGameInvitePacket packet;
-    packet.fromMaster = isMaster;
+    packet.isAck = isAck;
     strcpy(packet.name, name);
 
     sendPacket(GameInvitePacket, &packet);
+}
+
+void sendFramePacket(struct player* player, struct asteroid* asteroids, size_t asteroidsLength)
+{
+    struct uartFramePacket packet;
+    packet.playerPosition = player->position;
+    packet.playerSpeed = player->speed;
+    memcpy(packet.asteroids, asteroids, asteroidsLength);
+
+    sendPacket(FramePacket, &packet);
 }
 
 void sendBuffer(uint8_t *buffer, size_t length)
 {
     for (int i = 0; i < length; i++)
     {
-        UART_SendData(buffer[i]);
+        sendByteToTxBuffer(buffer[i]);
     }
 }
 
@@ -60,19 +114,26 @@ uint8_t calculateChecksum(void *packet, size_t length)
 
 void sendPacket(enum packetType type, void *packet)
 {
-    if(xSemaphoreTake(xSendMutex, 5) == pdTRUE)
+    // Prevents sending of multiple packets at the same time and
+    // changing states while sending
+    if(xSemaphoreTake(semaphore_state_change, 5) == pdTRUE)
     {
         size_t length = getPacketSize(type);
         uint8_t checksum = calculateChecksum(packet, length);
 
-        UART_SendData(startByte);
-        UART_SendData(type);
+        int totalLength = length + 4;
+        reinitDma(totalLength);
+
+        sendByteToTxBuffer(startByte);
+        sendByteToTxBuffer(type);
 
         sendBuffer((uint8_t *)packet, length);
 
-        UART_SendData(checksum);
-        UART_SendData(stopByte);
-        xSemaphoreGive(xSendMutex);
+        sendByteToTxBuffer(checksum);
+        sendByteToTxBuffer(stopByte);
+
+        startTransfer();
+        xSemaphoreGive(semaphore_state_change);
     }
 }
 
@@ -98,6 +159,9 @@ void handleGotPacket(enum packetType type, uint8_t* buffer)
             break;
         case GameInvitePacket:
             xQueueSend(uartInviteQueue, buffer, 0);
+            break;
+        case FramePacket:
+            xQueueSend(uartFramePacketQueue, buffer, 0);
             break;
     }
 }
