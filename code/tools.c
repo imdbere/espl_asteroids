@@ -1,13 +1,12 @@
 #include "tools.h"
 
-int rotatePointX (int x, int y, float angle) 
-{
-    return (int) (cos(angle)*(x ) - sin(angle)*(y )) ;
-}
 
-int rotatePointY (int x, int y, float angle) 
+pointf rotatePoint(pointf p, float angle)
 {
-    return -(int) (sin(angle)*(x ) + cos(angle)*(y )) ;
+    return (pointf) {
+        (cos(angle)*p.x - sin(angle)*p.y),
+        -(sin(angle)*p.x + cos(angle)*p.y)
+    }
 }
 
 /*float lerp_angle(float a, float b, float t)
@@ -38,8 +37,18 @@ float lerp_angle(float from, float to, float weight)
 
 pointf addVec(pointf p1, pointf p2)
 {
-    pointf p = {p1.x + p2.x, p1.y + p2.y};
-    return p;
+    return (pointf) {p1.x + p2.x, p1.y + p2.y};
+}
+
+pointf subVec(pointf p1, pointf p2)
+{
+    return (pointf) {p1.x - p2.x, p1.y - p2.y};
+}
+
+pointf addToVec(pointf target, pointf toAdd)
+{
+    target->x += toAdd.x;
+    target->y += toAdd.y;
 }
 
 float square(float nr)
@@ -103,6 +112,40 @@ float normalizeAngle(float angle)
         return 2*M_PI + angle;
     
     return angle;
+}
+
+void clamp(float* val, float max)
+{
+    if (*val > max)
+        *val = max;
+    if (*val < -max)
+        *val = -max;
+}
+
+void clampVec(pointf* vec, float max)
+{
+    clamp(&vec->x, max);
+    clamp(&vec->y, max);
+}
+
+void wrapScreen(pointf* pos)
+{
+    if (pos->x > DISPLAY_SIZE_X)
+        pos->x = 0;
+    if (pos->y > DISPLAY_SIZE_Y)
+        pos->y = 0;
+    if (pos->x < 0)
+        pos->x = DISPLAY_SIZE_X;
+    if (pos->y < 0)
+        pos->y = DISPLAY_SIZE_Y;
+}
+
+uint8_t isOutsideScreen(pointf p)
+{
+    return (p.x > DISPLAY_SIZE_X ||
+        p.y > DISPLAY_SIZE_Y ||
+        p.x < 0 ||
+        p.y < 0);
 }
 
 void* searchForFreeSpace(void *buffer, size_t structLength, size_t arrayLength)

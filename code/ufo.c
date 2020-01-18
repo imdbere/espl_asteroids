@@ -1,67 +1,51 @@
 #include "ufo.h"
 #include "includes.h"
 #include "bullets.h"
+#include "tools.h"
 
-void spawnUfo(struct ufo *myufo, uint8_t isSmall)
+void spawnUfo(struct ufo *ufo, uint8_t isSmall)
 {
-    myufo->isActive = 1;
-    myufo->position = (pointf) {
+    ufo->isActive = 1;
+    ufo->position = (pointf) {
         randRange(0, DISPLAY_SIZE_X), 
         randRange(0, DISPLAY_SIZE_Y)
     };
 
-    changeUfoSpeed(myufo, 1);
-    myufo->size = isSmall ? 3 : 5;
+    changeUfoSpeed(ufo, 1);
+    ufo->size = isSmall ? 3 : 5;
 }
 
-void updateUfo(struct ufo *myufo)
+void updateUfo(struct ufo *ufo)
 {
+    // I true with a probability of 1/100, which means it triggers
+    // ~every 2s
     if (randRange(0, 1000) < 10)
     {
-        changeUfoSpeed(myufo, 1);
+        changeUfoSpeed(ufo, 1);
     }
 
-    myufo->position.x += myufo->speed.x;
-    myufo->position.y += myufo->speed.y;
-    if (myufo->position.x > DISPLAY_SIZE_X)
-        myufo->position.x = 0;
-    if (myufo->position.y > DISPLAY_SIZE_Y)
-        myufo->position.y = 0;
-    if (myufo->position.x < 0)
-        myufo->position.x = DISPLAY_SIZE_X;
-    if (myufo->position.y < 0)
-        myufo->position.y = DISPLAY_SIZE_Y;
+    addToVec(&ufo->position, ufo->speed);
+    wrapScreen(&ufo->position);
 }
 
-void changeUfoSpeed(struct ufo *myufo, float maxSpeed)
+void changeUfoSpeed(struct ufo *ufo, float maxSpeed)
 {
-    myufo->speed = (pointf) {
-        randRange(-maxSpeed, maxSpeed), 
-        randRange(-maxSpeed, maxSpeed)
-    };
+    ufo->speed = randVect(-maxSpeed, maxSpeed);
 }
 
-uint8_t ufoShouldShoot(struct ufo *myufo)
+uint8_t ufoShouldShoot(struct ufo *ufo)
 {
-    //TickType_t currentTicks = xTaskGetTickCount();
     // 1/50 chance
-    if (randRange(0, 1000) < 25)
-    {
-        return TRUE;
-    }
-    return FALSE;
+    return randRange(0, 1000) < 25);
 }
 
-void __attribute__((optimize("O0")))  ufoShoot(struct ufo *myufo, struct player *myplayer, struct bullet *bullets, size_t bulletLength)
+void ufoShoot(struct ufo *ufo, struct player *myplayer, struct bullet *bullets, size_t bulletLength)
 {
-    pointf positionDifference = (pointf) {
-        myplayer->position.x - myufo->position.x,
-        myplayer->position.y - myufo->position.y,
-    };
+    pointf positionDifference = subVec(myplayer->position, ufo->position);
 
     float bulletSpeed = 3.0;
     // Player movement prediction
-    // Not working correctly, TODO!
+    // Not working correctly sometimes, TODO!
     float alpha = short_angle_dist(toAngle(positionDifference), toAngle(myplayer->speed));
     float targetAngle = toAngle(positionDifference) + (alpha * mag(myplayer->speed) / bulletSpeed);
     //float shootJitterDegrees = 5;
@@ -71,17 +55,17 @@ void __attribute__((optimize("O0")))  ufoShoot(struct ufo *myufo, struct player 
 
     //pointf shootSpeed = scalarMult(toVec(shootAngle), 2.0);
 
-    generateBullet(bullets, bulletLength, targetAngle, bulletSpeed, 0.0, myufo->position, myufo->speed, FROM_UFO);
+    generateBullet(bullets, bulletLength, targetAngle, bulletSpeed, 0.0, ufo->position, ufo->speed, FROM_UFO);
 }
 
-void drawUfo(struct ufo *myufo, color_t color)
+void drawUfo(struct ufo *ufo, color_t color)
 {
     pointf ufoPosition;
+    int scale = ufo->size;
 
-    int scale = myufo->size;
-
-    ufoPosition.x = myufo->position.x - 6.5*scale;
-    ufoPosition.y = myufo->position.y - 3*scale;
+    // Centering
+    ufoPosition.x = ufo->position.x - 6.5*scale;
+    ufoPosition.y = ufo->position.y - 3*scale;
 
     point ufoPoints[] = {{5 * scale, 0 * scale}, {8 * scale, 0 * scale}, {9 * scale, 2 * scale}, {13 * scale, 4 * scale}, {8 * scale, 6 * scale}, {5 * scale, 6 * scale}, {0 * scale, 4 * scale}, {4 * scale, 2 * scale}};
     gdispDrawPoly(ufoPosition.x, ufoPosition.y, ufoPoints, 8, White);

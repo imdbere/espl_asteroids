@@ -6,22 +6,14 @@
 #include "input.h"
 #include "uart.h"
 
-#define STATE_COUNT 3
-
-#define STATE_EX_TWO 0
-#define STATE_EX_THREE 1
-#define STATE_EX_FOUR 2
-
-#define NEXT_TASK 1
-#define PREV_TASK 2
-
 font_t font1;
 font_t font12;
 font_t font16;
 font_t font20;
-font_t font24; // Load font for ugfx
+font_t font24; 
 font_t font32;
 font_t fontLN;
+
 //Function prototypes
 void frameSwapTask(void *params);
 
