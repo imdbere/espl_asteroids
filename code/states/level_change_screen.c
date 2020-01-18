@@ -87,7 +87,7 @@ void levelChangeScreenDraw(void *data)
 
                 if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
                 {
-                    if(buttons.B.risingEdge)
+                    if(buttons.D.risingEdge)
                     {
                         xQueueSend(state_queue, &gameStateId, 0);
                     }

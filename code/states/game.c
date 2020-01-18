@@ -273,7 +273,7 @@ void gameDrawTask(void *data)
                     sprintf(changeScreen.Title, "Game Over");
                     sprintf(changeScreen.Subtext, "Score: %i", player.score);
                     changeScreen.nextState = mainMenuStateId;
-                    
+                    changeScreen.msWaitingTime = 2000;
 
                     xQueueSend(levelChange_queue, &changeScreen, 0);
                     xQueueSend(state_queue, &levelChangeScreenId, 0);

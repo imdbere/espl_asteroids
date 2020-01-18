@@ -55,7 +55,7 @@ void mainMenuEnter()
         {
             i++;
         }
-        
+
         sprintf(userScoresSp[i].name, player.name);
         userScoresSp[i].score = player.score;
     }
@@ -78,30 +78,55 @@ void mainMenuExit()
     //xSemaphoreGive(g->mutex);
 }
 
-void dispHighScore(int TextOffset)
+void dispHighScore(int TextOffset, uint8_t isMulitpayer)
 {
     char str[100];
-    sprintf(str, "Highscore");
-    gdispDrawString(TextOffset - 5, 10, str, font32, White);
     font_t myFont;
     int highscorOffsetY = 70;
 
-    for (int i = 0; i < sizeof(userScoresSp); i++)
+    if (isMulitpayer)
     {
-        if (i == 0)
-            myFont = font24;
-        else if (i == 1)
-            myFont = font20;
-        else if (i == 2)
-            myFont = font16;
-        else
-            myFont = font12;
-        sprintf(str, "%i", i + 1);
-        gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
-        sprintf(str, userScoresSp[i].name);
-        gdispDrawString(60, highscorOffsetY + (i * 30), str, myFont, White);
-        sprintf(str, "%i", userScoresSp[i].score);
-        gdispDrawString(DISPLAY_SIZE_X - (int)(gdispGetStringWidth(str, myFont) + 20), highscorOffsetY + (i * 30), str, myFont, White);
+        sprintf(str, "Highscore MP");
+        gdispDrawString(TextOffset - 5, 10, str, font32, White);
+        for (int i = 0; i < 6; i++)
+        {
+            if (i == 0)
+                myFont = font24;
+            else if (i == 1)
+                myFont = font20;
+            else if (i == 2)
+                myFont = font16;
+            else
+                myFont = font12;
+            sprintf(str, "%i", i + 1);
+            gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
+            sprintf(str, userScoresMp[i].name);
+            gdispDrawString(60, highscorOffsetY + (i * 30), str, myFont, White);
+            sprintf(str, "%i", userScoresMp[i].score);
+            gdispDrawString(DISPLAY_SIZE_X - (int)(gdispGetStringWidth(str, myFont) + 20), highscorOffsetY + (i * 30), str, myFont, White);
+        }
+    }
+    else
+    {
+        sprintf(str, "Highscore SP");
+        gdispDrawString(TextOffset - 5, 10, str, font32, White);
+        for (int i = 0; i < 6; i++)
+        {
+            if (i == 0)
+                myFont = font24;
+            else if (i == 1)
+                myFont = font20;
+            else if (i == 2)
+                myFont = font16;
+            else
+                myFont = font12;
+            sprintf(str, "%i", i + 1);
+            gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
+            sprintf(str, userScoresSp[i].name);
+            gdispDrawString(60, highscorOffsetY + (i * 30), str, myFont, White);
+            sprintf(str, "%i", userScoresSp[i].score);
+            gdispDrawString(DISPLAY_SIZE_X - (int)(gdispGetStringWidth(str, myFont) + 20), highscorOffsetY + (i * 30), str, myFont, White);
+        }
     }
 }
 
@@ -217,17 +242,25 @@ void writeName(struct buttons *buttons, struct userNameInput *userName)
     }
 }
 
-
 void disconnectTimerElapsed(TimerHandle_t xTimer)
 {
     xSemaphoreGive(disconnectSemaphore);
 }
 
-void startGame(uint8_t isMultiplayer, uint8_t isMaster, char* name)
+void startGame(uint8_t isMultiplayer, uint8_t isMaster, char *name)
 {
     struct gameStartInfo gameStart;
     gameStart.isMultiplayer = isMultiplayer;
     gameStart.isMaster = isMaster;
+
+    if(name[0] == '\0')
+    {
+        // int i = 0;
+        sprintf(name, "Player");
+        
+        
+    }
+
     strcpy(gameStart.name, name);
 
     struct changeScreenData changeScreenData = {{0}};
@@ -271,12 +304,13 @@ void mainMenuDrawTask(void *data)
     //Writing Name
     struct userNameInput userName = {{0}};
 
+    //writing name
     userName.cursorOffset = 0;
     uint8_t writeNameBool = 0;
 
     //hight score
     uint8_t showHighScoreBool = 0;
-    
+
     //Cheats
     uint8_t gameMode = 0;
 
@@ -292,8 +326,8 @@ void mainMenuDrawTask(void *data)
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
         {
             gdispClear(Black);
-            drawAsteroids(&asteroids, asteroidCount, Gray);
-            updateAsteroids(&asteroids, asteroidCount);
+            // drawAsteroids(&asteroids, asteroidCount, Gray);
+            // updateAsteroids(&asteroids, asteroidCount);
             drawUfo(&myufo, Grey);
             updateUfo(&myufo);
             updateSpeedTime++;
@@ -328,7 +362,6 @@ void mainMenuDrawTask(void *data)
                     else if (selected == 1)
                     {
                         isMuliPlayerBool = !isMuliPlayerBool;
-                        
                     }
 
                     else if (selected == 2 && !showHighScoreBool)
@@ -358,7 +391,7 @@ void mainMenuDrawTask(void *data)
 
                 if (showHighScoreBool)
                 {
-                    dispHighScore(TextOffset);
+                    dispHighScore(TextOffset, isMuliPlayerBool);
                 }
                 else
                 {
@@ -392,9 +425,8 @@ void mainMenuDrawTask(void *data)
                     else
                     {
                         selectedBool = 0;
-                    } 
+                    }
                 }
-
                 // sprintf(str, "", swi)
             }
 
@@ -428,13 +460,12 @@ void mainMenuDrawTask(void *data)
                 {
                     sendGameInvitation(TRUE, userName.name);
                 }
-
                 startGame(isMuliPlayerBool, isMaster, userName.name);
             }
-
+        
             if (showHighScoreBool)
             {
-                dispHighScore(TextOffset);
+                dispHighScore(TextOffset, isMuliPlayerBool);
             }
             else
             {
@@ -449,9 +480,9 @@ void mainMenuDrawTask(void *data)
                 else
                 {
                     gdispFillConvexPoly(TextOffset + selectedOffsetX[3] +
-                        gdispGetStringWidth("Name: ", font16) + 5 +  userName.cursorOffset,
-                        170,
-                        pointsShipVertical, 3, White);
+                                            gdispGetStringWidth("Name: ", font16) + 5 + userName.cursorOffset,
+                                        170,
+                                        pointsShipVertical, 3, White);
                 }
 
                 sprintf(str, "Asteroids");
