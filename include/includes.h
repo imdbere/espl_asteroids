@@ -1,7 +1,7 @@
 /**
  * Main include file.
  *
- * @author: Jonathan Müller-Boruttau, Nadja Peters nadja.peters@tum.de (RCS, TUM)
+ * @author: Penn Aaron and Satifaller Adam
  *
  **/
 #pragma once
@@ -26,6 +26,10 @@
 
 /* convenience functions and init includes */
 #include "ESPL_functions.h"
+
+/* Our includes */
+
+#include "config.h"
 
 #define DISPLAY_SIZE_X  320
 #define DISPLAY_SIZE_Y  240
@@ -59,6 +63,8 @@ struct pointf
 
 typedef struct pointf pointf;
 
-#define MAX_ASTEROID_COUNT_GAME 10
-
+//Keep it here (Because the point f)
 #include "tools.h"
+
+
+

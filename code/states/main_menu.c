@@ -81,7 +81,7 @@ void mainMenuExit()
 void dispHighScore(int TextOffset, uint8_t isMulitpayer)
 {
     char str[100];
-    font_t myFont = font1;
+    font_t myFont = font16;
     int highscorOffsetY = 70;
 
     if (isMulitpayer)
@@ -113,7 +113,7 @@ void dispHighScore(int TextOffset, uint8_t isMulitpayer)
         gdispDrawString(TextOffset - 5, 10, str, font32, White);
         for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
         {
-           /*  if (i == 0)
+            /* if (i == 0)
                 myFont = font24;
             else if (i == 1)
                 myFont = font20;
@@ -121,6 +121,7 @@ void dispHighScore(int TextOffset, uint8_t isMulitpayer)
                 myFont = font16;
             else
                 myFont = font12; */
+
             sprintf(str, "%i", i + 1);
             gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
             sprintf(str, userScoresSp[i].name);
@@ -235,7 +236,7 @@ void writeName(struct buttons *buttons, struct userNameInput *userName)
         {
             userName->name[i - 1] = '\0';
         }
-        if (userName->charIndex == i - 1 && userName->charIndex > 1)
+        if (userName->charIndex == i - 1 && userName->charIndex > 0)
         {
             userName->cursorOffset -= 12;
             userName->charIndex--;
@@ -265,7 +266,7 @@ void startGame(uint8_t isMultiplayer, uint8_t isMaster, char *name)
     struct changeScreenData changeScreenData = {{0}};
     sprintf(changeScreenData.Title, "Level 1");
     sprintf(changeScreenData.Subtext, name);
-    changeScreenData.msWaitingTime = 3000;
+    changeScreenData.msWaitingTime = COUNTDOWN_START*1000;
     changeScreenData.showCountdown = 1;
     changeScreenData.nextState = gameStateId;
 
@@ -517,7 +518,7 @@ void mainMenuDrawTask(void *data)
                     gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
                 }
                 
-                gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, debugStr, font16, White);
+                // gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, debugStr, font16, White);
             }
         }
     }

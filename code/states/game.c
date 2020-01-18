@@ -114,7 +114,18 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
             if (pointWithinCircle(a->position, a->radius, b->position))
             {
                 // Collision
-                player->score += 500;
+                if(a->radius<RADIUS_BIG_ASTEROID)
+                    player->score += POINTS_DESTROY_SMALL_ASTEROID;
+                else
+                    player->score += POINTS_DESTROY_BIG_ASTEROID;
+                
+                //Get free Live
+                if((player->score - player->scoreOld) > POINTS_FOR_HEALTH)
+                {
+                    player->scoreOld = player->score;
+                    player->health += 1;
+                }
+                
                 destroyAsteroid(asteroids, numAsteroids, ai);
                 checkGameWin(asteroids, numAsteroids, player, ufo);
                 b->isActive = 0;
@@ -139,7 +150,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
         // Between bullets and ufo
         if (ufo->isActive && b->type == FROM_PLAYER && pointWithinCircle(ufo->position, ufo->size * 10, b->position))
         {
-            player->score += 1000;
+            player->score += POINTS_DESTROY_UFO;
             b->isActive = 0;
             ufo->isActive = 0;
             checkGameWin(asteroids, numAsteroids, player, ufo);
@@ -157,15 +168,16 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
 
 void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroids, size_t asteroidLength)
 {
-    player->health = 4;
+    player->health = INITIAL_HEALTH_COUNT;
     player->position = (pointf){DISPLAY_SIZE_X / 2.0, DISPLAY_SIZE_Y / 2.0};
     player->score = 0;
+    player->scoreOld = 0;
     player->speed = (pointf){0.0, 0.0};
     player->angleRad = 0;
-    player->colliderRadius = 25;
+    player->colliderRadius = RADIUS_COLLIDER;
 
-    int initialAsteroidCount = 5;
-    int asteroidsRadius = 20;
+    int initialAsteroidCount = INITIAL_ASTEROID_COUNT;
+    int asteroidsRadius = RADIUS_BIG_ASTEROID;
 
     //memset(asteroids, 0, asteroidLength);
     inactivateArray(asteroids, sizeof(struct asteroid), asteroidLength);
@@ -184,14 +196,14 @@ void gameDrawTask(void *data)
     struct buttons buttons;
 
     // Game Stats
-    int maxLifes = 6;
+    int maxLifes = MAX_HEALTH_COUNT;
 
     // asteroids
     int maxAsteroidCount = MAX_ASTEROID_COUNT_GAME;
     struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME] = {{0}};
 
     // bullets
-    int maxNumBullets = 10;
+    int maxNumBullets = MAX_BULLET_COUNT;
     struct bullet bullets[maxNumBullets];
 
     // player

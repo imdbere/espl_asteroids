@@ -12,6 +12,7 @@ struct player
     float colliderRadius;
     int health;
 	int score;
+    int scoreOld;
     char name[10];
 };
 
