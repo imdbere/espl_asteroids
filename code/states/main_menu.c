@@ -17,11 +17,15 @@
 #include <time.h>
 
 #define MAX_ASTEROID_COUNT_MENU 5
+#define HIGHSCORE_DISPLAY_COUNT 6
 
 TaskHandle_t mainMenuTaskHandle;
 SemaphoreHandle_t disconnectSemaphore;
 
-struct userScore userScores[10];
+//no neet to use Semaphores or Mutex
+struct userScore userScoresSp[HIGHSCORE_DISPLAY_COUNT]; //Singleplayer
+struct userScore userScoresMp[HIGHSCORE_DISPLAY_COUNT]; //Mulitplayer
+
 char debugStr[40];
 
 void mainMenuInit()
@@ -33,11 +37,6 @@ void mainMenuInit()
 
 void mainMenuEnter()
 {
-    GDisplay *g = gdispGetDisplay(0);
-    xSemaphoreTake(g->mutex, 0);
-    xSemaphoreGive(g->mutex);
-    vTaskResume(mainMenuTaskHandle);
-
     struct userScore tempUser;
     struct player player;
     // sprintf(player.name, "Max");
@@ -45,26 +44,29 @@ void mainMenuEnter()
     if (xQueueReceive(score_queue, &player, 0) == pdTRUE)
     {
         sprintf(debugStr, "%i", player.score);
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < sizeof(userScoresSp); i++)
         {
-            sprintf(userScores[i].name, "");
-            userScores[i].score = 0;
+            sprintf(userScoresSp[i].name, "");
+            userScoresSp[i].score = 0;
         }
-        sprintf(userScores[0].name, "Adam");
-        userScores[0].score = 100000;
-
         int i = 0;
-        while (player.score < userScores[i].score)
+        while (player.score < userScoresSp[i].score)
         {
             i++;
         }
-        sprintf(userScores[i].name, player.name);
-        userScores[i].score = player.score;
+        
+        sprintf(userScoresSp[i].name, player.name);
+        userScoresSp[i].score = player.score;
     }
     else
     {
         sprintf(debugStr, "false");
     }
+
+    GDisplay *g = gdispGetDisplay(0);
+    xSemaphoreTake(g->mutex, 0);
+    xSemaphoreGive(g->mutex);
+    vTaskResume(mainMenuTaskHandle);
 }
 
 void mainMenuExit()
@@ -83,7 +85,7 @@ void dispHighScore(int TextOffset)
     font_t myFont;
     int highscorOffsetY = 70;
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < sizeof(userScoresSp); i++)
     {
         if (i == 0)
             myFont = font24;
@@ -95,9 +97,9 @@ void dispHighScore(int TextOffset)
             myFont = font12;
         sprintf(str, "%i", i + 1);
         gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
-        sprintf(str, userScores[i].name);
+        sprintf(str, userScoresSp[i].name);
         gdispDrawString(60, highscorOffsetY + (i * 30), str, myFont, White);
-        sprintf(str, "%i", userScores[i].score);
+        sprintf(str, "%i", userScoresSp[i].score);
         gdispDrawString(DISPLAY_SIZE_X - (int)(gdispGetStringWidth(str, myFont) + 20), highscorOffsetY + (i * 30), str, myFont, White);
     }
 }
