@@ -33,8 +33,11 @@ void initUartQueues()
     xTaskCreate(receivePacketTask, "receivePacketTask", 100, NULL, 2, NULL);
     xSendMutex = xSemaphoreCreateMutex();
 
-    RCC_AHB1PeriphResetCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+    //RCC_AHB2PeriphResetCmd(RCC_AHB1Periph_DMA2, ENABLE);
 
+    DMA_StructInit(&dmaInit);
+    dmaInit.DMA_Channel = DMA_Channel_4;
 	dmaInit.DMA_BufferSize = sizeof(bufferToSend);
 	dmaInit.DMA_DIR = DMA_DIR_MemoryToPeripheral;
 	dmaInit.DMA_Memory0BaseAddr = &bufferToSend;
@@ -45,9 +48,10 @@ void initUartQueues()
     dmaInit.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
     dmaInit.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
     dmaInit.DMA_Priority = DMA_Priority_High;
+    //dmaInit.DMA_PeripheralBurst
 
-    DMA_Init(DMA1_Stream1, &dmaInit);
-    DMA_Cmd(DMA1_Stream1, ENABLE);
+    DMA_Init(DMA2_Stream7, &dmaInit);
+    DMA_Cmd(DMA2_Stream7, ENABLE);
 
     USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
 
@@ -55,15 +59,16 @@ void initUartQueues()
 
 void reinitDma(int packetLength)
 {
+    DMA_DeInit(DMA2_Stream7);
     txBufferPos = 0;
-    DMA_Cmd(DMA1_Stream1, DISABLE);
+    DMA_Cmd(DMA2_Stream7, DISABLE);
     dmaInit.DMA_BufferSize = packetLength;
-    DMA_Init(DMA1_Stream1, &dmaInit);
+    DMA_Init(DMA2_Stream7, &dmaInit);
 }
 
 void startTransfer()
 {
-    DMA_Cmd(DMA1_Stream1, ENABLE);
+    DMA_Cmd(DMA2_Stream7, ENABLE);
 }
 
 void sendHandshake(uint8_t isMaster)
@@ -113,7 +118,7 @@ uint8_t calculateChecksum(void *packet, size_t length)
     return checksum;
 }
 
-void sendPacket(enum packetType type, void *packet)
+void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *packet)
 {
     // Prevents sending of multiple packets at the same time and
     // changing states while sending

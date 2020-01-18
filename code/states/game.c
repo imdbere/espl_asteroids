@@ -287,7 +287,11 @@ void gameDrawTask(void *data)
 
             drawAsteroids((struct asteroid *)&asteroids, maxAsteroidCount, White);
             drawPlayer(&player);
-            drawUfo(&ufo, Red);
+            if (ufo.isActive)
+            {
+                drawUfo(&ufo, Red);
+            }
+
             drawBullets(&bullets, maxNumBullets);
 
             //Score counter on top
