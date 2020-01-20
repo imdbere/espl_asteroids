@@ -99,7 +99,7 @@ void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player *
         if (player->level < LEVEL_COUNT)
         {
             player->level++;
-            changeScreen.msWaitingTime = 3000;
+            changeScreen.msWaitingTime = COUNTDOWN_NEXT_LEVEL*1000;
             changeScreen.nextState = gameStateId;
             changeScreen.showCountdown = 1;
             gameStart.level = player->level;
@@ -209,7 +209,8 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
         ufo->health = INITIAL_HEALTH_COUNT;
 
     player->position = (pointf){DISPLAY_SIZE_X / 2.0, DISPLAY_SIZE_Y / 2.0};
-    player->score = 0;
+    if(level == 1)
+        player->score = 0;
     player->scoreOld = 0;
     player->speed = (pointf){0.0, 0.0};
     player->angleRad = 0;
@@ -219,7 +220,7 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
     if (isMultiplayer)
         ufo->colliderRadius = RADIUS_COLLIDER;
 
-    int initialAsteroidCount = INITIAL_ASTEROID_COUNT;
+    int initialAsteroidCount = INITIAL_ASTEROID_COUNT + ((level-1)*ADD_ASTEROID_PER_LEVEL);
     int asteroidsRadius = RADIUS_BIG_ASTEROID;
 
     //memset(asteroids, 0, asteroidLength);
@@ -252,7 +253,6 @@ void gameDrawTask(void *data)
 
     // player
     struct player player;
-    int level = 1;
 
     // Ufo
     struct ufo ufo;
@@ -272,8 +272,10 @@ void gameDrawTask(void *data)
                 isMultiplayer = gameStart.isMultiplayer;
                 isMaster = gameStart.isMaster;
                 strcpy(player.name, gameStart.name);
+                player.level = gameStart.level;
             }
-            resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer, isMaster, level);
+            //+ ((gameStart.level-1)*ADD_ASTEROID_PER_LEVEL)
+            resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer, isMaster, gameStart.level);
 
             if (isMultiplayer)
             {
@@ -374,7 +376,7 @@ void gameDrawTask(void *data)
             drawBullets(&bullets, maxNumBullets);
 
             //Score counter on top
-            sprintf(str, "%s : %i", player.name, player.score);
+            sprintf(str, "%s : %i Level: %i", player.name, player.score, player.level);
             gdispDrawString(10, 10, str, font12, White);
             point gameLifePoints[] = {{4, 0}, {0, 12}, {8, 12}};
 

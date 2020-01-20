@@ -284,7 +284,6 @@ void mainMenuDrawTask(void *data)
     struct buttons buttons;
 
     char str[100];
-    char playerName[10] = "";
 
     //UFo
     int updateSpeedTime = 0;
@@ -376,13 +375,11 @@ void mainMenuDrawTask(void *data)
                         {
                             userName.name[0] = 65;
                         }
-                        // sprintf(playerName, nameChar);
+                        
                     }
                     else if (writeNameBool)
                     {
-                        // sprintf(playerName,"Clicked");
                         writeNameBool = 0;
-                        // selected = 3;
                     }
                     else if (showHighScoreBool)
                     {
