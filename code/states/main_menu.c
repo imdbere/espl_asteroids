@@ -113,9 +113,11 @@ void dispHighScore(int TextOffset, uint8_t isMulitpayer)
         gdispDrawString(TextOffset - 5, 10, str, font32, White);
         for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
         {
-            /* if (i == 0)
-                myFont = font24;
-            else if (i == 1)
+            if (i == 0)
+                myFont = font20;
+            else
+                myFont = font16;
+            /* else if (i == 1)
                 myFont = font20;
             else if (i == 2)
                 myFont = font16;
@@ -286,13 +288,16 @@ void mainMenuDrawTask(void *data)
     char str[100];
 
     //UFo
-    int updateSpeedTime = 0;
-    struct ufo myufo;
-    myufo.position.x = 63;
-    myufo.position.y = 33;
-    myufo.speed.x = 0.4;
-    myufo.speed.y = 0.1;
-    myufo.size = 2;
+    struct ufo ufo = {{0}};
+    ufo.position.x = 63;
+    ufo.position.y = 24;
+    
+    ufo.speed.x = 0.4;
+    ufo.speed.y = 0.1;
+    ufo.size = 3;
+
+    // ufo.health = 20;
+    // ufo.showHealt = 1;
 
     //Drawing Menu
     int TextOffset = 30;
@@ -328,20 +333,9 @@ void mainMenuDrawTask(void *data)
             gdispClear(Black);
             drawAsteroids(&asteroids, asteroidCount, Gray);
             updateAsteroids(&asteroids, asteroidCount);
-            drawUfo(&myufo, Grey);
-            updateUfo(&myufo);
-            updateSpeedTime++;
-            if (updateSpeedTime > 50)
-            {
-                updateSpeedTime = 0;
+            drawUfo(&ufo, Grey);
+            updateUfo(&ufo);
 
-                myufo.speed.y += (randRange(-4, 4)) / 13.0;
-                myufo.speed.x += (randRange(-4, 4)) / 13.0;
-            }
-            // xTaskGetTickCount
-
-            //gdispImageDraw(&myImage, 30, 30, 28, 25, 0, 56);
-            //gdispImageDraw(&titleImage, 30, 30, 210, 40, 0, 0);
 
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
             {
@@ -402,9 +396,7 @@ void mainMenuDrawTask(void *data)
                     {
                         if (selectedBool == 0)
                         {
-                            selectorPositionY -= 30;
                             selected--;
-                            selectedOffsetX[selected] = 30;
                             selectedOffsetX[selected + 1] = 0;
                             selectedBool = 1;
                         }
@@ -413,9 +405,7 @@ void mainMenuDrawTask(void *data)
                     {
                         if (selectedBool == 0)
                         {
-                            selectorPositionY += 30;
                             selected++;
-                            selectedOffsetX[selected] = 30;
                             selectedOffsetX[selected - 1] = 0;
                             selectedBool = 1;
                         }
@@ -424,6 +414,8 @@ void mainMenuDrawTask(void *data)
                     {
                         selectedBool = 0;
                     }
+                    selectedOffsetX[selected] = 30;
+                    selectorPositionY = 60 + (selected*30);
                 }
                 // sprintf(str, "", swi)
             }

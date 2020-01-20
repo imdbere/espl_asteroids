@@ -6,10 +6,9 @@
 void spawnUfo(struct ufo *ufo, uint8_t isSmall)
 {
     ufo->isActive = 1;
-    ufo->position = (pointf) {
-        randRange(0, DISPLAY_SIZE_X), 
-        randRange(0, DISPLAY_SIZE_Y)
-    };
+    ufo->position = (pointf){
+        randRange(0, DISPLAY_SIZE_X),
+        randRange(0, DISPLAY_SIZE_Y)};
 
     changeUfoSpeed(ufo, 1);
     ufo->size = isSmall ? 3 : 5;
@@ -66,11 +65,24 @@ void drawUfo(struct ufo *ufo, color_t color)
     int scale = ufo->size;
 
     // Centering
-    ufoPosition.x = ufo->position.x - 6.5*scale;
-    ufoPosition.y = ufo->position.y - 3*scale;
+    ufoPosition.x = ufo->position.x - 6.5 * scale;
+    ufoPosition.y = ufo->position.y - 3 * scale;
 
     point ufoPoints[] = {{5 * scale, 0 * scale}, {8 * scale, 0 * scale}, {9 * scale, 2 * scale}, {13 * scale, 4 * scale}, {8 * scale, 6 * scale}, {5 * scale, 6 * scale}, {0 * scale, 4 * scale}, {4 * scale, 2 * scale}};
     gdispDrawPoly(ufoPosition.x, ufoPosition.y, ufoPoints, 8, White);
     gdispDrawLine((4 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, (9 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, color);
     gdispDrawLine((0 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, (13 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, color);
+    
+    
+    // if(ufo->showHealt)
+    if (ufo->health > UFO_MAX_LIFES)
+        ufo->health = 10;
+    if(ufo->health < 0)
+        ufo->health = 0;
+    if (ufo->showHealt)
+    {
+        gdispDrawBox(ufoPosition.x, ufoPosition.y - (scale * 3), 13 * scale, 1 * scale, color);
+        gdispFillArea(ufoPosition.x, ufoPosition.y - (scale * 3),
+                      (int)((ufo->health / (float)UFO_MAX_LIFES) * 13.0) * scale, 1 * scale, Red);
+    }
 }

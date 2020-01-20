@@ -6,6 +6,7 @@ struct ufo
 {
     uint8_t isActive;
     uint8_t collidesWithAsteroids;
+    uint8_t showHealt;
     pointf position;
     pointf speed;
     int size;
