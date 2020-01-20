@@ -254,6 +254,7 @@ void startGame(uint8_t isMultiplayer, uint8_t isMaster, char *name)
     struct gameStartInfo gameStart;
     gameStart.isMultiplayer = isMultiplayer;
     gameStart.isMaster = isMaster;
+    gameStart.level = 1;
 
     if(name[0] == '\0')
     {
