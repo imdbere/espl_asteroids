@@ -2,7 +2,7 @@
 
 //Game
 #define COUNTDOWN_START 1
-#define COUNTDOWN_NEXT_LEVEL 3
+#define COUNTDOWN_NEXT_LEVEL 2
 #define LEVEL_COUNT 3
 
 //Player
@@ -24,6 +24,7 @@
 #define POINTS_DESTROY_SMALL_ASTEROID 500
 #define POINTS_DESTROY_UFO 1000
 
+//UFO
 #define UFO_MAX_LIFES 10
 
 //SOUND

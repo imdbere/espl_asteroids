@@ -392,21 +392,37 @@ void mainMenuDrawTask(void *data)
                         writeName(&buttons, &userName);
                     }
 
-                    if (buttons.joystick.y < 0 && selectorPositionY > 60 && !writeNameBool)
+                    if (buttons.joystick.y < 0 && !writeNameBool) //UP
                     {
                         if (selectedBool == 0)
                         {
-                            selected--;
-                            selectedOffsetX[selected + 1] = 0;
+                            if(selected == 0)
+                            {
+                                selected = 3;
+                                selectedOffsetX[0] = 0;
+                            }
+                            else
+                            {
+                                selected--;
+                                selectedOffsetX[selected + 1] = 0;
+                            }   
                             selectedBool = 1;
                         }
                     }
-                    else if (buttons.joystick.y > 0 && selectorPositionY < 150 && !writeNameBool)
+                    else if (buttons.joystick.y > 0 && !writeNameBool) //DOWN
                     {
                         if (selectedBool == 0)
                         {
-                            selected++;
-                            selectedOffsetX[selected - 1] = 0;
+                            if(selected == 3)
+                            {
+                                selected = 0;
+                                selectedOffsetX[3] = 0;
+                            }
+                            else
+                            {
+                                selected++;
+                                selectedOffsetX[selected - 1] = 0;
+                            }
                             selectedBool = 1;
                         }
                     }
