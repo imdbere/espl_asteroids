@@ -9,6 +9,8 @@ extern QueueHandle_t uartHandshakeQueue;
 extern QueueHandle_t uartInviteQueue;
 extern QueueHandle_t uartFramePacketQueue;
 extern QueueHandle_t uartGameSetupQueue;
+
+#define MAX_PACKET_LENGTH 800
 struct uartFramePacket {
     pointf playerPosition;
     pointf playerSpeed;
@@ -27,7 +29,7 @@ struct uartGameInvitePacket {
 };
 
 struct uartGameSetupPacket {
-    struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME];
+    struct asteroid asteroids[MAX_ASTEROID_COUNT_MP];
 };
 
 struct uartInitPacket {

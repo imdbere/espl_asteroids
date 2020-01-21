@@ -63,7 +63,7 @@ void initUartQueues()
     uartGameSetupQueue = xQueueCreate(2, sizeof(struct uartGameSetupPacket));
     uartFramePacketQueue = xQueueCreate(2, sizeof(struct uartFramePacket));
 
-    xTaskCreate(receivePacketTask, "receivePacketTask", 100, NULL, 2, NULL);
+    xTaskCreate(receivePacketTask, "receivePacketTask", MAX_PACKET_LENGTH + 100, NULL, 2, NULL);
     xSendMutex = xSemaphoreCreateMutex();
 
     //initDma();
@@ -196,6 +196,12 @@ void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *pack
     if(xSemaphoreTake(semaphore_state_change, 5) == pdTRUE)
     {
         size_t length = getPacketSize(type);
+        int totalLength = length + 4;
+        if (totalLength > MAX_PACKET_LENGTH)
+        {
+            return;
+        }
+
         uint8_t checksum = calculateChecksum(packet, length);
 
         UART_SendData(startByte);
@@ -254,7 +260,7 @@ void receivePacketTask(void *params)
     size_t packetLength;
 
     int pos = 0;
-    uint8_t buffer[40];
+    uint8_t buffer[MAX_PACKET_LENGTH];
 
     while (1)
     {
@@ -289,6 +295,13 @@ void receivePacketTask(void *params)
             {
                 pos = 0;
                 state = 3;
+            }
+            // Should never happen
+            if (pos == MAX_PACKET_LENGTH)
+            {
+                pos--;
+                return;
+                //exit(1);
             }
         }
 

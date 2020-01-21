@@ -228,7 +228,10 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
     }
 
 
-    int initialAsteroidCount = INITIAL_ASTEROID_COUNT + ((level - 1) * ADD_ASTEROID_PER_LEVEL);
+    int initialAsteroidCount = isMultiplayer 
+        ? MAX_ASTEROID_COUNT_MP 
+        : INITIAL_ASTEROID_COUNT + ((level - 1) * ADD_ASTEROID_PER_LEVEL);
+
     int asteroidsRadius = RADIUS_BIG_ASTEROID;
 
     //inactivateArray(asteroids, sizeof(struct asteroid), asteroidLength);
@@ -296,14 +299,14 @@ void gameDrawTask(void *data)
             {
                 if (isMaster)
                 {
-                    sendGameSetup(&asteroids, sizeof(asteroids));
+                    sendGameSetup(&asteroids, MAX_ASTEROID_COUNT_MP * sizeof(struct asteroid));
                 }
                 else
                 {
                     struct uartGameSetupPacket gameSetup;
                     if (xQueueReceive(uartGameSetupQueue, &gameSetup, 100) == pdTRUE)
                     {
-                        memcpy(&asteroids, &gameSetup.asteroids, sizeof(asteroids));
+                        memcpy(&asteroids, &gameSetup.asteroids, MAX_ASTEROID_COUNT_MP * sizeof(struct asteroid));
                     }
                 }
             }

@@ -364,7 +364,6 @@ void mainMenuDrawTask(void *data)
     uint8_t gameMode = 0; //mode 0: sp, mode 1: mp, mode 2: cheat, mode 3: open;
 
     //multiplayer mode
-    uint8_t isMuliPlayerBool = 0;
     uint8_t otherUserConnected = 0;
     uint8_t isMaster = 1;
     TimerHandle_t disconnectTimer;
@@ -402,10 +401,6 @@ void mainMenuDrawTask(void *data)
                             gameMode = 0;
                         else
                             gameMode ++;
-                        // if(gameMode == 1)
-                        //     isMuliPlayerBool = 1;
-                        // else
-                        //     isMuliPlayerBool = 0;
                     }
 
                     else if (selected == 2 && !showHighScoreBool)
@@ -494,7 +489,6 @@ void mainMenuDrawTask(void *data)
                 xTimerReset(disconnectTimer, 0);
                 isMaster = !handshakePacket.fromMaster;
                 otherUserConnected = TRUE;
-                // isMuliPlayerBool = TRUE;
                 gameMode = GAME_MODE_MP;
             }
 
@@ -512,7 +506,7 @@ void mainMenuDrawTask(void *data)
                 {
                     sendGameInvitation(TRUE, userName.name);
                 }
-                startGame(isMuliPlayerBool, isMaster, userName.name);
+                startGame(gameMode, isMaster, userName.name);
             }
 
             //Display Highscore
