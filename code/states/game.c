@@ -22,7 +22,7 @@ QueueHandle_t game_start_queue;
 
 void gameInit()
 {
-    xTaskCreate(gameDrawTask, "gameDrawTask", 3000, NULL, 3, &drawTaskHandle);
+    xTaskCreate(gameDrawTask, "gameDrawTask", 5000, NULL, 3, &drawTaskHandle);
     //XTaskCreate(generateAsteroid, "generateAsteroidsHandle", 3000, NULL, &generateAsteroidsHandle);
     vTaskSuspend(drawTaskHandle);
     score_queue = xQueueCreate(1, sizeof(struct player));
@@ -235,13 +235,15 @@ void resetGame(struct player *player, struct ufo *ufos, uint8_t maxUfoCount, str
 
     player->colliderRadius = RADIUS_COLLIDER;
     if (isMultiplayer)
+    {
         ufos[0].colliderRadius = RADIUS_COLLIDER;
+        ufos[0].collidesWithAsteroids = 1;
+    }
 
     int initialAsteroidCount = INITIAL_ASTEROID_COUNT + ((level - 1) * ADD_ASTEROID_PER_LEVEL);
     int asteroidsRadius = RADIUS_BIG_ASTEROID;
 
-    //memset(asteroids, 0, asteroidLength);
-    inactivateArray(asteroids, sizeof(struct asteroid), asteroidLength);
+    //inactivateArray(asteroids, sizeof(struct asteroid), asteroidLength);
     //inactivateArray(bullets, sizeof(struct asteroid), asteroidLength);
     if (!isMultiplayer || isMaster)
         generateAsteroids(asteroids, asteroidLength, initialAsteroidCount, (pointf){0, 0}, asteroidsRadius);
@@ -266,19 +268,19 @@ void gameDrawTask(void *data)
 
     // bullets
     int maxNumBullets = MAX_BULLET_COUNT;
-    struct bullet bullets[maxNumBullets];
+    struct bullet bullets[MAX_BULLET_COUNT] = {{0}};
 
     // player
     struct player player;
 
     // Ufo
     int maxUfoCount = UFO_MAX_COUNT;
-    struct ufo ufos[maxUfoCount];
+    struct ufo ufos[UFO_MAX_COUNT] = {{0}};
 
     //Game Mode
-    uint8_t gameMode;
-    uint8_t isMultiplayer;
-    uint8_t isMaster;
+    uint8_t gameMode = 0;
+    uint8_t isMultiplayer = 0;
+    uint8_t isMaster = 0;
 
     //resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer);
     while (1)
@@ -296,7 +298,10 @@ void gameDrawTask(void *data)
                 strcpy(player.name, gameStart.name);
                 player.level = gameStart.level;
             }
-            //+ ((gameStart.level-1)*ADD_ASTEROID_PER_LEVEL)
+
+            memset(asteroids, 0, sizeof(asteroids));
+            memset(bullets, 0, sizeof(bullets));
+
             resetGame(&player, &ufos, maxUfoCount, &asteroids, sizeof(asteroids), isMultiplayer, isMaster, gameStart.level);
 
             if (isMultiplayer)
@@ -373,7 +378,7 @@ void gameDrawTask(void *data)
                 updateUfo(ufos, maxUfoCount);
                 for (int ui = 0; ui < maxUfoCount; ui++)
                 {
-                    if (ufoShouldShoot())
+                    if (ufos[ui].isActive && ufoShouldShoot())
                     {
                         ufoShoot(&ufos[ui], &player, &bullets, sizeof(bullets));
                     }
@@ -395,6 +400,7 @@ void gameDrawTask(void *data)
             drawUfo(&ufos, maxUfoCount, Red);
 
             drawBullets(&bullets, maxNumBullets);
+            drawPlayer(&player);
 
             //Score counter on top
             sprintf(str, "%s : %i Level: %i", player.name, player.score, player.level);

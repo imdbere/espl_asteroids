@@ -6,6 +6,7 @@
 void spawnUfo(struct ufo *ufo, uint8_t isSmall)
 {
     ufo->isActive = 1;
+    ufo->collidesWithAsteroids = 0;
     ufo->position = (pointf){
         randRange(0, DISPLAY_SIZE_X),
         randRange(0, DISPLAY_SIZE_Y)};

@@ -17,9 +17,11 @@ void generateAsteroids(struct asteroid *asteroids, int asteroidsLength, int aste
         if (newAsteroid != NULL)
         {
             newAsteroid->isActive = 1;
-
             newAsteroid->position = addVec(pos, randVect(-positionRandomness, positionRandomness));
-            newAsteroid->speed = randVect(-1, 1);
+
+            // Smaller asteroids are faster
+            float speedMagnitude = 15.0/radius;
+            newAsteroid->speed = randVect(-speedMagnitude, speedMagnitude);
             newAsteroid->radius = radius;
 
             int segmentCount = randRange(5, 10);
