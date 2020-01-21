@@ -34,7 +34,7 @@ void gameEnter()
     GDisplay *g = gdispGetDisplay(0);
     xSemaphoreTake(g->mutex, 0);
     xSemaphoreGive(g->mutex);
-    xTaskNotifyGive(drawTaskHandle);
+    // xTaskNotifyGive(drawTaskHandle);
     vTaskResume(drawTaskHandle);
 }
 
@@ -91,7 +91,7 @@ uint8_t checkWinCondition(struct asteroid asteroids[], int numAsteroids, struct 
     return TRUE;
 }
 
-void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player *player, struct ufo *ufo)
+void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player *player, struct ufo *ufo, uint8_t gameMode)
 {
     if (checkWinCondition(asteroids, numAsteroids, player, ufo))
     {
@@ -106,6 +106,7 @@ void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player *
             changeScreen.nextState = gameStateId;
             changeScreen.showCountdown = 1;
             gameStart.level = player->level;
+            gameStart.mode = gameMode;
             sprintf(gameStart.name, player->name);
             sprintf(changeScreen.Title, "Level %i", player->level);
             xQueueSend(levelChange_queue, &changeScreen, 0);
@@ -158,7 +159,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
                 }
 
                 destroyAsteroid(asteroids, numAsteroids, ai);
-                checkGameWin(asteroids, numAsteroids, player, ufos);
+                checkGameWin(asteroids, numAsteroids, player, ufos, gameMode);
                 b->isActive = 0;
             }
         }
@@ -167,7 +168,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
         if (cirlceTouchingCircle(a->position, a->radius, player->position, player->colliderRadius))
         {
             destroyAsteroid(asteroids, numAsteroids, ai);
-            checkGameWin(asteroids, numAsteroids, player, ufos);
+            checkGameWin(asteroids, numAsteroids, player, ufos, gameMode);
             damagePlayer(player, gameMode);
         }
 
@@ -194,7 +195,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
                 player->score += POINTS_DESTROY_UFO;
                 b->isActive = 0;
                 damageUfo(ufo);
-                checkGameWin(asteroids, numAsteroids, player, ufo);
+                checkGameWin(asteroids, numAsteroids, player, ufo, gameMode);
             }
         }
 
@@ -207,7 +208,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
     }
 }
 
-void resetGame(struct player *player, struct ufo *ufos, uint8_t maxUfoCount, struct asteroid *asteroids, size_t asteroidLength, uint8_t isMultiplayer, uint8_t isMaster, uint8_t level)
+void resetGame(struct player *player, struct ufo *ufos, int *ufosInField, uint8_t maxUfoCount, struct asteroid *asteroids, size_t asteroidLength, uint8_t isMultiplayer, uint8_t isMaster, uint8_t level)
 {
     player->health = INITIAL_HEALTH_COUNT;
 
@@ -219,6 +220,7 @@ void resetGame(struct player *player, struct ufo *ufos, uint8_t maxUfoCount, str
     }
     else
     {
+        *ufosInField = 0;
         for (int i = 0; i < maxUfoCount; i++)
         {
             ufos[i].isActive = 0;
@@ -275,6 +277,7 @@ void gameDrawTask(void *data)
 
     // Ufo
     int maxUfoCount = UFO_MAX_COUNT;
+    int ufosInField = 0;
     struct ufo ufos[UFO_MAX_COUNT] = {{0}};
 
     //Game Mode
@@ -286,23 +289,20 @@ void gameDrawTask(void *data)
     while (1)
     {
 
-        if (ulTaskNotifyTake(pdTRUE, 0) == 1)
+        struct gameStartInfo gameStart;
+        if (xQueueReceive(game_start_queue, &gameStart, 0) == pdTRUE)
         {
-            struct gameStartInfo gameStart;
-            if (xQueueReceive(game_start_queue, &gameStart, 0) == pdTRUE)
-            {
-                gameMode = gameStart.mode;
-                if (gameMode == GAME_MODE_MP)
-                    isMultiplayer = 1;
-                isMaster = gameStart.isMaster;
-                strcpy(player.name, gameStart.name);
-                player.level = gameStart.level;
-            }
+            gameMode = gameStart.mode;
+            if (gameMode == GAME_MODE_MP)
+                isMultiplayer = 1;
+            isMaster = gameStart.isMaster;
+            strcpy(player.name, gameStart.name);
+            player.level = gameStart.level;
 
             memset(asteroids, 0, sizeof(asteroids));
             memset(bullets, 0, sizeof(bullets));
 
-            resetGame(&player, &ufos, maxUfoCount, &asteroids, sizeof(asteroids), isMultiplayer, isMaster, gameStart.level);
+            resetGame(&player, &ufos, &ufosInField, maxUfoCount, &asteroids, sizeof(asteroids), isMultiplayer, isMaster, gameStart.level);
 
             if (isMultiplayer)
             {
@@ -374,7 +374,12 @@ void gameDrawTask(void *data)
             }
             else
             {
-                spawnUfoRandom(&ufos, sizeof(ufos));
+                if (ufosInField < UFO_MAX_COUNT)
+                {
+                    if (spawnUfoRandom(&ufos, sizeof(ufos)))
+                        ufosInField++;
+                }
+
                 updateUfo(ufos, maxUfoCount);
                 for (int ui = 0; ui < maxUfoCount; ui++)
                 {
@@ -403,7 +408,7 @@ void gameDrawTask(void *data)
             drawPlayer(&player);
 
             //Score counter on top
-            sprintf(str, "%s : %i Level: %i", player.name, player.score, player.level);
+            sprintf(str, "%s : %i Level: %i Mode: %i", player.name, player.score, player.level, gameMode);
             gdispDrawString(10, 10, str, font12, White);
             point gameLifePoints[] = {{4, 0}, {0, 12}, {8, 12}};
 

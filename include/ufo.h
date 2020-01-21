@@ -19,7 +19,7 @@ struct ufo
 void changeUfoSpeed(struct ufo *myufo, float maxSpeed);
 void drawUfo(struct ufo *myufo,uint8_t maxUfoCount,color_t color);
 void spawnUfo(struct ufo *myufo, uint8_t isSmall);
-void spawnUfoRandom(struct ufo *ufos, size_t length);
+uint8_t spawnUfoRandom(struct ufo *ufos, size_t length);
 void ufoShoot(struct ufo *myufo, struct player *myplayer, struct bullet *bullets, size_t bulletLength);
 void updateUfo(struct ufo *myufo, uint8_t maxUfoCount);
 uint8_t ufoShouldShoot();

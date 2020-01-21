@@ -3,6 +3,7 @@
 #include "sm.h"
 #include "states/states.h"
 #include "states/level_change_screen.h"
+#include "states/game.h"
 #include "stdlib.h"
 #include "asteroids.h"
 #include "ufo.h"
@@ -91,7 +92,7 @@ void levelChangeScreenDraw(void *data)
                         xQueueSend(state_queue, &gameStateId, 0);
                     }
                     else if(buttons.A.risingEdge)
-                    {
+                    {   
                         changeScreenData.isPauseScreen = 0;
                     }
                 }
