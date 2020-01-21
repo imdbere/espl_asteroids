@@ -21,7 +21,6 @@
 #define HIGHSCORE_DISPLAY_COUNT 6
 
 TaskHandle_t mainMenuTaskHandle;
-SemaphoreHandle_t disconnectSemaphore;
 
 //no neet to use Semaphores or Mutex
 struct userScore userScoresSp[HIGHSCORE_DISPLAY_COUNT]; //Singleplayer
@@ -32,7 +31,6 @@ char debugStr[40];
 void mainMenuInit()
 {
     xTaskCreate(mainMenuDrawTask, "mainMenuDrawTask", 2000, NULL, 3, &mainMenuTaskHandle);
-    disconnectSemaphore = xSemaphoreCreateBinary();
     vTaskSuspend(mainMenuTaskHandle);
 }
 
@@ -294,11 +292,6 @@ void writeName(struct buttons *buttons, struct userNameInput *userName)
     }
 }
 
-void disconnectTimerElapsed(TimerHandle_t xTimer)
-{
-    xSemaphoreGive(disconnectSemaphore);
-}
-
 void startGame(uint8_t gameMode, uint8_t isMaster, char *name)
 {
     struct gameStartInfo gameStart;
@@ -370,8 +363,6 @@ void mainMenuDrawTask(void *data)
     //multiplayer mode
     uint8_t otherUserConnected = 0;
     uint8_t isMaster = 1;
-    TimerHandle_t disconnectTimer;
-    disconnectTimer = xTimerCreate("disconnectTimer", pdMS_TO_TICKS(500), pdTRUE, NULL, disconnectTimerElapsed);
 
     while (1)
     {
@@ -380,7 +371,7 @@ void mainMenuDrawTask(void *data)
             gdispClear(Black);
             drawAsteroids(&asteroids, asteroidCount, Gray);
             updateAsteroids(&asteroids, asteroidCount);
-            drawUfo(&ufos, maxUfoCount, Grey);
+            drawUfo(&ufos, maxUfoCount);
             updateUfo(&ufos, maxUfoCount);
             spawnUfoRandom(&ufos, sizeof(ufos));
 
@@ -494,7 +485,8 @@ void mainMenuDrawTask(void *data)
                 xTimerReset(disconnectTimer, 0);
                 isMaster = !handshakePacket.fromMaster;
                 otherUserConnected = TRUE;
-                gameMode = GAME_MODE_MP;
+                if (!isMaster)
+                    gameMode = GAME_MODE_MP;
             }
 
             // When disconnected

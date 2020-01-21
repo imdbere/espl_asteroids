@@ -76,22 +76,23 @@ void damageUfo(struct ufo *ufo)
     }
 }
 
-uint8_t checkWinCondition(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength)
+uint8_t checkWinCondition(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength, uint8_t isMultiplayer)
 {
     return 
-        isEmpty(asteroids, sizeof(struct asteroid), asteroidsLength) &&
-        isEmpty(ufos, sizeof(struct ufo), ufosLength);
+        isEmpty(ufos, sizeof(struct ufo), ufosLength) &&
+        (isEmpty(asteroids, sizeof(struct asteroid), asteroidsLength) || isMultiplayer);
+        
 }
 
-void checkGameWin(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength)
+void checkGameWin(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength, uint8_t isMultiplayer)
 {
-    if (checkWinCondition(asteroids, asteroidsLength, player, ufos, ufosLength))
+    if (checkWinCondition(asteroids, asteroidsLength, player, ufos, ufosLength, isMultiplayer))
     {
         struct changeScreenData changeScreen = {{0}};
         struct gameStartInfo gameStart = {{0}};
 
         //NEXT LEVEL
-        if (player->level < LEVEL_COUNT)
+        if (!isMultiplayer && player->level < LEVEL_COUNT)
         {
             player->level++;
             changeScreen.msWaitingTime = COUNTDOWN_NEXT_LEVEL * 1000;
@@ -121,6 +122,8 @@ void checkGameWin(struct asteroid asteroids[], size_t asteroidsLength, struct pl
 
 void handleCollision(struct uartCollisionPacket col, struct bullet bullets[], struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength, uint8_t gameMode)
 {
+    uint8_t isMultiplayer = gameMode == GAME_MODE_MP;
+
     if (col.collider1 == COLL_ASTEROID)
     {
         if (col.collider2 == COLL_BULLET)
@@ -152,7 +155,7 @@ void handleCollision(struct uartCollisionPacket col, struct bullet bullets[], st
             damageUfo(&ufos[0]);
         }
 
-        checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength);
+        checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength, isMultiplayer);
     }
 
     if (col.collider1 == COLL_BULLET)
@@ -162,7 +165,7 @@ void handleCollision(struct uartCollisionPacket col, struct bullet bullets[], st
             player->score += POINTS_DESTROY_UFO;
             bullets[col.collider1Id].isActive = 0;
             damageUfo(&ufos[col.collider2Id]);
-            checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength);
+            checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength, isMultiplayer);
         }
         if (col.collider2 == COLL_PLAYER)
         {
@@ -334,6 +337,7 @@ void gameDrawTask(void *data)
     uint8_t isMaster = 0;
 
     struct uartCollisionPacket collisions[MAX_SIMULTANEOUS_COLLISIONS];
+    uint8_t sentDisconnected = 0;
 
     //resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer);
     while (1)
@@ -354,6 +358,7 @@ void gameDrawTask(void *data)
             memset(asteroids, 0, sizeof(asteroids));
             memset(bullets, 0, sizeof(bullets));
 
+            sentDisconnected = 0;
             resetGame(&player, &ufos, maxUfoCount, &asteroids, sizeof(asteroids), isMultiplayer, isMaster, gameStart.level);
 
             if (isMultiplayer)
@@ -370,6 +375,7 @@ void gameDrawTask(void *data)
                         memcpy(&asteroids, &gameSetup.asteroids, MAX_ASTEROID_COUNT_MP * sizeof(struct asteroid));
                     }
                 }
+                xSemaphoreTake(disconnectSemaphore, 0);
             }
         }
 
@@ -463,6 +469,25 @@ void gameDrawTask(void *data)
                     }
                 }
 
+                // When disconnected
+                if (xSemaphoreTake(disconnectSemaphore, 0) == pdTRUE && !sentDisconnected)
+                {
+                    struct changeScreenData changeScreen = {{0}};
+
+                    changeScreen.msWaitingTime = 2000;
+                    changeScreen.nextState = mainMenuStateId;
+                    changeScreen.showCountdown = 0;
+                    changeScreen.isPauseScreen = 0;
+                    sprintf(changeScreen.Title, "Disconnected!");
+                    sprintf(changeScreen.Subtext, "");
+
+                    xQueueSend(levelChange_queue, &changeScreen, 0);
+                    xQueueSend(score_queue, &player, 0);
+                    xQueueSend(state_queue, &levelChangeScreenId, 0);
+
+                    sentDisconnected = TRUE;
+                }
+
             }
             else
             {
@@ -487,7 +512,7 @@ void gameDrawTask(void *data)
             drawAsteroids((struct asteroid *)&asteroids, maxAsteroidCount, White);
             drawPlayer(&player);
 
-            drawUfo(&ufos, maxUfoCount, Red);
+            drawUfo(&ufos, maxUfoCount);
 
             drawBullets(&bullets, maxNumBullets);
             drawPlayer(&player);

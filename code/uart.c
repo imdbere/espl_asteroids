@@ -14,9 +14,10 @@ QueueHandle_t uartGameSetupQueue;
 
 QueueHandle_t uartFramePacketQueue;
 QueueHandle_t uartCollosionPacketQueue;
+TimerHandle_t disconnectTimer;
+SemaphoreHandle_t disconnectSemaphore;
 
-static const uint8_t startByte = 0xAA, stopByte = 0x55;
-
+void disconnectTimerElapsed(TimerHandle_t xTimer);
 
 void initUartQueues()
 {
@@ -29,7 +30,15 @@ void initUartQueues()
     xTaskCreate(receivePacketTask, "receivePacketTask", MAX_PACKET_LENGTH + 100, NULL, 2, NULL);
     xSendMutex = xSemaphoreCreateMutex();
 
+    disconnectSemaphore = xSemaphoreCreateBinary();
+    disconnectTimer = xTimerCreate("disconnectTimer", pdMS_TO_TICKS(500), pdFALSE, NULL, disconnectTimerElapsed);
+
     //initDma();
+}
+
+void disconnectTimerElapsed(TimerHandle_t xTimer)
+{
+    xSemaphoreGive(disconnectSemaphore);
 }
 
 
@@ -103,13 +112,13 @@ void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *pack
 
         uint8_t checksum = calculateChecksum(packet, length);
 
-        UART_SendData(startByte);
+        UART_SendData(UART_START_BYTE);
         UART_SendData(type);
 
         sendBuffer((uint8_t *)packet, length);
 
         UART_SendData(checksum);
-        UART_SendData(stopByte);
+        UART_SendData(UART_STOP_BYTE);
 
         xSemaphoreGive(semaphore_state_change);
     }
@@ -136,6 +145,9 @@ size_t getPacketSize(enum packetType type)
 
 void handleGotPacket(enum packetType type, uint8_t* buffer)
 {
+    xTimerReset(disconnectTimer, 0);
+    //xSemaphoreTake(disconnectSemaphore, 0);
+    
     switch (type)
     {
         case HandshakePacket:
@@ -174,7 +186,7 @@ void receivePacketTask(void *params)
         // Waiting for START
         if (state == 0)
         {
-            if (input == startByte)
+            if (input == UART_START_BYTE)
                 state = 1;
         }
 
@@ -223,7 +235,7 @@ void receivePacketTask(void *params)
         // Waiting for STOP
         else if (state == 4)
         {
-            if (input == stopByte)
+            if (input == UART_STOP_BYTE)
             {
                 handleGotPacket(type, buffer);
             }

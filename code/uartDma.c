@@ -99,13 +99,13 @@ void __attribute__((optimize("O0"))) sendPacketDma(enum packetType type, void *p
         int totalLength = length + 4;
         //reinitDma(totalLength);
 
-        sendByteToTxBuffer(startByte);
+        sendByteToTxBuffer(UART_START_BYTE);
         sendByteToTxBuffer(type);
 
         sendBuffer((uint8_t *)packet, length);
 
         sendByteToTxBuffer(checksum);
-        sendByteToTxBuffer(stopByte);
+        sendByteToTxBuffer(UART_STOP_BYTE);
 
         if (txBufferPos >= dmaPacketSize)
         {

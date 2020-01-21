@@ -12,7 +12,13 @@ extern QueueHandle_t uartGameSetupQueue;
 extern QueueHandle_t uartFramePacketQueue;
 extern QueueHandle_t uartCollosionPacketQueue;
 
+extern TimerHandle_t disconnectTimer;
+extern SemaphoreHandle_t disconnectSemaphore;
+
 #define MAX_PACKET_LENGTH 800
+#define UART_START_BYTE 0xAA
+#define UART_STOP_BYTE 0x55
+
 struct uartFramePacket {
     pointf playerPosition;
     pointf playerSpeed;
