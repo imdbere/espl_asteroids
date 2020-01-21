@@ -374,7 +374,7 @@ void gameDrawTask(void *data)
             }
             else
             {
-                if (ufosInField < UFO_MAX_COUNT)
+                if (ufosInField < UFO_MAX_COUNT && player.score > UFO_SPAWN_MIN_SCORE)
                 {
                     if (spawnUfoRandom(&ufos, sizeof(ufos)))
                         ufosInField++;
