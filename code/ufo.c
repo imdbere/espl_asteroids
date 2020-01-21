@@ -17,17 +17,34 @@ void spawnUfo(struct ufo *ufo, uint8_t isSmall)
     ufo->colliderRadius = 35;
 }
 
-void updateUfo(struct ufo *ufo)
+void spawnUfoRandom(struct ufo *ufos, size_t length)
+{
+    struct ufo *u = (struct ufo *)searchForFreeSpace(ufos, sizeof(struct ufo), length);
+    if (u != NULL)
+    {
+        if (randRange(0, 1000) < 5)
+        {
+            spawnUfo(u, 1);
+        }
+    }
+}
+
+void updateUfo(struct ufo *ufos, uint8_t maxUfoCount)
 {
     // I true with a probability of 1/100, which means it triggers
     // ~every 2s
-    if (randRange(0, 1000) < 10)
+    for (int i = 0; i < maxUfoCount; i++)
     {
-        changeUfoSpeed(ufo, 1);
+        if (ufos[i].isActive)
+        {
+            if (randRange(0, 1000) < 10)
+            {
+                changeUfoSpeed(&ufos[i], 1);
+            }
+            addToVec(&ufos[i].position, ufos[i].speed);
+            wrapScreen(&ufos[i].position);
+        }
     }
-
-    addToVec(&ufo->position, ufo->speed);
-    wrapScreen(&ufo->position);
 }
 
 void changeUfoSpeed(struct ufo *ufo, float maxSpeed)
@@ -35,7 +52,7 @@ void changeUfoSpeed(struct ufo *ufo, float maxSpeed)
     ufo->speed = randVect(-maxSpeed, maxSpeed);
 }
 
-uint8_t ufoShouldShoot(struct ufo *ufo)
+uint8_t ufoShouldShoot()
 {
     // 1/50 chance
     return randRange(0, 1000) < 25;
@@ -60,30 +77,36 @@ void ufoShoot(struct ufo *ufo, struct player *myplayer, struct bullet *bullets, 
     generateBullet(bullets, bulletLength, targetAngle, bulletSpeed, 0.0, ufo->position, ufo->speed, FROM_UFO);
 }
 
-void drawUfo(struct ufo *ufo, color_t color)
+void drawUfo(struct ufo *ufos, uint8_t maxUfoCount, color_t color)
 {
     pointf ufoPosition;
-    int scale = ufo->size;
-
-    // Centering
-    ufoPosition.x = ufo->position.x - 6.5 * scale;
-    ufoPosition.y = ufo->position.y - 3 * scale;
-
-    point ufoPoints[] = {{5 * scale, 0 * scale}, {8 * scale, 0 * scale}, {9 * scale, 2 * scale}, {13 * scale, 4 * scale}, {8 * scale, 6 * scale}, {5 * scale, 6 * scale}, {0 * scale, 4 * scale}, {4 * scale, 2 * scale}};
-    gdispDrawPoly(ufoPosition.x, ufoPosition.y, ufoPoints, 8, White);
-    gdispDrawLine((4 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, (9 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, color);
-    gdispDrawLine((0 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, (13 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, color);
-    
-    
-    // if(ufo->showHealt)
-    if (ufo->health > UFO_MAX_LIFES)
-        ufo->health = 10;
-    if(ufo->health < 0)
-        ufo->health = 0;
-    if (ufo->showHealth)
+    for (int i = 0; i < maxUfoCount; i++)
     {
-        gdispDrawBox(ufoPosition.x, ufoPosition.y - (scale * 3), 13 * scale, 1 * scale, color);
-        gdispFillArea(ufoPosition.x, ufoPosition.y - (scale * 3),
-                      (int)((ufo->health / (float)ufo->maxHealth) * 13.0) * scale, 1 * scale, Red);
+        if (ufos[i].isActive)
+        {
+            int scale = ufos[i].size;
+
+            // Centering
+            ufoPosition.x = ufos[i].position.x - 6.5 * scale;
+            ufoPosition.y = ufos[i].position.y - 3 * scale;
+
+            point ufoPoints[] = {{5 * scale, 0 * scale}, {8 * scale, 0 * scale}, {9 * scale, 2 * scale}, {13 * scale, 4 * scale}, {8 * scale, 6 * scale}, {5 * scale, 6 * scale}, {0 * scale, 4 * scale}, {4 * scale, 2 * scale}};
+            gdispDrawPoly(ufoPosition.x, ufoPosition.y, ufoPoints, 8, White);
+            gdispDrawLine((4 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, (9 * scale) + ufoPosition.x, (2 * scale) + ufoPosition.y, color);
+            gdispDrawLine((0 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, (13 * scale) + ufoPosition.x, (4 * scale) + ufoPosition.y, color);
+
+            // if(ufo->showHealt)
+
+            if (ufos[i].showHealth)
+            {
+                if (ufos[i].health > ufos[i].maxHealth)
+                    ufos[i].health = ufos[i].maxHealth;
+                if (ufos[i].health < 0)
+                    ufos[i].health = 0;
+                gdispDrawBox(ufoPosition.x, ufoPosition.y - (scale * 3), 13 * scale, 1 * scale, color);
+                gdispFillArea(ufoPosition.x, ufoPosition.y - (scale * 3),
+                              (int)((ufos[i].health / (float)ufos[i].maxHealth) * 13.0) * scale, 1 * scale, Red);
+            }
+        }
     }
 }

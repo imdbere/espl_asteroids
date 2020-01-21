@@ -113,7 +113,7 @@ void dispHighScore(uint8_t gameMode)
         for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
         {
             if (i == 0)
-                myFont = font20;
+                myFont = font24;
             else if (i == 1)
                 myFont = font20;
             else if (i == 2)
@@ -143,7 +143,7 @@ void displayMenu(int selectorPositionY, uint8_t gameMode, uint8_t writeNameBool,
     else
     {
         gdispFillConvexPoly(LEFT_TEXT_MARGIN + selectedOffsetX[3] +
-                        gdispGetStringWidth("Name: ", font16) + 5 + userName->cursorOffset,
+                                gdispGetStringWidth("Name: ", font16) + 5 + userName->cursorOffset,
                             170, pointsShipVertical, 3, White);
     }
 
@@ -162,9 +162,9 @@ void displayMenu(int selectorPositionY, uint8_t gameMode, uint8_t writeNameBool,
 
     if (gameMode == GAME_MODE_SP)
         sprintf(str, "  Singleplayer");
-    else if(gameMode == GAME_MODE_MP)
+    else if (gameMode == GAME_MODE_MP)
         sprintf(str, "  Multiplayer");
-    else if(gameMode == GAME_MODE_GOD)
+    else if (gameMode == GAME_MODE_GOD)
         sprintf(str, "  God Mode");
     else
         sprintf(str, "  Other Mode"); //Todo
@@ -333,16 +333,17 @@ void mainMenuDrawTask(void *data)
     char str[100];
 
     //UFo
-    struct ufo ufo = {{0}};
-    ufo.position.x = 63;
-    ufo.position.y = 24;
-    ufo.showHealth = 0;
-    ufo.speed.x = 0.4;
-    ufo.speed.y = 0.1;
-    ufo.size = 3;
+    uint8_t maxUfoCount = UFO_MAX_COUNT_MENU;
+    struct ufo ufos[10] = {{0}};
+    for (int ui = 0; ui < maxUfoCount; ui++)
+    {
+        ufos[ui].position.x = randRange(0, 300);
+        ufos[ui].position.y = randRange(0,300);
+        ufos[ui].showHealth = 0;
+        ufos[ui].size = randRange(1,4);
+    }
 
     // ufo.health = 20;
-    
 
     //Drawing Menu
     int selectorPositionY = 60;
@@ -360,7 +361,7 @@ void mainMenuDrawTask(void *data)
     //hight score
     uint8_t showHighScoreBool = 0;
 
-    //Cheats 
+    //Cheats
     uint8_t gameMode = 0; //mode 0: sp, mode 1: mp, mode 2: cheat, mode 3: open;
 
     //multiplayer mode
@@ -376,8 +377,9 @@ void mainMenuDrawTask(void *data)
             gdispClear(Black);
             drawAsteroids(&asteroids, asteroidCount, Gray);
             updateAsteroids(&asteroids, asteroidCount);
-            drawUfo(&ufo, Grey);
-            updateUfo(&ufo);
+            drawUfo(&ufos, maxUfoCount, Grey);
+            updateUfo(&ufos, maxUfoCount);
+            spawnUfoRandom(&ufos, sizeof(ufos));
 
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
             {
@@ -397,7 +399,7 @@ void mainMenuDrawTask(void *data)
                     }
                     else if (selected == 1)
                     {
-                        if(gameMode == 2)
+                        if (gameMode == 2)
                             gameMode = 0;
                         else
                             gameMode ++;
@@ -425,7 +427,7 @@ void mainMenuDrawTask(void *data)
                     }
                 }
 
-                if(!showHighScoreBool)
+                if (!showHighScoreBool)
                 {
                     if (writeNameBool)
                     {
@@ -516,7 +518,7 @@ void mainMenuDrawTask(void *data)
             }
             else //Drawing Menu
             {
-                displayMenu(selectorPositionY, gameMode ,writeNameBool, &selectedOffsetX, &userName);
+                displayMenu(selectorPositionY, gameMode, writeNameBool, &selectedOffsetX, &userName);
                 if (otherUserConnected)
                 {
                     sprintf(str, "Connected");

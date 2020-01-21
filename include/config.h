@@ -9,7 +9,7 @@
 #define INITIAL_HEALTH_COUNT 4
 #define MAX_HEALTH_COUNT 6
 #define MAX_BULLET_COUNT 10
-#define POINTS_FOR_HEALTH 5000
+#define POINTS_FOR_HEALTH 10000
 
 // Physics
 #define SHIP_MAX_SPEED 2.3
@@ -19,7 +19,7 @@
 //Multiplayer
 
 //Asteroids
-#define MAX_ASTEROID_COUNT_GAME 15
+#define MAX_ASTEROID_COUNT_GAME 11
 #define MAX_ASTEROID_COUNT_MP 6
 #define ADD_ASTEROID_PER_LEVEL 2
 #define INITIAL_ASTEROID_COUNT 5
@@ -31,7 +31,10 @@
 #define POINTS_DESTROY_UFO 1000
 
 //UFO
-#define UFO_MAX_LIFES 4
+#define UFO_MAX_LIFES_MP 4
+#define UFO_MAX_LIFES_SP 3
+#define UFO_MAX_COUNT 2
+#define UFO_MAX_COUNT_MENU 10
 
 //Design 
 #define LEFT_TEXT_MARGIN 30
