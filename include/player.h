@@ -14,6 +14,7 @@ struct player
 	int score;
     int scoreOld;
     char name[10];
+    int level;
 };
 
 void updatePlayer(struct player* player, int joyX, int joyY);
