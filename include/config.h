@@ -11,6 +11,11 @@
 #define MAX_BULLET_COUNT 10
 #define POINTS_FOR_HEALTH 5000
 
+// Physics
+#define SHIP_MAX_SPEED 2.3
+#define SHIP_DRAG_AMOUNT 0.01
+#define SHIP_CONTROL_SPEED_MULTIPLIER 0.7
+
 //Multiplayer
 
 //Asteroids

@@ -3,9 +3,12 @@
 
 void updatePlayer(struct player* player, int joyX, int joyY)
 {
-    float shipMaxSpeed = 2;
-    
-    addToVec(&player->speed, (pointf) {joyX / 2000.0, joyY / 2000.0});
+    float shipMaxSpeed = SHIP_MAX_SPEED;
+    float dragAmount = SHIP_DRAG_AMOUNT;
+    float joyMult = SHIP_CONTROL_SPEED_MULTIPLIER;
+
+    addToVec(&player->speed, (pointf) {joyX * joyMult / 1000.0, joyY * joyMult / 1000.0});
+    subFromVec(&player->speed, scalarMult(player->speed, dragAmount));
     clampVec(&player->speed, shipMaxSpeed);
     
     addToVec(&player->position, player->speed);

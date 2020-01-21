@@ -22,7 +22,7 @@ QueueHandle_t game_start_queue;
 
 void gameInit()
 {
-    xTaskCreate(gameDrawTask, "gameDrawTask", 3000, NULL, 3, &drawTaskHandle);
+    xTaskCreate(gameDrawTask, "gameDrawTask", 5000, NULL, 3, &drawTaskHandle);
     //XTaskCreate(generateAsteroid, "generateAsteroidsHandle", 3000, NULL, &generateAsteroidsHandle);
     vTaskSuspend(drawTaskHandle);
     score_queue = xQueueCreate(1, sizeof(struct player));
@@ -231,8 +231,7 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
     int initialAsteroidCount = INITIAL_ASTEROID_COUNT + ((level - 1) * ADD_ASTEROID_PER_LEVEL);
     int asteroidsRadius = RADIUS_BIG_ASTEROID;
 
-    //memset(asteroids, 0, asteroidLength);
-    inactivateArray(asteroids, sizeof(struct asteroid), asteroidLength);
+    //inactivateArray(asteroids, sizeof(struct asteroid), asteroidLength);
     //inactivateArray(bullets, sizeof(struct asteroid), asteroidLength);
     if (!isMultiplayer || isMaster)
         generateAsteroids(asteroids, asteroidLength, initialAsteroidCount, (pointf){0, 0}, asteroidsRadius);
@@ -257,7 +256,7 @@ void gameDrawTask(void *data)
 
     // bullets
     int maxNumBullets = MAX_BULLET_COUNT;
-    struct bullet bullets[maxNumBullets];
+    struct bullet bullets[MAX_BULLET_COUNT] = {{0}};
 
     // player
     struct player player;
@@ -287,7 +286,10 @@ void gameDrawTask(void *data)
                 strcpy(player.name, gameStart.name);
                 player.level = gameStart.level;
             }
-            //+ ((gameStart.level-1)*ADD_ASTEROID_PER_LEVEL)
+
+            memset(asteroids, 0, sizeof(asteroids));
+            memset(bullets, 0, sizeof(bullets));
+
             resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer, isMaster, gameStart.level);
 
             if (isMultiplayer)
@@ -380,13 +382,13 @@ void gameDrawTask(void *data)
             gdispClear(Black);
 
             drawAsteroids((struct asteroid *)&asteroids, maxAsteroidCount, White);
-            drawPlayer(&player);
             if (ufo.isActive)
             {
                 drawUfo(&ufo, Red);
             }
 
             drawBullets(&bullets, maxNumBullets);
+            drawPlayer(&player);
 
             //Score counter on top
             sprintf(str, "%s : %i Level: %i", player.name, player.score, player.level);

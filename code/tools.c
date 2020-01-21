@@ -61,6 +61,12 @@ void addToVec(pointf *target, pointf toAdd)
     target->y += toAdd.y;
 }
 
+void subFromVec(pointf *target, pointf toSub)
+{
+    target->x -= toSub.x;
+    target->y -= toSub.y;
+}
+
 float square(float nr)
 {
     return nr * nr;
