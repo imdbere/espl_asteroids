@@ -22,7 +22,6 @@
 #define HIGHSCORE_DISPLAY_COUNT 6
 
 TaskHandle_t mainMenuTaskHandle;
-SemaphoreHandle_t disconnectSemaphore;
 
 //no neet to use Semaphores or Mutex
 struct userScore userScoresSp[HIGHSCORE_DISPLAY_COUNT]; //Singleplayer
@@ -33,7 +32,6 @@ char debugStr[40];
 void mainMenuInit()
 {
     xTaskCreate(mainMenuDrawTask, "mainMenuDrawTask", 2000, NULL, 3, &mainMenuTaskHandle);
-    disconnectSemaphore = xSemaphoreCreateBinary();
     vTaskSuspend(mainMenuTaskHandle);
 }
 
@@ -178,6 +176,9 @@ void displayMenu(int selectorPositionY, uint8_t gameMode, uint8_t writeNameBool,
     sprintf(str, "Name: ");
     gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[3], 150, str, font16, White);
     gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, userName->name, font16, White);
+
+    const char* date = "Build: " __DATE__ " " __TIME__;
+    gdispDrawString(10, DISPLAY_SIZE_Y - 15, date, font12, White);
 }
 
 void writeName(struct buttons *buttons, struct userNameInput *userName)
@@ -292,11 +293,6 @@ void writeName(struct buttons *buttons, struct userNameInput *userName)
     }
 }
 
-void disconnectTimerElapsed(TimerHandle_t xTimer)
-{
-    xSemaphoreGive(disconnectSemaphore);
-}
-
 void startGame(uint8_t gameMode, uint8_t isMaster, char *name)
 {
     struct gameStartInfo gameStartInfo;
@@ -365,11 +361,8 @@ void mainMenuDrawTask(void *data)
     uint8_t gameMode = 0; //mode 0: sp, mode 1: mp, mode 2: cheat, mode 3: open;
 
     //multiplayer mode
-    uint8_t isMuliPlayerBool = 0;
     uint8_t otherUserConnected = 0;
     uint8_t isMaster = 1;
-    TimerHandle_t disconnectTimer;
-    disconnectTimer = xTimerCreate("disconnectTimer", pdMS_TO_TICKS(500), pdTRUE, NULL, disconnectTimerElapsed);
 
     //explosion
     struct explosion explosion;
@@ -385,13 +378,10 @@ void mainMenuDrawTask(void *data)
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
         {
             gdispClear(Black);
-            // drawExplosion(&explosion);
-            // drawAsteroids(&asteroids, asteroidCount, Gray);
-            // updateAsteroids(&asteroids, asteroidCount);
-            // drawUfo(&ufos, maxUfoCount, Grey);
-            // updateUfo(&ufos, maxUfoCount);
-
-            
+            drawAsteroids(&asteroids, asteroidCount, Gray);
+            updateAsteroids(&asteroids, asteroidCount);
+            drawUfo(&ufos, maxUfoCount);
+            updateUfo(&ufos, maxUfoCount);
             spawnUfoRandom(&ufos, sizeof(ufos));
 
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
@@ -415,11 +405,7 @@ void mainMenuDrawTask(void *data)
                         if (gameMode == 2)
                             gameMode = 0;
                         else
-                            gameMode++;
-                        // if(gameMode == 1)
-                        //     isMuliPlayerBool = 1;
-                        // else
-                        //     isMuliPlayerBool = 0;
+                            gameMode ++;
                     }
 
                     else if (selected == 2 && !showHighScoreBool)
@@ -508,8 +494,8 @@ void mainMenuDrawTask(void *data)
                 xTimerReset(disconnectTimer, 0);
                 isMaster = !handshakePacket.fromMaster;
                 otherUserConnected = TRUE;
-                // isMuliPlayerBool = TRUE;
-                gameMode = GAME_MODE_MP;
+                if (!isMaster)
+                    gameMode = GAME_MODE_MP;
             }
 
             // When disconnected
@@ -526,7 +512,7 @@ void mainMenuDrawTask(void *data)
                 {
                     sendGameInvitation(TRUE, userName.name);
                 }
-                startGame(isMuliPlayerBool, isMaster, userName.name);
+                startGame(gameMode, isMaster, userName.name);
             }
 
             //Display Highscore
@@ -540,7 +526,7 @@ void mainMenuDrawTask(void *data)
                 if (otherUserConnected)
                 {
                     sprintf(str, "Connected");
-                    gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
+                    gdispDrawString(DISPLAY_SIZE_X - 100, DISPLAY_SIZE_Y - 20, str, font16, White);
                 }
 
                 // gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, debugStr, font16, White);

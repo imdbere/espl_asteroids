@@ -29,4 +29,7 @@ void clampVec(pointf* vec, float max);
 void wrapScreen(pointf* pos);
 uint8_t isOutsideScreen(pointf p);
 void* searchForFreeSpace(void *buffer, size_t structLength, size_t arrayLength);
+uint8_t isEmpty(void *buffer, size_t structLength, size_t arrayLength);
 void inactivateArray(void *buffer, size_t structLength, size_t arrayLength);
+
+color_t HSVtoRGB(int H, float S, float V);

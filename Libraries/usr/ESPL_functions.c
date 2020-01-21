@@ -128,7 +128,7 @@ void gpioInit() {
 	USART_InitTypeDef USART_InitStruct;
 	NVIC_InitTypeDef NVIC_InitStruct;
 
-	USART_InitStruct.USART_BaudRate = 115200;
+	USART_InitStruct.USART_BaudRate = 1000000;
 	USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	USART_InitStruct.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
 	USART_InitStruct.USART_Parity = USART_Parity_No;
@@ -206,7 +206,7 @@ void ESPL_SystemInit(void) {
 //	gdispSetOrientation(GDISP_ROTATE_LANDSCAPE);
 
 	/*Initialize UART Receive Queue*/
-	ESPL_RxQueue = xQueueCreate(1000, sizeof(char));
+	ESPL_RxQueue = xQueueCreate(500, sizeof(char));
 
 	/*Initialize Display Line Interrupt Semaphore*/
 	ESPL_DisplayReady = xSemaphoreCreateBinary();

@@ -2005,6 +2005,33 @@ code/uart.c.s:
 	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/uart.c.s
 .PHONY : code/uart.c.s
 
+code/uartDma.o: code/uartDma.c.o
+
+.PHONY : code/uartDma.o
+
+# target to build an object file
+code/uartDma.c.o:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/uartDma.c.o
+.PHONY : code/uartDma.c.o
+
+code/uartDma.i: code/uartDma.c.i
+
+.PHONY : code/uartDma.i
+
+# target to preprocess a source file
+code/uartDma.c.i:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/uartDma.c.i
+.PHONY : code/uartDma.c.i
+
+code/uartDma.s: code/uartDma.c.s
+
+.PHONY : code/uartDma.s
+
+# target to generate assembly for a file
+code/uartDma.c.s:
+	$(MAKE) -f CMakeFiles/usrlib.dir/build.make CMakeFiles/usrlib.dir/code/uartDma.c.s
+.PHONY : code/uartDma.c.s
+
 code/ufo.o: code/ufo.c.o
 
 .PHONY : code/ufo.o
@@ -2247,6 +2274,9 @@ help:
 	@echo "... code/uart.o"
 	@echo "... code/uart.i"
 	@echo "... code/uart.s"
+	@echo "... code/uartDma.o"
+	@echo "... code/uartDma.i"
+	@echo "... code/uartDma.s"
 	@echo "... code/ufo.o"
 	@echo "... code/ufo.i"
 	@echo "... code/ufo.s"

@@ -10,51 +10,14 @@ SemaphoreHandle_t xSendMutex;
 
 QueueHandle_t uartHandshakeQueue;
 QueueHandle_t uartInviteQueue;
-QueueHandle_t uartFramePacketQueue;
 QueueHandle_t uartGameSetupQueue;
 
-static const uint8_t startByte = 0xAA, stopByte = 0x55;
+QueueHandle_t uartFramePacketQueue;
+QueueHandle_t uartCollosionPacketQueue;
+TimerHandle_t disconnectTimer;
+SemaphoreHandle_t disconnectSemaphore;
 
-int dmaPacketSize = 50;
-uint8_t bufferToSend[100] = {{0}};
-int txBufferPos = 0;
-
-void sendByteToTxBuffer(uint8_t byte)
-{
-    bufferToSend[txBufferPos++] = byte;
-}
-
-DMA_InitTypeDef dmaInit;
-
-void initDma()
-{
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
-    //RCC_AHB2PeriphResetCmd(RCC_AHB1Periph_DMA2, ENABLE);
-
-    DMA_StructInit(&dmaInit);
-    dmaInit.DMA_Channel = DMA_Channel_4;
-	dmaInit.DMA_BufferSize = dmaPacketSize;
-	dmaInit.DMA_DIR = DMA_DIR_MemoryToPeripheral;
-	dmaInit.DMA_Memory0BaseAddr = &bufferToSend;
-    dmaInit.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-    dmaInit.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    dmaInit.DMA_Mode = DMA_Mode_Normal;
-    dmaInit.DMA_PeripheralBaseAddr = &USART1->DR;
-    dmaInit.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    dmaInit.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    dmaInit.DMA_Priority = DMA_Priority_High;
-    //dmaInit.DMA_PeripheralBurst
-
-    DMA_Init(DMA2_Stream7, &dmaInit);
-    //DMA_ITConfig(DMA2_Stream7, DMA_IT_TC, ENABLE);
-
-    //NVIC_SetPriority(DMA2_Stream7_IRQn, 0);
-    //NVIC_EnableIRQ(DMA2_Stream7_IRQn);
-
-    DMA_Cmd(DMA2_Stream7, ENABLE);
-
-    USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
-}
+void disconnectTimerElapsed(TimerHandle_t xTimer);
 
 void initUartQueues()
 {
@@ -62,44 +25,22 @@ void initUartQueues()
     uartInviteQueue = xQueueCreate(2, sizeof(struct uartGameInvitePacket));
     uartGameSetupQueue = xQueueCreate(2, sizeof(struct uartGameSetupPacket));
     uartFramePacketQueue = xQueueCreate(2, sizeof(struct uartFramePacket));
+    uartCollosionPacketQueue = xQueueCreate(2, sizeof(struct uartCollisionPacket));
 
-    xTaskCreate(receivePacketTask, "receivePacketTask", 100, NULL, 2, NULL);
+    xTaskCreate(receivePacketTask, "receivePacketTask", MAX_PACKET_LENGTH + 100, NULL, 2, NULL);
     xSendMutex = xSemaphoreCreateMutex();
+
+    disconnectSemaphore = xSemaphoreCreateBinary();
+    disconnectTimer = xTimerCreate("disconnectTimer", pdMS_TO_TICKS(500), pdFALSE, NULL, disconnectTimerElapsed);
 
     //initDma();
 }
 
-void reinitDma(int packetLength)
+void disconnectTimerElapsed(TimerHandle_t xTimer)
 {
-    DMA_Cmd(DMA2_Stream7, DISABLE);
-    DMA_DeInit(DMA2_Stream7);
-
-    txBufferPos = 0;
-    dmaInit.DMA_BufferSize = packetLength;
-    
-    //DMA2_Stream7->MAX = packetLength;
-    DMA_Init(DMA2_Stream7, &dmaInit);
-    //DMA_Cmd(DMA2_Stream7, ENABLE);
+    xSemaphoreGive(disconnectSemaphore);
 }
 
-void startTransfer()
-{
-    DMA_Cmd(DMA2_Stream7, ENABLE);
-    txBufferPos = 0;
-}
-
-
-void DMA2_Stream7_IRQHandler(void) {
-    if(DMA_GetITStatus(DMA2_Stream7, DMA_IT_TCIF7) == SET) {
-        DMA_Cmd(DMA2_Stream7, DISABLE);
-        DMA_ClearITPendingBit(DMA2_Stream7, DMA_IT_TCIF7);
-        //static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        //xSemaphoreGiveFromISR( semaphore_state_change, NULL);
-
-        //if (xHigherPriorityTaskWoken)
-        //    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-    }
-}
 
 void sendHandshake(uint8_t isMaster)
 {
@@ -131,12 +72,9 @@ void sendFramePacket(struct uartFramePacket* packet)
     sendPacket(FramePacket, packet);
 }
 
-void sendBufferDma(uint8_t *buffer, size_t length)
+void sendCollisionPacket(struct uartCollisionPacket* packet)
 {
-    for (int i = 0; i < length; i++)
-    {
-        sendByteToTxBuffer(buffer[i]);
-    }
+    sendPacket(CollisionPacket, packet);
 }
 
 void sendBuffer(uint8_t *buffer, size_t length)
@@ -159,36 +97,6 @@ uint8_t calculateChecksum(void *packet, size_t length)
     return checksum;
 }
 
-void __attribute__((optimize("O0"))) sendPacketDma(enum packetType type, void *packet)
-{
-    // Prevents sending of multiple packets at the same time and
-    // changing states while sending
-    if(xSemaphoreTake(semaphore_state_change, 5) == pdTRUE)
-    {
-        size_t length = getPacketSize(type);
-        uint8_t checksum = calculateChecksum(packet, length);
-
-        int totalLength = length + 4;
-        //reinitDma(totalLength);
-
-        sendByteToTxBuffer(startByte);
-        sendByteToTxBuffer(type);
-
-        sendBuffer((uint8_t *)packet, length);
-
-        sendByteToTxBuffer(checksum);
-        sendByteToTxBuffer(stopByte);
-
-        if (txBufferPos >= dmaPacketSize)
-        {
-            reinitDma(txBufferPos);
-            startTransfer();
-        }
-
-        xSemaphoreGive(semaphore_state_change);
-    }
-}
-
 void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *packet)
 {
     // Prevents sending of multiple packets at the same time and
@@ -196,15 +104,21 @@ void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *pack
     if(xSemaphoreTake(semaphore_state_change, 5) == pdTRUE)
     {
         size_t length = getPacketSize(type);
+        int totalLength = length + 4;
+        if (totalLength > MAX_PACKET_LENGTH)
+        {
+            return;
+        }
+
         uint8_t checksum = calculateChecksum(packet, length);
 
-        UART_SendData(startByte);
+        UART_SendData(UART_START_BYTE);
         UART_SendData(type);
 
         sendBuffer((uint8_t *)packet, length);
 
         UART_SendData(checksum);
-        UART_SendData(stopByte);
+        UART_SendData(UART_STOP_BYTE);
 
         xSemaphoreGive(semaphore_state_change);
     }
@@ -222,6 +136,8 @@ size_t getPacketSize(enum packetType type)
             return sizeof(struct uartGameSetupPacket);
         case FramePacket:
             return sizeof(struct uartFramePacket);
+        case CollisionPacket:
+            return sizeof(struct uartCollisionPacket);
     }
 
     return 0;
@@ -229,6 +145,9 @@ size_t getPacketSize(enum packetType type)
 
 void handleGotPacket(enum packetType type, uint8_t* buffer)
 {
+    xTimerReset(disconnectTimer, 0);
+    //xSemaphoreTake(disconnectSemaphore, 0);
+    
     switch (type)
     {
         case HandshakePacket:
@@ -243,6 +162,9 @@ void handleGotPacket(enum packetType type, uint8_t* buffer)
         case FramePacket:
             xQueueSend(uartFramePacketQueue, buffer, 0);
             break;
+        case CollisionPacket:
+            xQueueSend(uartCollosionPacketQueue, buffer, 0);
+            break;
     }
 }
 
@@ -254,7 +176,7 @@ void receivePacketTask(void *params)
     size_t packetLength;
 
     int pos = 0;
-    uint8_t buffer[40];
+    uint8_t buffer[MAX_PACKET_LENGTH];
 
     while (1)
     {
@@ -264,7 +186,7 @@ void receivePacketTask(void *params)
         // Waiting for START
         if (state == 0)
         {
-            if (input == startByte)
+            if (input == UART_START_BYTE)
                 state = 1;
         }
 
@@ -290,6 +212,13 @@ void receivePacketTask(void *params)
                 pos = 0;
                 state = 3;
             }
+            // Should never happen
+            if (pos == MAX_PACKET_LENGTH)
+            {
+                pos--;
+                return;
+                //exit(1);
+            }
         }
 
         // Waiting for checksum
@@ -306,7 +235,7 @@ void receivePacketTask(void *params)
         // Waiting for STOP
         else if (state == 4)
         {
-            if (input == stopByte)
+            if (input == UART_STOP_BYTE)
             {
                 handleGotPacket(type, buffer);
             }

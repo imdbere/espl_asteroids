@@ -7,8 +7,18 @@
 
 extern QueueHandle_t uartHandshakeQueue;
 extern QueueHandle_t uartInviteQueue;
-extern QueueHandle_t uartFramePacketQueue;
 extern QueueHandle_t uartGameSetupQueue;
+
+extern QueueHandle_t uartFramePacketQueue;
+extern QueueHandle_t uartCollosionPacketQueue;
+
+extern TimerHandle_t disconnectTimer;
+extern SemaphoreHandle_t disconnectSemaphore;
+
+#define MAX_PACKET_LENGTH 800
+#define UART_START_BYTE 0xAA
+#define UART_STOP_BYTE 0x55
+
 struct uartFramePacket {
     pointf playerPosition;
     pointf playerSpeed;
@@ -16,6 +26,30 @@ struct uartFramePacket {
     struct bullet newBullet;
     //struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME];
 };
+
+enum CollisionElement {
+    COLL_NOTHING,
+    COLL_PLAYER, 
+    COLL_UFO,
+    COLL_ASTEROID,
+    COLL_BULLET
+};
+
+struct uartCollisionPacket {
+    enum CollisionElement collider1;
+    enum CollisionElement collider2;
+    int collider1Id;
+    int collider2Id;
+
+    int nextAsteroidSeed;
+};
+
+/*struct uartFullSyncPacket {
+    struct asteroid asteroids[MAX_ASTEROID_COUNT_MP];
+    struct bullet bullets[MAX_BULLET_COUNT];
+    struct player player;
+    struct ufo ufo;
+};*/
 
 struct uartHandshakePacket {
     uint8_t fromMaster;
@@ -27,7 +61,7 @@ struct uartGameInvitePacket {
 };
 
 struct uartGameSetupPacket {
-    struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME];
+    struct asteroid asteroids[MAX_ASTEROID_COUNT_MP];
 };
 
 struct uartInitPacket {
@@ -38,7 +72,8 @@ enum packetType {
     FramePacket,
     GameInvitePacket,
     GameSetupPacket,
-    HandshakePacket
+    HandshakePacket,
+    CollisionPacket
 };
 
 /*
@@ -75,3 +110,4 @@ void sendGameInvitation(uint8_t isAck, char* name);
 void sendGameSetup(struct asteroid* asteroids, size_t asteroidsLength);
 //void sendFramePacket(struct player* player, struct asteroid* asteroids, size_t asteroidsLength);
 void sendFramePacket(struct uartFramePacket* packet);
+void sendCollisionPacket(struct uartCollisionPacket* packet);
