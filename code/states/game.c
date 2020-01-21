@@ -84,15 +84,15 @@ uint8_t checkWinCondition(struct asteroid asteroids[], size_t asteroidsLength, s
         
 }
 
-void checkGameWin(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength, uint8_t isMultiplayer)
+void checkGameWin(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength, uint8_t gameMode)
 {
-    if (checkWinCondition(asteroids, asteroidsLength, player, ufos, ufosLength, isMultiplayer))
+    if (checkWinCondition(asteroids, asteroidsLength, player, ufos, ufosLength, gameMode == GAME_MODE_MP))
     {
         struct changeScreenData changeScreen = {{0}};
         struct gameStartInfo gameStart = {{0}};
 
         //NEXT LEVEL
-        if (!isMultiplayer && player->level < LEVEL_COUNT)
+        if (gameMode != GAME_MODE_MP && player->level < LEVEL_COUNT)
         {
             player->level++;
             changeScreen.msWaitingTime = COUNTDOWN_NEXT_LEVEL * 1000;
@@ -258,7 +258,7 @@ int checkCollisions(struct uartCollisionPacket *collisions, struct bullet bullet
     return currentCollision;
 }
 
-void resetGame(struct player *player, struct ufo *ufos, int *ufosInField, uint8_t maxUfoCount, struct asteroid *asteroids, size_t asteroidLength, uint8_t isMultiplayer, uint8_t isMaster, uint8_t level)
+void resetGame(struct player *player, struct ufo *ufos, uint8_t maxUfoCount, struct asteroid *asteroids, size_t asteroidLength, uint8_t isMultiplayer, uint8_t isMaster, uint8_t level)
 {
     player->health = INITIAL_HEALTH_COUNT;
 
@@ -270,7 +270,6 @@ void resetGame(struct player *player, struct ufo *ufos, int *ufosInField, uint8_
     }
     else
     {
-        *ufosInField = 0;
         for (int i = 0; i < maxUfoCount; i++)
         {
             ufos[i].isActive = 0;
@@ -360,6 +359,7 @@ void gameDrawTask(void *data)
             memset(bullets, 0, sizeof(bullets));
 
             sentDisconnected = 0;
+            ufosInField = 0;
             resetGame(&player, &ufos, maxUfoCount, &asteroids, sizeof(asteroids), isMultiplayer, isMaster, gameStart.level);
 
             if (isMultiplayer)
