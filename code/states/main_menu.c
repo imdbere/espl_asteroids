@@ -4,6 +4,7 @@
 #include "input.h"
 #include "asteroids.h"
 #include "ufo.h"
+#include "explosion.h"
 #include "sm.h"
 #include "uart.h"
 #include "states/game.h"
@@ -370,15 +371,27 @@ void mainMenuDrawTask(void *data)
     TimerHandle_t disconnectTimer;
     disconnectTimer = xTimerCreate("disconnectTimer", pdMS_TO_TICKS(500), pdTRUE, NULL, disconnectTimerElapsed);
 
+    //explosion
+    struct explosion explosion;
+    explosion.fillPoly = 0;
+    explosion.frames = 0;
+    explosion.position.x = 220;
+    explosion.position.y = 100;
+    explosion.size = 10;
+
+
     while (1)
     {
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
         {
             gdispClear(Black);
-            drawAsteroids(&asteroids, asteroidCount, Gray);
-            updateAsteroids(&asteroids, asteroidCount);
-            drawUfo(&ufos, maxUfoCount, Grey);
-            updateUfo(&ufos, maxUfoCount);
+            // drawExplosion(&explosion);
+            // drawAsteroids(&asteroids, asteroidCount, Gray);
+            // updateAsteroids(&asteroids, asteroidCount);
+            // drawUfo(&ufos, maxUfoCount, Grey);
+            // updateUfo(&ufos, maxUfoCount);
+
+            
             spawnUfoRandom(&ufos, sizeof(ufos));
 
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
