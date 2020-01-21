@@ -336,7 +336,7 @@ void mainMenuDrawTask(void *data)
     struct ufo ufo = {{0}};
     ufo.position.x = 63;
     ufo.position.y = 24;
-    ufo.showHealt = 0;
+    ufo.showHealth = 0;
     ufo.speed.x = 0.4;
     ufo.speed.y = 0.1;
     ufo.size = 3;

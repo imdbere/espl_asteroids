@@ -6,12 +6,13 @@ struct ufo
 {
     uint8_t isActive;
     uint8_t collidesWithAsteroids;
-    uint8_t showHealt;
+    uint8_t showHealth;
     pointf position;
     pointf speed;
-    int size;
+    uint8_t size;
+    uint8_t health;
+    uint8_t maxHealth;
     float colliderRadius;
-    int health;
     //TickType_t lastShootTick;
 };
 

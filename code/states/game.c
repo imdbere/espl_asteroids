@@ -208,6 +208,7 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
     spawnUfo(ufo, TRUE);
 
     player->health = INITIAL_HEALTH_COUNT;
+    ufo->maxHealth = UFO_MAX_LIFES;
     if (isMultiplayer)
         ufo->health = INITIAL_HEALTH_COUNT;
 
@@ -259,6 +260,7 @@ void gameDrawTask(void *data)
 
     // Ufo
     struct ufo ufo;
+    
 
     //Game Mode
     uint8_t gameMode;

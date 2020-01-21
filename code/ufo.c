@@ -79,10 +79,10 @@ void drawUfo(struct ufo *ufo, color_t color)
         ufo->health = 10;
     if(ufo->health < 0)
         ufo->health = 0;
-    if (ufo->showHealt)
+    if (ufo->showHealth)
     {
         gdispDrawBox(ufoPosition.x, ufoPosition.y - (scale * 3), 13 * scale, 1 * scale, color);
         gdispFillArea(ufoPosition.x, ufoPosition.y - (scale * 3),
-                      (int)((ufo->health / (float)UFO_MAX_LIFES) * 13.0) * scale, 1 * scale, Red);
+                      (int)((ufo->health / (float)ufo->maxHealth) * 13.0) * scale, 1 * scale, Red);
     }
 }
