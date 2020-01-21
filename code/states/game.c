@@ -78,13 +78,9 @@ void damageUfo(struct ufo *ufo)
 
 uint8_t checkWinCondition(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength)
 {
-    if (searchForFreeSpace(ufos, sizeof(struct ufo), ufosLength) != NULL)
-        return FALSE;
-
-    if (searchForFreeSpace(asteroids, sizeof(struct asteroid), asteroidsLength) != NULL)
-        return FALSE;
-
-    return TRUE;
+    return 
+        isEmpty(asteroids, sizeof(struct asteroid), asteroidsLength) &&
+        isEmpty(ufos, sizeof(struct ufo), ufosLength);
 }
 
 void checkGameWin(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength)
@@ -143,13 +139,11 @@ void handleCollision(struct uartCollisionPacket col, struct bullet bullets[], st
             }
 
             destroyAsteroid(asteroids, asteroidsLength, col.collider1Id);
-            checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength);
             bullets[col.collider2Id].isActive = 0;
         }
         else if (col.collider2 == COLL_PLAYER)
         {
             destroyAsteroid(asteroids, asteroidsLength, col.collider1Id);
-            checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength);
             damagePlayer(player, gameMode);
         }
         else if (col.collider2 == COLL_UFO)
@@ -157,6 +151,8 @@ void handleCollision(struct uartCollisionPacket col, struct bullet bullets[], st
             destroyAsteroid(asteroids, asteroidsLength, col.collider1Id);
             damageUfo(&ufos[0]);
         }
+
+        checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength);
     }
 
     if (col.collider1 == COLL_BULLET)
@@ -413,13 +409,24 @@ void gameDrawTask(void *data)
             // and gets calculated by master in multiplayer
             if (!isMultiplayer || isMaster)
             {
-                updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
                 int numCollisions = checkCollisions(collisions, bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufos, maxUfoCount, gameMode);
                 for(int i=0; i<numCollisions; i++)
                 {
                     struct uartCollisionPacket *col = &collisions[i];
-                    handleCollision(*col, bullets, asteroids, sizeof(asteroids), &player, ufos, sizeof(ufos), gameMode);
-                    sendCollisionPacket(col);
+                    if (isMultiplayer)
+                    {
+                        struct uartCollisionPacket mpCol = *col;
+                        // Switch Player <-> UFO for multiplayer
+                        if (col->collider2 == COLL_PLAYER) mpCol.collider2 = COLL_UFO;
+                        if (col->collider2 == COLL_UFO) mpCol.collider2 = COLL_PLAYER;
+
+                        // Create common seed for next asteroid generation
+                        mpCol.nextAsteroidSeed = rand();
+                        srand(mpCol.nextAsteroidSeed);
+                        sendCollisionPacket(&mpCol);
+                    }
+
+                    handleCollision(*col, bullets, asteroids, sizeof(asteroids), &player, ufos, sizeof(ufos), gameMode); 
                 }
             }
 
@@ -445,6 +452,17 @@ void gameDrawTask(void *data)
                     //memcpy(asteroids, framePacket.asteroids, sizeof(asteroids));
                 }
 
+                if (!isMaster)
+                {
+                    struct uartCollisionPacket collisionPacket;
+                    while (xQueueReceive(uartCollosionPacketQueue, &collisionPacket, 0) == pdTRUE)
+                    {
+                        srand(collisionPacket.nextAsteroidSeed);
+                        handleCollision(collisionPacket, bullets, asteroids, sizeof(asteroids), &player, ufos, sizeof(ufos), gameMode);
+                        //memcpy(asteroids, framePacket.asteroids, sizeof(asteroids));
+                    }
+                }
+
             }
             else
             {
@@ -459,6 +477,7 @@ void gameDrawTask(void *data)
                 }
             }
 
+            updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
             updateBullets(&bullets, maxNumBullets);
             updatePlayer(&player, buttons.joystick.x, buttons.joystick.y);
 

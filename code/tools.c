@@ -87,7 +87,7 @@ int randRange(int lower, int upper)
     return (rand() % (upper - lower + 1)) + lower;
 }
 
-float  __attribute__((optimize("O0"))) randRangef(float lower, float upper)
+float randRangef(float lower, float upper)
 {
     int ranI = rand() % 65536;
     float ran = (float)ranI;
@@ -183,6 +183,20 @@ void* searchForFreeSpace(void *buffer, size_t structLength, size_t arrayLength)
     }
 
     return NULL;
+}
+
+uint8_t isEmpty(void *buffer, size_t structLength, size_t arrayLength)
+{
+    int i =0;
+    uint8_t* data = (uint8_t*) buffer;
+
+    for (i=0; i<arrayLength; i+=structLength)
+    {
+        if (data[i])
+           return FALSE;
+    }
+
+    return TRUE;
 }
 
 void inactivateArray(void *buffer, size_t structLength, size_t arrayLength)

@@ -34,6 +34,8 @@ struct uartCollisionPacket {
     enum CollisionElement collider2;
     int collider1Id;
     int collider2Id;
+
+    int nextAsteroidSeed;
 };
 
 /*struct uartFullSyncPacket {

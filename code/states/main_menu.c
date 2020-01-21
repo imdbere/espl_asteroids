@@ -177,6 +177,9 @@ void displayMenu(int selectorPositionY, uint8_t gameMode, uint8_t writeNameBool,
     sprintf(str, "Name: ");
     gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[3], 150, str, font16, White);
     gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, userName->name, font16, White);
+
+    const char* date = "Build: " __DATE__ " " __TIME__;
+    gdispDrawString(10, DISPLAY_SIZE_Y - 15, date, font12, White);
 }
 
 void writeName(struct buttons *buttons, struct userNameInput *userName)
@@ -522,7 +525,7 @@ void mainMenuDrawTask(void *data)
                 if (otherUserConnected)
                 {
                     sprintf(str, "Connected");
-                    gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
+                    gdispDrawString(DISPLAY_SIZE_X - 100, DISPLAY_SIZE_Y - 20, str, font16, White);
                 }
 
                 // gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, debugStr, font16, White);

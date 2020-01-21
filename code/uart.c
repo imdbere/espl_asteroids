@@ -88,7 +88,7 @@ uint8_t calculateChecksum(void *packet, size_t length)
     return checksum;
 }
 
-void sendPacket(enum packetType type, void *packet)
+void __attribute__((optimize("O0"))) sendPacket(enum packetType type, void *packet)
 {
     // Prevents sending of multiple packets at the same time and
     // changing states while sending
