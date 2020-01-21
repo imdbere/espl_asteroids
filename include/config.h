@@ -25,7 +25,7 @@
 #define POINTS_DESTROY_UFO 1000
 
 //UFO
-#define UFO_MAX_LIFES 10
+#define UFO_MAX_LIFES 4
 
 //Design 
 #define LEFT_TEXT_MARGIN 30
