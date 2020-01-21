@@ -221,7 +221,11 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
 
     player->colliderRadius = RADIUS_COLLIDER;
     if (isMultiplayer)
+    {
         ufo->colliderRadius = RADIUS_COLLIDER;
+        ufo->collidesWithAsteroids = 1;
+    }
+
 
     int initialAsteroidCount = INITIAL_ASTEROID_COUNT + ((level - 1) * ADD_ASTEROID_PER_LEVEL);
     int asteroidsRadius = RADIUS_BIG_ASTEROID;
@@ -261,9 +265,9 @@ void gameDrawTask(void *data)
     struct ufo ufo;
 
     //Game Mode
-    uint8_t gameMode;
-    uint8_t isMultiplayer;
-    uint8_t isMaster;
+    uint8_t gameMode = 0;
+    uint8_t isMultiplayer = 0;
+    uint8_t isMaster = 0;
 
     //resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer);
     while (1)
