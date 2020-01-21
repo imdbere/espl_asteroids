@@ -7,8 +7,10 @@
 
 extern QueueHandle_t uartHandshakeQueue;
 extern QueueHandle_t uartInviteQueue;
-extern QueueHandle_t uartFramePacketQueue;
 extern QueueHandle_t uartGameSetupQueue;
+
+extern QueueHandle_t uartFramePacketQueue;
+extern QueueHandle_t uartCollosionPacketQueue;
 
 #define MAX_PACKET_LENGTH 800
 struct uartFramePacket {
@@ -17,6 +19,26 @@ struct uartFramePacket {
 
     struct bullet newBullet;
     //struct asteroid asteroids[MAX_ASTEROID_COUNT_GAME];
+};
+
+enum CollisionElement {
+    PLAYER, 
+    UFO,
+    ASTEROID,
+};
+
+struct uartCollisionPacket {
+    enum CollisionElement collider1;
+    enum CollisionElement collider2;
+    int collider1Id;
+    int collider2Id;
+};
+
+struct uartFullSyncPacket {
+    struct asteroid asteroids[MAX_ASTEROID_COUNT_MP];
+    struct bullet bullets[MAX_BULLET_COUNT];
+    struct player player;
+    struct ufo ufo;
 };
 
 struct uartHandshakePacket {
@@ -40,7 +62,8 @@ enum packetType {
     FramePacket,
     GameInvitePacket,
     GameSetupPacket,
-    HandshakePacket
+    HandshakePacket,
+    CollisionPacket
 };
 
 /*

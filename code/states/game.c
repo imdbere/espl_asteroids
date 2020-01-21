@@ -266,7 +266,6 @@ void gameDrawTask(void *data)
 
     // Ufo
     struct ufo ufo;
-    
 
     //Game Mode
     uint8_t gameMode = 0;
@@ -316,8 +315,10 @@ void gameDrawTask(void *data)
         {
             struct uartFramePacket framePacket = {{0}};
 
+            // Button detection
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
             {
+                // Shoot new bullet
                 if (buttons.C.risingEdge)
                 {
                     struct bullet *newBullet = generateBullet(bullets, sizeof(bullets), player.angleRad, 5.0, 1.0, player.position, player.speed, FROM_PLAYER);
@@ -326,6 +327,7 @@ void gameDrawTask(void *data)
                         memcpy(&framePacket.newBullet, newBullet, sizeof(struct bullet));
                     }
                 }
+                // Pause Screen
                 else if (buttons.D.risingEdge)
                 {
                     struct changeScreenData changeScreen = {{0}};
@@ -339,6 +341,15 @@ void gameDrawTask(void *data)
                     xQueueSend(levelChange_queue, &changeScreen, 0);
                     xQueueSend(state_queue, &levelChangeScreenId, 0);
                 }
+            }
+
+            // Updating stuff that is required in singleplayer
+            // and gets calculated by master in multiplayer
+            if (!isMultiplayer || isMaster)
+            {
+                updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
+                checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo, gameMode);
+                size_t t =  sizeof(struct uartFullSyncPacket);
             }
 
             if (isMultiplayer)
@@ -362,6 +373,7 @@ void gameDrawTask(void *data)
                     }
                     //memcpy(asteroids, framePacket.asteroids, sizeof(asteroids));
                 }
+
             }
             else
             {
@@ -374,9 +386,6 @@ void gameDrawTask(void *data)
                     }
                 }
             }
-
-            updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
-            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo, gameMode);
 
             updateBullets(&bullets, maxNumBullets);
             updatePlayer(&player, buttons.joystick.x, buttons.joystick.y);
