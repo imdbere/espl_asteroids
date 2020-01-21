@@ -363,7 +363,6 @@ void gameDrawTask(void *data)
             {
                 updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
                 checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufos, maxUfoCount, gameMode);
-                size_t t =  sizeof(struct uartFullSyncPacket);
             }
 
             if (isMultiplayer)

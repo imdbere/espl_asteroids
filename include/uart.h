@@ -34,12 +34,12 @@ struct uartCollisionPacket {
     int collider2Id;
 };
 
-struct uartFullSyncPacket {
+/*struct uartFullSyncPacket {
     struct asteroid asteroids[MAX_ASTEROID_COUNT_MP];
     struct bullet bullets[MAX_BULLET_COUNT];
     struct player player;
     struct ufo ufo;
-};
+};*/
 
 struct uartHandshakePacket {
     uint8_t fromMaster;
