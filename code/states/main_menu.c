@@ -38,7 +38,6 @@ void mainMenuInit()
 
 void mainMenuEnter()
 {
-    struct userScore tempUser;
     struct player player;
     // sprintf(player.name, "Max");
     // player.score = 1005265;
@@ -50,10 +49,10 @@ void mainMenuEnter()
             i++;
         }
 
-        for(int j = HIGHSCORE_DISPLAY_COUNT-1; j > i; j--)
+        for (int j = HIGHSCORE_DISPLAY_COUNT - 1; j > i; j--)
         {
-            userScoresSp[j].score = userScoresSp[j-1].score;
-            sprintf(userScoresSp[j].name,userScoresSp[j-1].name);
+            userScoresSp[j].score = userScoresSp[j - 1].score;
+            sprintf(userScoresSp[j].name, userScoresSp[j - 1].name);
         }
         sprintf(userScoresSp[i].name, player.name);
         userScoresSp[i].score = player.score;
@@ -78,16 +77,16 @@ void mainMenuExit()
     //xSemaphoreGive(g->mutex);
 }
 
-void dispHighScore(int TextOffset, uint8_t isMulitpayer)
+void dispHighScore(uint8_t gameMode)
 {
-    char str[100];
+    char str[20];
     font_t myFont = font16;
     int highscorOffsetY = 70;
 
-    if (isMulitpayer)
+    if (gameMode == GAME_MODE_MP)
     {
         sprintf(str, "Highscore MP");
-        gdispDrawString(TextOffset - 5, 10, str, font32, White);
+        gdispDrawString(LEFT_TEXT_MARGIN, 10, str, font32, White);
         for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
         {
             if (i == 0)
@@ -110,19 +109,17 @@ void dispHighScore(int TextOffset, uint8_t isMulitpayer)
     else
     {
         sprintf(str, "Highscore SP");
-        gdispDrawString(TextOffset - 5, 10, str, font32, White);
+        gdispDrawString(LEFT_TEXT_MARGIN, 10, str, font32, White);
         for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
         {
             if (i == 0)
                 myFont = font20;
-            else
-                myFont = font16;
-            /* else if (i == 1)
+            else if (i == 1)
                 myFont = font20;
             else if (i == 2)
                 myFont = font16;
             else
-                myFont = font12; */
+                myFont = font12;
 
             sprintf(str, "%i", i + 1);
             gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
@@ -132,6 +129,54 @@ void dispHighScore(int TextOffset, uint8_t isMulitpayer)
             gdispDrawString(DISPLAY_SIZE_X - (int)(gdispGetStringWidth(str, myFont) + 20), highscorOffsetY + (i * 30), str, myFont, White);
         }
     }
+}
+
+void displayMenu(int selectorPositionY, uint8_t gameMode, uint8_t writeNameBool, int *selectedOffsetX, struct userNameInput *userName)
+{
+    point pointsShip[] = {{0, 0}, {0, 16}, {20, 8}};
+    point pointsShipVertical[] = {{0, 0}, {-8, 20}, {8, 20}};
+    char str[30];
+    if (!writeNameBool)
+    {
+        gdispFillConvexPoly(LEFT_TEXT_MARGIN, selectorPositionY, pointsShip, 3, White);
+    }
+    else
+    {
+        gdispFillConvexPoly(LEFT_TEXT_MARGIN + selectedOffsetX[3] +
+                        gdispGetStringWidth("Name: ", font16) + 5 + userName->cursorOffset,
+                            170, pointsShipVertical, 3, White);
+    }
+
+    sprintf(str, "Asteroids");
+    gdispDrawString(LEFT_TEXT_MARGIN - 5, 10, str, font32, White);
+
+    sprintf(str, "Start Game");
+    if (!writeNameBool)
+    {
+        gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[0] + gdispGetStringWidth(str, font16) + 10, 60, userName->name, font16, White);
+    }
+    gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[0], 60, str, font16, White);
+
+    sprintf(str, "Mode:");
+    gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[1], 90, str, font16, White);
+
+    if (gameMode == GAME_MODE_SP)
+        sprintf(str, "  Singleplayer");
+    else if(gameMode == GAME_MODE_MP)
+        sprintf(str, "  Multiplayer");
+    else if(gameMode == GAME_MODE_GOD)
+        sprintf(str, "  God Mode");
+    else
+        sprintf(str, "  Other Mode"); //Todo
+
+    gdispDrawString(LEFT_TEXT_MARGIN + 47 + selectedOffsetX[1], 90, str, font16, White);
+
+    sprintf(str, "High Score");
+    gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[2], 120, str, font16, White);
+
+    sprintf(str, "Name: ");
+    gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[3], 150, str, font16, White);
+    gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, userName->name, font16, White);
 }
 
 void writeName(struct buttons *buttons, struct userNameInput *userName)
@@ -251,17 +296,17 @@ void disconnectTimerElapsed(TimerHandle_t xTimer)
     xSemaphoreGive(disconnectSemaphore);
 }
 
-void startGame(uint8_t isMultiplayer, uint8_t isMaster, char *name)
+void startGame(uint8_t gameMode, uint8_t isMaster, char *name)
 {
     struct gameStartInfo gameStart;
-    gameStart.isMultiplayer = isMultiplayer;
     gameStart.isMaster = isMaster;
     gameStart.level = 1;
+    gameStart.mode = gameMode;
 
-    if(name[0] == '\0')
+    if (name[0] == '\0')
     {
         // int i = 0;
-        sprintf(name, "PLAYER"); 
+        sprintf(name, "PLAYER");
     }
 
     strcpy(gameStart.name, name);
@@ -269,7 +314,7 @@ void startGame(uint8_t isMultiplayer, uint8_t isMaster, char *name)
     struct changeScreenData changeScreenData = {{0}};
     sprintf(changeScreenData.Title, "Level 1");
     sprintf(changeScreenData.Subtext, name);
-    changeScreenData.msWaitingTime = COUNTDOWN_START*1000;
+    changeScreenData.msWaitingTime = COUNTDOWN_START * 1000;
     changeScreenData.showCountdown = 1;
     changeScreenData.nextState = gameStateId;
 
@@ -291,16 +336,15 @@ void mainMenuDrawTask(void *data)
     struct ufo ufo = {{0}};
     ufo.position.x = 63;
     ufo.position.y = 24;
-    
+    ufo.showHealt = 0;
     ufo.speed.x = 0.4;
     ufo.speed.y = 0.1;
     ufo.size = 3;
 
     // ufo.health = 20;
-    // ufo.showHealt = 1;
+    
 
     //Drawing Menu
-    int TextOffset = 30;
     int selectorPositionY = 60;
     int selectedOffsetX[4] = {30, 0, 0, 0};
     int selectedBool = 0;
@@ -316,8 +360,8 @@ void mainMenuDrawTask(void *data)
     //hight score
     uint8_t showHighScoreBool = 0;
 
-    //Cheats
-    uint8_t gameMode = 0;
+    //Cheats 
+    uint8_t gameMode = 0; //mode 0: sp, mode 1: mp, mode 2: cheat, mode 3: open;
 
     //multiplayer mode
     uint8_t isMuliPlayerBool = 0;
@@ -336,7 +380,6 @@ void mainMenuDrawTask(void *data)
             drawUfo(&ufo, Grey);
             updateUfo(&ufo);
 
-
             if (xQueueReceive(ButtonQueue, &buttons, 0) == pdTRUE)
             {
                 if (buttons.C.risingEdge)
@@ -344,18 +387,25 @@ void mainMenuDrawTask(void *data)
                     if (selected == 0)
                     {
                         // Start Game
-                        if (isMuliPlayerBool)
+                        if (gameMode == GAME_MODE_MP) //Multiplayer
                         {
                             sendGameInvitation(FALSE, userName.name);
                         }
                         else
                         {
-                            startGame(isMuliPlayerBool, isMaster, userName.name);
+                            startGame(gameMode, isMaster, userName.name);
                         }
                     }
                     else if (selected == 1)
                     {
-                        isMuliPlayerBool = !isMuliPlayerBool;
+                        if(gameMode == 2)
+                            gameMode = 0;
+                        else
+                            gameMode ++;
+                        // if(gameMode == 1)
+                        //     isMuliPlayerBool = 1;
+                        // else
+                        //     isMuliPlayerBool = 0;
                     }
 
                     else if (selected == 2 && !showHighScoreBool)
@@ -369,7 +419,6 @@ void mainMenuDrawTask(void *data)
                         {
                             userName.name[0] = 65;
                         }
-                        
                     }
                     else if (writeNameBool)
                     {
@@ -381,11 +430,7 @@ void mainMenuDrawTask(void *data)
                     }
                 }
 
-                if (showHighScoreBool)
-                {
-                    dispHighScore(TextOffset, isMuliPlayerBool);
-                }
-                else
+                if(!showHighScoreBool)
                 {
                     if (writeNameBool)
                     {
@@ -396,7 +441,7 @@ void mainMenuDrawTask(void *data)
                     {
                         if (selectedBool == 0)
                         {
-                            if(selected == 0)
+                            if (selected == 0)
                             {
                                 selected = 3;
                                 selectedOffsetX[0] = 0;
@@ -405,7 +450,7 @@ void mainMenuDrawTask(void *data)
                             {
                                 selected--;
                                 selectedOffsetX[selected + 1] = 0;
-                            }   
+                            }
                             selectedBool = 1;
                         }
                     }
@@ -413,7 +458,7 @@ void mainMenuDrawTask(void *data)
                     {
                         if (selectedBool == 0)
                         {
-                            if(selected == 3)
+                            if (selected == 3)
                             {
                                 selected = 0;
                                 selectedOffsetX[3] = 0;
@@ -431,13 +476,13 @@ void mainMenuDrawTask(void *data)
                         selectedBool = 0;
                     }
                     selectedOffsetX[selected] = 30;
-                    selectorPositionY = 60 + (selected*30);
+                    selectorPositionY = 60 + (selected * 30);
                 }
                 // sprintf(str, "", swi)
             }
 
             // Continuously send handshake if multiplayer is selected
-            if (isMuliPlayerBool)
+            if (gameMode == GAME_MODE_MP)
             {
                 sendHandshake(isMaster);
             }
@@ -449,7 +494,8 @@ void mainMenuDrawTask(void *data)
                 xTimerReset(disconnectTimer, 0);
                 isMaster = !handshakePacket.fromMaster;
                 otherUserConnected = TRUE;
-                isMuliPlayerBool = TRUE;
+                // isMuliPlayerBool = TRUE;
+                gameMode = GAME_MODE_MP;
             }
 
             // When disconnected
@@ -468,62 +514,21 @@ void mainMenuDrawTask(void *data)
                 }
                 startGame(isMuliPlayerBool, isMaster, userName.name);
             }
-        
+
+            //Display Highscore
             if (showHighScoreBool)
             {
-                dispHighScore(TextOffset, isMuliPlayerBool);
+                dispHighScore(gameMode);
             }
-            else
+            else //Drawing Menu
             {
-                // Drawing
-                point pointsShip[] = {{0, 0}, {0, 16}, {20, 8}};
-                point pointsShipVertical[] = {{0, 0}, {-8, 20}, {8, 20}};
-
-                if (!writeNameBool)
-                {
-                    gdispFillConvexPoly(TextOffset, selectorPositionY, pointsShip, 3, White);
-                }
-                else
-                {
-                    gdispFillConvexPoly(TextOffset + selectedOffsetX[3] +
-                                            gdispGetStringWidth("Name: ", font16) + 5 + userName.cursorOffset,
-                                        170,
-                                        pointsShipVertical, 3, White);
-                }
-
-                sprintf(str, "Asteroids");
-                gdispDrawString(TextOffset - 5, 10, str, font32, White);
-
-                sprintf(str, "Start Game");
-                if (!writeNameBool)
-                {
-                    gdispDrawString(TextOffset + selectedOffsetX[0] + gdispGetStringWidth(str, font16) + 10, 60, userName.name, font16, White);
-                }
-                gdispDrawString(TextOffset + selectedOffsetX[0], 60, str, font16, White);
-
-                sprintf(str, "Mode:");
-                gdispDrawString(TextOffset + selectedOffsetX[1], 90, str, font16, White);
-                int offset = gdispGetStringWidth(str, font16);
-
-                if (isMuliPlayerBool)
-                    sprintf(str, "  Multiplayer");
-                else
-                    sprintf(str, "  Singleplayer");
-                gdispDrawString(TextOffset + offset + selectedOffsetX[1], 90, str, font16, White);
-
-                sprintf(str, "High Score");
-                gdispDrawString(TextOffset + selectedOffsetX[2], 120, str, font16, White);
-
-                sprintf(str, "Name: ");
-                gdispDrawString(TextOffset + selectedOffsetX[3], 150, str, font16, White);
-                gdispDrawString(TextOffset + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, userName.name, font16, White);
-
+                displayMenu(selectorPositionY, gameMode ,writeNameBool, &selectedOffsetX, &userName);
                 if (otherUserConnected)
                 {
                     sprintf(str, "Connected");
                     gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, str, font16, White);
                 }
-                
+
                 // gdispDrawString(DISPLAY_SIZE_X - 130, DISPLAY_SIZE_Y - 20, debugStr, font16, White);
             }
         }

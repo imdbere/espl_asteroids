@@ -45,22 +45,25 @@ void gameExit()
     vTaskSuspend(drawTaskHandle);
 }
 
-void damagePlayer(struct player *player)
+void damagePlayer(struct player *player, uint8_t gameMode)
 {
-    if (player->health > 0)
-        player->health -= 1;
-    if (player->health <= 0)
+    if (gameMode != GAME_MODE_GOD)
     {
-        struct changeScreenData changeScreen = {{0}};
-        changeScreen.msWaitingTime = 2000;
-        changeScreen.nextState = mainMenuStateId;
-        changeScreen.showCountdown = 0;
-        sprintf(changeScreen.Title, "Game over");
-        sprintf(changeScreen.Subtext, "Score: %i", player->score);
+        if (player->health > 0)
+            player->health -= 1;
+        if (player->health <= 0)
+        {
+            struct changeScreenData changeScreen = {{0}};
+            changeScreen.msWaitingTime = 2000;
+            changeScreen.nextState = mainMenuStateId;
+            changeScreen.showCountdown = 0;
+            sprintf(changeScreen.Title, "Game over");
+            sprintf(changeScreen.Subtext, "Score: %i", player->score);
 
-        xQueueSend(levelChange_queue, &changeScreen, 0);
-        xQueueSend(score_queue, player, 0);
-        xQueueSend(state_queue, &levelChangeScreenId, 0);
+            xQueueSend(levelChange_queue, &changeScreen, 0);
+            xQueueSend(score_queue, player, 0);
+            xQueueSend(state_queue, &levelChangeScreenId, 0);
+        }
     }
 }
 
@@ -94,19 +97,19 @@ void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player *
     {
         struct changeScreenData changeScreen = {{0}};
         struct gameStartInfo gameStart = {{0}};
-        
+
         //NEXT LEVEL
         if (player->level < LEVEL_COUNT)
         {
             player->level++;
-            changeScreen.msWaitingTime = COUNTDOWN_NEXT_LEVEL*1000;
+            changeScreen.msWaitingTime = COUNTDOWN_NEXT_LEVEL * 1000;
             changeScreen.nextState = gameStateId;
             changeScreen.showCountdown = 1;
             gameStart.level = player->level;
             sprintf(gameStart.name, player->name);
             sprintf(changeScreen.Title, "Level %i", player->level);
             xQueueSend(levelChange_queue, &changeScreen, 0);
-            xQueueSend(game_start_queue, &gameStart,0);
+            xQueueSend(game_start_queue, &gameStart, 0);
             xQueueSend(state_queue, &levelChangeScreenId, 0);
         }
         else
@@ -124,7 +127,7 @@ void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player *
     }
 }
 
-void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player *player, struct ufo *ufo)
+void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player *player, struct ufo *ufo, uint8_t gameMode)
 {
     for (int ai = 0; ai < numAsteroids; ai++)
     {
@@ -147,7 +150,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
                 else
                     player->score += POINTS_DESTROY_BIG_ASTEROID;
 
-                //Get free Live
+                //Get free Life
                 if ((player->score - player->scoreOld) > POINTS_FOR_HEALTH)
                 {
                     player->scoreOld = player->score;
@@ -165,7 +168,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
         {
             destroyAsteroid(asteroids, numAsteroids, ai);
             checkGameWin(asteroids, numAsteroids, player, ufo);
-            damagePlayer(player);
+            damagePlayer(player, gameMode);
         }
 
         // Between ufo and asteroids (in case of multiplayer)
@@ -195,7 +198,7 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
         if (b->type != FROM_PLAYER && pointWithinCircle(player->position, player->colliderRadius, b->position))
         {
             b->isActive = 0;
-            damagePlayer(player);
+            damagePlayer(player, gameMode);
         }
     }
 }
@@ -209,7 +212,7 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
         ufo->health = INITIAL_HEALTH_COUNT;
 
     player->position = (pointf){DISPLAY_SIZE_X / 2.0, DISPLAY_SIZE_Y / 2.0};
-    if(level == 1)
+    if (level == 1)
         player->score = 0;
     player->scoreOld = 0;
     player->speed = (pointf){0.0, 0.0};
@@ -220,7 +223,7 @@ void resetGame(struct player *player, struct ufo *ufo, struct asteroid *asteroid
     if (isMultiplayer)
         ufo->colliderRadius = RADIUS_COLLIDER;
 
-    int initialAsteroidCount = INITIAL_ASTEROID_COUNT + ((level-1)*ADD_ASTEROID_PER_LEVEL);
+    int initialAsteroidCount = INITIAL_ASTEROID_COUNT + ((level - 1) * ADD_ASTEROID_PER_LEVEL);
     int asteroidsRadius = RADIUS_BIG_ASTEROID;
 
     //memset(asteroids, 0, asteroidLength);
@@ -257,6 +260,8 @@ void gameDrawTask(void *data)
     // Ufo
     struct ufo ufo;
 
+    //Game Mode
+    uint8_t gameMode;
     uint8_t isMultiplayer;
     uint8_t isMaster;
 
@@ -269,7 +274,9 @@ void gameDrawTask(void *data)
             struct gameStartInfo gameStart;
             if (xQueueReceive(game_start_queue, &gameStart, 0) == pdTRUE)
             {
-                isMultiplayer = gameStart.isMultiplayer;
+                gameMode = gameStart.mode;
+                if (gameMode == GAME_MODE_MP)
+                    isMultiplayer = 1;
                 isMaster = gameStart.isMaster;
                 strcpy(player.name, gameStart.name);
                 player.level = gameStart.level;
@@ -358,7 +365,7 @@ void gameDrawTask(void *data)
             }
 
             updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
-            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo);
+            checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufo, gameMode);
 
             updateBullets(&bullets, maxNumBullets);
             updatePlayer(&player, buttons.joystick.x, buttons.joystick.y);

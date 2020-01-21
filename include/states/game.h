@@ -7,7 +7,6 @@ void gameDrawTask(void* data);
 
 struct gameStartInfo
 {
-    uint8_t isMultiplayer;
     uint8_t isMaster;
     uint8_t mode;
     uint8_t level;

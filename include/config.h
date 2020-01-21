@@ -27,7 +27,14 @@
 //UFO
 #define UFO_MAX_LIFES 10
 
+//Design 
+#define LEFT_TEXT_MARGIN 30
+
 //SOUND
 #define GAME_SOUND_LEVEL 30
 #define GAME_MUSIC_LEVEL 40
 
+//MODES
+#define GAME_MODE_SP 0
+#define GAME_MODE_MP 1
+#define GAME_MODE_GOD 2 //God Like
