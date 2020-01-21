@@ -24,6 +24,7 @@ void initUartQueues()
     uartInviteQueue = xQueueCreate(2, sizeof(struct uartGameInvitePacket));
     uartGameSetupQueue = xQueueCreate(2, sizeof(struct uartGameSetupPacket));
     uartFramePacketQueue = xQueueCreate(2, sizeof(struct uartFramePacket));
+    uartCollosionPacketQueue = xQueueCreate(2, sizeof(struct uartCollisionPacket));
 
     xTaskCreate(receivePacketTask, "receivePacketTask", MAX_PACKET_LENGTH + 100, NULL, 2, NULL);
     xSendMutex = xSemaphoreCreateMutex();
@@ -60,6 +61,11 @@ void sendGameSetup(struct asteroid* asteroids, size_t asteroidsLength)
 void sendFramePacket(struct uartFramePacket* packet)
 {
     sendPacket(FramePacket, packet);
+}
+
+void sendCollisionPacket(struct uartCollisionPacket* packet)
+{
+    sendPacket(CollisionPacket, packet);
 }
 
 void sendBuffer(uint8_t *buffer, size_t length)

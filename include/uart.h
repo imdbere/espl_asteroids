@@ -22,9 +22,11 @@ struct uartFramePacket {
 };
 
 enum CollisionElement {
-    PLAYER, 
-    UFO,
-    ASTEROID,
+    COLL_NOTHING,
+    COLL_PLAYER, 
+    COLL_UFO,
+    COLL_ASTEROID,
+    COLL_BULLET
 };
 
 struct uartCollisionPacket {
@@ -100,3 +102,4 @@ void sendGameInvitation(uint8_t isAck, char* name);
 void sendGameSetup(struct asteroid* asteroids, size_t asteroidsLength);
 //void sendFramePacket(struct player* player, struct asteroid* asteroids, size_t asteroidsLength);
 void sendFramePacket(struct uartFramePacket* packet);
+void sendCollisionPacket(struct uartCollisionPacket* packet);

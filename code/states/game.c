@@ -76,24 +76,20 @@ void damageUfo(struct ufo *ufo)
     }
 }
 
-uint8_t checkWinCondition(struct asteroid asteroids[], int numAsteroids, struct player *player, struct ufo *ufo)
+uint8_t checkWinCondition(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength)
 {
-    if (ufo->isActive)
+    if (searchForFreeSpace(ufos, sizeof(struct ufo), ufosLength) != NULL)
         return FALSE;
 
-    for (int ai = 0; ai < numAsteroids; ai++)
-    {
-        struct asteroid *a = &asteroids[ai];
-        if (a->isActive)
-            return FALSE;
-    }
+    if (searchForFreeSpace(asteroids, sizeof(struct asteroid), asteroidsLength) != NULL)
+        return FALSE;
 
     return TRUE;
 }
 
-void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player *player, struct ufo *ufo)
+void checkGameWin(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength)
 {
-    if (checkWinCondition(asteroids, numAsteroids, player, ufo))
+    if (checkWinCondition(asteroids, asteroidsLength, player, ufos, ufosLength))
     {
         struct changeScreenData changeScreen = {{0}};
         struct gameStartInfo gameStart = {{0}};
@@ -127,8 +123,64 @@ void checkGameWin(struct asteroid asteroids[], int numAsteroids, struct player *
     }
 }
 
-void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player *player, struct ufo *ufos, uint8_t maxUfoCount, uint8_t gameMode)
+void handleCollision(struct uartCollisionPacket col, struct bullet bullets[], struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength, uint8_t gameMode)
 {
+    if (col.collider1 == COLL_ASTEROID)
+    {
+        if (col.collider2 == COLL_BULLET)
+        {
+            // Collision
+            if (asteroids[col.collider1Id].radius < RADIUS_BIG_ASTEROID)
+                player->score += POINTS_DESTROY_SMALL_ASTEROID;
+            else
+                player->score += POINTS_DESTROY_BIG_ASTEROID;
+
+            //Get free Life
+            if ((player->score - player->scoreOld) > POINTS_FOR_HEALTH)
+            {
+                player->scoreOld = player->score;
+                player->health += 1;
+            }
+
+            destroyAsteroid(asteroids, asteroidsLength, col.collider1Id);
+            checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength);
+            bullets[col.collider2Id].isActive = 0;
+        }
+        else if (col.collider2 == COLL_PLAYER)
+        {
+            destroyAsteroid(asteroids, asteroidsLength, col.collider1Id);
+            checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength);
+            damagePlayer(player, gameMode);
+        }
+        else if (col.collider2 == COLL_UFO)
+        {
+            destroyAsteroid(asteroids, asteroidsLength, col.collider1Id);
+            damageUfo(&ufos[0]);
+        }
+    }
+
+    if (col.collider1 == COLL_BULLET)
+    {
+        if (col.collider2 == COLL_UFO)
+        {
+            player->score += POINTS_DESTROY_UFO;
+            bullets[col.collider1Id].isActive = 0;
+            damageUfo(&ufos[col.collider2Id]);
+            checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength);
+        }
+        if (col.collider2 == COLL_PLAYER)
+        {
+            bullets[col.collider1Id].isActive = 0;
+            damagePlayer(player, gameMode);
+        }
+    }
+}
+
+int checkCollisions(struct uartCollisionPacket *collisions, struct bullet bullets[], int numBullets, struct asteroid asteroids[], int numAsteroids, struct player *player, struct ufo *ufos, uint8_t maxUfoCount, uint8_t gameMode)
+{
+    int currentCollision = 0;
+
+    // Asteroids
     for (int ai = 0; ai < numAsteroids; ai++)
     {
         struct asteroid *a = &asteroids[ai];
@@ -144,41 +196,35 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
 
             if (pointWithinCircle(a->position, a->radius, b->position))
             {
-                // Collision
-                if (a->radius < RADIUS_BIG_ASTEROID)
-                    player->score += POINTS_DESTROY_SMALL_ASTEROID;
-                else
-                    player->score += POINTS_DESTROY_BIG_ASTEROID;
-
-                //Get free Life
-                if ((player->score - player->scoreOld) > POINTS_FOR_HEALTH)
-                {
-                    player->scoreOld = player->score;
-                    player->health += 1;
-                }
-
-                destroyAsteroid(asteroids, numAsteroids, ai);
-                checkGameWin(asteroids, numAsteroids, player, ufos);
-                b->isActive = 0;
+                struct uartCollisionPacket *col = &collisions[currentCollision++];
+                col->collider1 = COLL_ASTEROID;
+                col->collider2 = COLL_BULLET;
+                col->collider1Id = ai;
+                col->collider2Id = bi;
             }
         }
 
         // Between player and asteroids
         if (cirlceTouchingCircle(a->position, a->radius, player->position, player->colliderRadius))
         {
-            destroyAsteroid(asteroids, numAsteroids, ai);
-            checkGameWin(asteroids, numAsteroids, player, ufos);
-            damagePlayer(player, gameMode);
+            struct uartCollisionPacket *col = &collisions[currentCollision++];
+            col->collider1 = COLL_ASTEROID;
+            col->collider2 = COLL_PLAYER;
+            col->collider1Id = ai;
         }
 
-        // Between ufo and asteroids (in case of multiplayer)
+        // Between player ufo and asteroids (in case of multiplayer)
         if (ufos[0].collidesWithAsteroids && cirlceTouchingCircle(a->position, a->radius, ufos[0].position, ufos[0].colliderRadius))
         {
-            destroyAsteroid(asteroids, numAsteroids, ai);
-            damageUfo(&ufos[0]);
+            struct uartCollisionPacket *col = &collisions[currentCollision++];
+            col->collider1 = COLL_ASTEROID;
+            col->collider2 = COLL_UFO;
+            col->collider1Id = ai;
         }
+
     }
 
+    //Bullets
     for (int bi = 0; bi < numBullets; bi++)
     {
         struct bullet *b = &bullets[bi];
@@ -191,20 +237,25 @@ void checkCollisions(struct bullet bullets[], int numBullets, struct asteroid as
             struct ufo *ufo = &ufos[ui];
             if (ufo->isActive && b->type == FROM_PLAYER && pointWithinCircle(ufo->position, ufo->colliderRadius, b->position))
             {
-                player->score += POINTS_DESTROY_UFO;
-                b->isActive = 0;
-                damageUfo(ufo);
-                checkGameWin(asteroids, numAsteroids, player, ufo);
+                struct uartCollisionPacket *col = &collisions[currentCollision++];
+                col->collider1 = COLL_BULLET;
+                col->collider2 = COLL_UFO;
+                col->collider1Id = bi;
+                col->collider2Id = ui;
             }
         }
 
         // Between bullets and player
         if (b->type != FROM_PLAYER && pointWithinCircle(player->position, player->colliderRadius, b->position))
         {
-            b->isActive = 0;
-            damagePlayer(player, gameMode);
+            struct uartCollisionPacket *col = &collisions[currentCollision++];
+            col->collider1 = COLL_BULLET;
+            col->collider2 = COLL_PLAYER;
+            col->collider1Id = bi;
         }
     }
+
+    return currentCollision;
 }
 
 void resetGame(struct player *player, struct ufo *ufos, uint8_t maxUfoCount, struct asteroid *asteroids, size_t asteroidLength, uint8_t isMultiplayer, uint8_t isMaster, uint8_t level)
@@ -286,10 +337,11 @@ void gameDrawTask(void *data)
     uint8_t isMultiplayer = 0;
     uint8_t isMaster = 0;
 
+    struct uartCollisionPacket collisions[MAX_SIMULTANEOUS_COLLISIONS];
+
     //resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer);
     while (1)
     {
-
         if (ulTaskNotifyTake(pdTRUE, 0) == 1)
         {
             struct gameStartInfo gameStart;
@@ -362,7 +414,13 @@ void gameDrawTask(void *data)
             if (!isMultiplayer || isMaster)
             {
                 updateAsteroids((struct asteroid *)&asteroids, maxAsteroidCount);
-                checkCollisions(bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufos, maxUfoCount, gameMode);
+                int numCollisions = checkCollisions(collisions, bullets, maxNumBullets, asteroids, maxAsteroidCount, &player, &ufos, maxUfoCount, gameMode);
+                for(int i=0; i<numCollisions; i++)
+                {
+                    struct uartCollisionPacket *col = &collisions[i];
+                    handleCollision(*col, bullets, asteroids, sizeof(asteroids), &player, ufos, sizeof(ufos), gameMode);
+                    sendCollisionPacket(col);
+                }
             }
 
             if (isMultiplayer)
