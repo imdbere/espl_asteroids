@@ -15,7 +15,8 @@ void spawnUfo(struct ufo *ufo, uint8_t isSmall)
 
     changeUfoSpeed(ufo, 1);
     ufo->size = isSmall ? 3 : 5;
-    ufo->health = 1;
+    ufo->health = UFO_MAX_LIFES_SP;
+    ufo->maxHealth = UFO_MAX_LIFES_SP;
     ufo->colliderRadius = 35;
     ufo->color = HSVtoRGB(randRange(0, 360), 1, 1);
 }
@@ -121,10 +122,6 @@ void drawUfo(struct ufo *ufos, uint8_t maxUfoCount)
 
         if (ufo->showHealth)
         {
-            if (ufo->health > ufo->maxHealth)
-                ufo->health = ufo->maxHealth;
-            if (ufo->health < 0)
-                ufo->health = 0;
             gdispDrawBox(ufoPosition.x, ufoPosition.y - (scale * 3), 13 * scale, 1 * scale, Grey);
             gdispFillArea(ufoPosition.x, ufoPosition.y - (scale * 3),
                             (int)((ufo->health / (float)ufo->maxHealth) * 13.0) * scale, 1 * scale, Red);
