@@ -121,7 +121,7 @@ void drawUfo(struct ufo *ufos, uint8_t maxUfoCount)
                     ufos[i].health = ufos[i].maxHealth;
                 if (ufos[i].health < 0)
                     ufos[i].health = 0;
-                gdispDrawBox(ufoPosition.x, ufoPosition.y - (scale * 3), 13 * scale, 1 * scale, ufos[i].color);
+                gdispDrawBox(ufoPosition.x, ufoPosition.y - (scale * 3), 13 * scale, 1 * scale, Grey);
                 gdispFillArea(ufoPosition.x, ufoPosition.y - (scale * 3),
                               (int)((ufos[i].health / (float)ufos[i].maxHealth) * 13.0) * scale, 1 * scale, Red);
             }

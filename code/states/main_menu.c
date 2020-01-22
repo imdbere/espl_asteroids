@@ -422,6 +422,8 @@ void mainMenuDrawTask(void *data)
                 {
                     if (writeNameBool)
                     {
+                        sprintf(str, "Delete with B");
+                        gdispDrawString(DISPLAY_SIZE_X-(gdispGetStringWidth(str, font12)+10), 170, str, font12, White);
                         writeName(&buttons, &userName);
                     }
 
