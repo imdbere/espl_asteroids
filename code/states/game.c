@@ -65,7 +65,7 @@ void checkLevelFinished(struct asteroid asteroids[], size_t asteroidsLength, str
         }
         else
         {
-            winGame(player, gameMode);
+            looseGame(player, gameMode);
         }
     }
 }
