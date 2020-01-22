@@ -7,6 +7,7 @@
 #include "sm.h"
 #include "uart.h"
 #include "states/states.h"
+#include "states/main_menu.h"
 #include "states/level_change_screen.h"
 #include "stdlib.h"
 #include "ufo.h"
@@ -25,7 +26,7 @@ void gameInit()
     xTaskCreate(gameDrawTask, "gameDrawTask", 5000, NULL, 3, &drawTaskHandle);
     //XTaskCreate(generateAsteroid, "generateAsteroidsHandle", 3000, NULL, &generateAsteroidsHandle);
     vTaskSuspend(drawTaskHandle);
-    score_queue = xQueueCreate(1, sizeof(struct player));
+    score_queue = xQueueCreate(1, sizeof(struct userScore));
     game_start_queue = xQueueCreate(1, sizeof(struct gameStartInfo));
 }
 
@@ -59,9 +60,14 @@ void damagePlayer(struct player *player, uint8_t gameMode)
             changeScreen.showCountdown = 0;
             sprintf(changeScreen.Title, "Game over");
             sprintf(changeScreen.Subtext, "Score: %i", player->score);
+            
+            struct userScore userScore = {{0}};
+            userScore.gameMode = gameMode;
+            userScore.score = player->score;
+            sprintf(userScore.name, player->name);
 
             xQueueSend(levelChange_queue, &changeScreen, 0);
-            xQueueSend(score_queue, player, 0);
+            xQueueSend(score_queue, &userScore, 0);
             xQueueSend(state_queue, &levelChangeScreenId, 0);
         }
     }
@@ -102,6 +108,7 @@ void checkGameWin(struct asteroid asteroids[], size_t asteroidsLength, struct pl
             gameStart.mode = gameMode;
             sprintf(gameStart.name, player->name);
             sprintf(changeScreen.Title, "Level %i", player->level);
+
             xQueueSend(levelChange_queue, &changeScreen, 0);
             xQueueSend(game_start_queue, &gameStart, 0);
             xQueueSend(state_queue, &levelChangeScreenId, 0);
@@ -114,8 +121,14 @@ void checkGameWin(struct asteroid asteroids[], size_t asteroidsLength, struct pl
             sprintf(changeScreen.Title, "You Win!");
             sprintf(changeScreen.Subtext, "Score: %i", player->score);
 
+            struct userScore userScore = {{0}};
+            userScore.gameMode = gameMode;
+            userScore.score = player->score;
+            sprintf(userScore.name, player->name);
+
+
             xQueueSend(levelChange_queue, &changeScreen, 0);
-            xQueueSend(score_queue, player, 0);
+            xQueueSend(score_queue, &userScore, 0);
             xQueueSend(state_queue, &levelChangeScreenId, 0);
         }
     }

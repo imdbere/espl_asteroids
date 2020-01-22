@@ -37,24 +37,29 @@ void mainMenuInit()
 
 void mainMenuEnter()
 {
-    struct player player;
-    // sprintf(player.name, "Max");
-    // player.score = 1005265;
-    if (xQueueReceive(score_queue, &player, 0) == pdTRUE)
+    struct userScore userScore;
+    
+    if (xQueueReceive(score_queue, &userScore, 0) == pdTRUE)
     {
-        int i = 0;
-        while (player.score < userScoresSp[i].score)
+        if (userScore.gameMode != GAME_MODE_GOD)
         {
-            i++;
-        }
+            struct userScore *scoreMode = userScore.gameMode == GAME_MODE_MP ? userScoresMp : userScoresSp;
 
-        for (int j = HIGHSCORE_DISPLAY_COUNT - 1; j > i; j--)
-        {
-            userScoresSp[j].score = userScoresSp[j - 1].score;
-            sprintf(userScoresSp[j].name, userScoresSp[j - 1].name);
+            int i = 0;
+            while (userScore.score < scoreMode[i].score)
+            {
+                i++;
+            }
+
+            for (int j = HIGHSCORE_DISPLAY_COUNT - 1; j > i; j--)
+            {
+                scoreMode[j].score = scoreMode[j - 1].score;
+                sprintf(scoreMode[j].name, scoreMode[j - 1].name);
+            }
+            scoreMode[i].gameMode = userScore.gameMode;
+            scoreMode[i].score = userScore.score;
+            sprintf(scoreMode[i].name, userScore.name);
         }
-        sprintf(userScoresSp[i].name, player.name);
-        userScoresSp[i].score = player.score;
         // sprintf(debugStr, "%i : %i : %i",player.score, userScoresSp[0].score, i);
     }
     else
@@ -81,52 +86,36 @@ void dispHighScore(uint8_t gameMode)
     char str[20];
     font_t myFont = font16;
     int highscorOffsetY = 70;
+    struct userScore *scoreMode = gameMode == GAME_MODE_MP ? userScoresMp : userScoresSp;
 
     if (gameMode == GAME_MODE_MP)
     {
         sprintf(str, "Highscore MP");
         gdispDrawString(LEFT_TEXT_MARGIN, 10, str, font32, White);
-        for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
-        {
-            if (i == 0)
-                myFont = font24;
-            else if (i == 1)
-                myFont = font20;
-            else if (i == 2)
-                myFont = font16;
-            else
-                myFont = font16;
-
-            sprintf(str, "%i", i + 1);
-            gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
-            sprintf(str, userScoresMp[i].name);
-            gdispDrawString(60, highscorOffsetY + (i * 30), str, myFont, White);
-            sprintf(str, "%i", userScoresMp[i].score);
-            gdispDrawString(DISPLAY_SIZE_X - (int)(gdispGetStringWidth(str, myFont) + 20), highscorOffsetY + (i * 30), str, myFont, White);
-        }
     }
     else
     {
         sprintf(str, "Highscore SP");
         gdispDrawString(LEFT_TEXT_MARGIN, 10, str, font32, White);
-        for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
-        {
-            if (i == 0)
-                myFont = font24;
-            else if (i == 1)
-                myFont = font20;
-            else if (i == 2)
-                myFont = font16;
-            else
-                myFont = font12;
+    }
 
-            sprintf(str, "%i", i + 1);
-            gdispDrawString(30, highscorOffsetY + (i * 30), str, myFont, White);
-            sprintf(str, userScoresSp[i].name);
-            gdispDrawString(60, highscorOffsetY + (i * 30), str, myFont, White);
-            sprintf(str, "%i", userScoresSp[i].score);
-            gdispDrawString(DISPLAY_SIZE_X - (int)(gdispGetStringWidth(str, myFont) + 20), highscorOffsetY + (i * 30), str, myFont, White);
-        }
+    for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
+    {
+        if (i == 0)
+            myFont = font24;
+        else if (i == 1)
+            myFont = font20;
+        else if (i == 2)
+            myFont = font16;
+        else
+            myFont = font12;
+
+        sprintf(str, "%i", i + 1);
+        gdispDrawString(30, highscorOffsetY + (i * 25), str, myFont, White);
+        sprintf(str, scoreMode[i].name);
+        gdispDrawString(60, highscorOffsetY + (i * 25), str, myFont, White);
+        sprintf(str, "%i", scoreMode[i].score);
+        gdispDrawString(DISPLAY_SIZE_X - (int)(gdispGetStringWidth(str, myFont) + 20), highscorOffsetY + (i * 25), str, myFont, White);
     }
 }
 
@@ -177,7 +166,7 @@ void displayMenu(int selectorPositionY, uint8_t gameMode, uint8_t writeNameBool,
     gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[3], 150, str, font16, White);
     gdispDrawString(LEFT_TEXT_MARGIN + selectedOffsetX[3] + gdispGetStringWidth(str, font16), 150, userName->name, font16, White);
 
-    const char* date = "Build: " __DATE__ " " __TIME__;
+    const char *date = "Build: " __DATE__ " " __TIME__;
     gdispDrawString(10, DISPLAY_SIZE_Y - 15, date, font12, White);
 }
 
@@ -334,9 +323,9 @@ void mainMenuDrawTask(void *data)
     for (int ui = 0; ui < maxUfoCount; ui++)
     {
         ufos[ui].position.x = randRange(0, 300);
-        ufos[ui].position.y = randRange(0,300);
+        ufos[ui].position.y = randRange(0, 300);
         ufos[ui].showHealth = 0;
-        ufos[ui].size = randRange(1,4);
+        ufos[ui].size = randRange(1, 4);
     }
 
     // ufo.health = 20;
@@ -372,7 +361,6 @@ void mainMenuDrawTask(void *data)
     explosion.position.y = 100;
     explosion.size = 10;
 
-
     while (1)
     {
         if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE)
@@ -405,7 +393,7 @@ void mainMenuDrawTask(void *data)
                         if (gameMode == 2)
                             gameMode = 0;
                         else
-                            gameMode ++;
+                            gameMode++;
                     }
 
                     else if (selected == 2 && !showHighScoreBool)

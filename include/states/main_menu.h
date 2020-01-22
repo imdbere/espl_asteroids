@@ -10,6 +10,7 @@ void mainMenuDrawTask(void* data);
 
 struct userScore
 {
+    uint8_t gameMode;
     char name[10];
     int score;
 };
