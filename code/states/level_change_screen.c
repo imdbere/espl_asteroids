@@ -91,6 +91,7 @@ void levelChangeScreenDraw(void *data)
                     if(buttons.D.risingEdge)
                     {
                         xQueueSend(state_queue, &gameStateId, 0);
+                        resetDisconnectTimer();
                         sendResume();
                     }
                     else if(buttons.A.risingEdge)
@@ -104,6 +105,7 @@ void levelChangeScreenDraw(void *data)
                 {
                     if (pausePacket.isResume)
                         xQueueSend(state_queue, &gameStateId, 0);
+                    resetDisconnectTimer();
                 }
             }
         }

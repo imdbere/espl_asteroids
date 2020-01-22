@@ -100,6 +100,7 @@ enum packetType {
 */
 
 void initUartQueues();
+void resetDisconnectTimer();
 size_t getPacketSize(enum packetType type);
 void sendPacket(enum packetType type, void *packet);
 void receivePacketTask(void * params);

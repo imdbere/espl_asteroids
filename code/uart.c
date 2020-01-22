@@ -161,6 +161,12 @@ size_t getPacketSize(enum packetType type)
     return 0;
 }
 
+void resetDisconnectTimer()
+{
+    xTimerReset(disconnectTimer, 0);
+    xSemaphoreTake(disconnectSemaphore, 0);
+}
+
 void handleGotPacket(enum packetType type, uint8_t* buffer)
 {
     xTimerReset(disconnectTimer, 0);
