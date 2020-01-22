@@ -214,7 +214,7 @@ int checkCollisions(struct uartCollisionPacket *collisions, struct bullet bullet
         }
 
         // Between player ufo and asteroids (in case of multiplayer)
-        if (ufos[0].collidesWithAsteroids && cirlceTouchingCircle(a->position, a->radius, ufos[0].position, ufos[0].colliderRadius))
+        if (ufos[0].controlledByPlayer && !ufos[0].isImmune && cirlceTouchingCircle(a->position, a->radius, ufos[0].position, ufos[0].colliderRadius))
         {
             struct uartCollisionPacket *col = &collisions[currentCollision++];
             col->collider1 = COLL_ASTEROID;
@@ -235,7 +235,7 @@ int checkCollisions(struct uartCollisionPacket *collisions, struct bullet bullet
         for (int ui = 0; ui < maxUfoCount; ui++)
         {
             struct ufo *ufo = &ufos[ui];
-            if (ufo->isActive && b->type == FROM_PLAYER && pointWithinCircle(ufo->position, ufo->colliderRadius, b->position))
+            if (ufo->isActive && !ufo->isImmune && b->type == FROM_PLAYER && pointWithinCircle(ufo->position, ufo->colliderRadius, b->position))
             {
                 struct uartCollisionPacket *col = &collisions[currentCollision++];
                 col->collider1 = COLL_BULLET;
@@ -288,7 +288,7 @@ void resetGame(struct player *player, struct ufo *ufos, uint8_t maxUfoCount, str
     if (isMultiplayer)
     {
         ufos[0].colliderRadius = RADIUS_COLLIDER;
-        ufos[0].collidesWithAsteroids = 1;
+        ufos[0].controlledByPlayer = 1;
     }
 
 

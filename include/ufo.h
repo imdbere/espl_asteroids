@@ -5,7 +5,7 @@
 struct ufo
 {
     uint8_t isActive;
-    uint8_t collidesWithAsteroids;
+    uint8_t controlledByPlayer;
     uint8_t showHealth;
     pointf position;
     pointf speed;
@@ -14,6 +14,8 @@ struct ufo
     uint8_t maxHealth;
     float colliderRadius;
     color_t color;
+    TickType_t isImmune;
+    long immunityStartTime;
     //TickType_t lastShootTick;
 };
 

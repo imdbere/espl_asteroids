@@ -6,7 +6,7 @@
 void spawnUfo(struct ufo *ufo, uint8_t isSmall)
 {
     ufo->isActive = 1;
-    ufo->collidesWithAsteroids = 0;
+    ufo->controlledByPlayer = 0;
     ufo->position = (pointf){
         randRange(0, DISPLAY_SIZE_X),
         randRange(0, DISPLAY_SIZE_Y)};
@@ -38,15 +38,18 @@ void updateUfo(struct ufo *ufos, uint8_t maxUfoCount)
     // ~every 2s
     for (int i = 0; i < maxUfoCount; i++)
     {
-        if (ufos[i].isActive)
+        struct ufo *ufo = &ufos[i];
+        if (!ufo->isActive) continue;
+        
+        if (randRange(0, 1000) < 10)
         {
-            if (randRange(0, 1000) < 10)
-            {
-                changeUfoSpeed(&ufos[i], 1);
-            }
-            addToVec(&ufos[i].position, ufos[i].speed);
-            wrapScreen(&ufos[i].position);
+            changeUfoSpeed(&ufos[i], 1);
         }
+        addToVec(&ufo->position, ufo->speed);
+        wrapScreen(&ufo->position);
+
+        if (ufo->controlledByPlayer && ufo->isImmune && xTaskGetTickCount() - ufo->immunityStartTime > pdMS_TO_TICKS(IMMUNITY_PERIODE))
+            ufo->isImmune = 0;
     }
 }
 
@@ -83,6 +86,8 @@ void ufoShoot(struct ufo *ufo, struct player *myplayer, struct bullet *bullets, 
 void damageUfo(struct ufo *ufo)
 {
     ufo->health -= 1;
+    ufo->isImmune = 1;
+    ufo->immunityStartTime = xTaskGetTickCount();
     if (ufo->health <= 0)
     {
         ufo->isActive = 0;
