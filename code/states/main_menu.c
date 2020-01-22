@@ -13,6 +13,7 @@
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
 #include "player.h"
+#include "screens.h"
 
 #include <math.h>
 #include <stdlib.h>
