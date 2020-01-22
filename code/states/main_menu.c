@@ -85,18 +85,22 @@ void dispHighScore(uint8_t gameMode)
 {
     char str[20];
     font_t myFont = font16;
-    int highscorOffsetY = 70;
+    int highscorOffsetY = 90;
     struct userScore *scoreMode = gameMode == GAME_MODE_MP ? userScoresMp : userScoresSp;
 
     if (gameMode == GAME_MODE_MP)
     {
-        sprintf(str, "Highscore MP");
+        sprintf(str, "Highscore");
         gdispDrawString(LEFT_TEXT_MARGIN, 10, str, font32, White);
+        sprintf(str, "Multiplayer");
+        gdispDrawString(LEFT_TEXT_MARGIN, 50, str, font20, White);
     }
     else
     {
-        sprintf(str, "Highscore SP");
+        sprintf(str, "Highscore");
         gdispDrawString(LEFT_TEXT_MARGIN, 10, str, font32, White);
+        sprintf(str, "Singleplayer");
+        gdispDrawString(LEFT_TEXT_MARGIN, 50, str, font20, White);
     }
 
     for (int i = 0; i < HIGHSCORE_DISPLAY_COUNT; i++)
