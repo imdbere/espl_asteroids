@@ -97,14 +97,19 @@ void levelChangeScreenDraw(void *data)
                     else if(buttons.A.risingEdge)
                     {   
                         changeScreenData.isPauseScreen = 0;
+                        resetDisconnectTimer();
+                        sendExit();
                     }
                 }
 
                 struct uartPausePacket pausePacket;
                 if (xQueueReceive(uartPauseQueue, &pausePacket, 0) == pdTRUE)
                 {
-                    if (pausePacket.isResume)
+                    if (pausePacket.mode == PAUSE_MODE_RESUME)
                         xQueueSend(state_queue, &gameStateId, 0);
+                    else if (pausePacket.mode == PAUSE_MODE_EXIT)
+                        changeScreenData.isPauseScreen = 0;
+
                     resetDisconnectTimer();
                 }
             }

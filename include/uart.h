@@ -64,8 +64,16 @@ struct uartGameSetupPacket {
     struct asteroid asteroids[MAX_ASTEROID_COUNT_MP];
 };
 
-struct uartPausePacket {
-    uint8_t isResume;
+enum PauseMode
+{
+    PAUSE_MODE_PAUSE,
+    PAUSE_MODE_RESUME,
+    PAUSE_MODE_EXIT
+};
+
+struct uartPausePacket
+{
+    enum PauseMode mode;
 };
 
 struct uartInitPacket {
@@ -113,3 +121,4 @@ void sendFramePacket(struct uartFramePacket* packet);
 void sendCollisionPacket(struct uartCollisionPacket* packet);
 void sendPause();
 void sendResume();
+void sendExit();

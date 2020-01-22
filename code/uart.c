@@ -82,14 +82,21 @@ void sendCollisionPacket(struct uartCollisionPacket* packet)
 void sendPause()
 {
     struct uartPausePacket packet;
-    packet.isResume = 0;
+    packet.mode = PAUSE_MODE_PAUSE;
     sendPacket(PausePacket, &packet);
 }
 
 void sendResume()
 {
     struct uartPausePacket packet;
-    packet.isResume = 1;
+    packet.mode = PAUSE_MODE_RESUME;
+    sendPacket(PausePacket, &packet);
+}
+
+void sendExit()
+{
+    struct uartPausePacket packet;
+    packet.mode = PAUSE_MODE_EXIT;
     sendPacket(PausePacket, &packet);
 }
 
