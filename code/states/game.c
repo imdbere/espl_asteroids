@@ -364,7 +364,7 @@ void gameDrawTask(void *data)
     uint8_t isMultiplayer = 0;
     uint8_t isMaster = 0;
 
-    struct uartCollisionPacket collisions[MAX_SIMULTANEOUS_COLLISIONS];
+    struct uartCollisionPacket collisions[MAX_SIMULTANEOUS_COLLISIONS] = {{0}};
     uint8_t sentDisconnected = 0;
 
     //resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer);
@@ -484,7 +484,7 @@ void gameDrawTask(void *data)
                 struct uartPausePacket pausePacket;
                 if (xQueueReceive(uartPauseQueue, &pausePacket, 0) == pdTRUE)
                 {
-                    if (!pausePacket.isResume)
+                    if (pausePacket.mode == PAUSE_MODE_PAUSE)
                         pauseGame(&player, gameMode);
                 }
 
@@ -517,6 +517,9 @@ void gameDrawTask(void *data)
 
                     sentDisconnected = TRUE;
                 }
+
+                if (ufos[0].isImmune && xTaskGetTickCount() - ufos[0].immunityStartTime > pdMS_TO_TICKS(IMMUNITY_PERIODE))
+                    ufos[0].isImmune = 0;
             }
             else
             {
