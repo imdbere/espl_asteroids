@@ -102,6 +102,20 @@ void looseGame(struct player *player)
     xQueueSend(state_queue, &levelChangeScreenId, 0);
 }
 
+void pauseGame(struct player *player)
+{
+    struct changeScreenData changeScreen = {{0}};
+
+    changeScreen.isPauseScreen = 1;
+    sprintf(changeScreen.Title, "Game Over");
+    sprintf(changeScreen.Subtext, "Score: %i", player->score);
+    changeScreen.nextState = mainMenuStateId;
+    changeScreen.msWaitingTime = 2000;
+
+    xQueueSend(levelChange_queue, &changeScreen, 0);
+    xQueueSend(state_queue, &levelChangeScreenId, 0);
+}
+
 void checkLevelFinished(struct asteroid asteroids[], size_t asteroidsLength, struct player *player, struct ufo *ufos, size_t ufosLength, uint8_t gameMode)
 {
     uint8_t isMultiplayer = gameMode == GAME_MODE_MP;
@@ -330,7 +344,7 @@ void gameDrawTask(void *data)
 
     // Ufo
     int maxUfoCount = UFO_MAX_COUNT;
-    int ufosInField = 0;
+    int totalUfosSpawned = 0;
     struct ufo ufos[UFO_MAX_COUNT] = {{0}};
 
     //Game Mode
@@ -344,7 +358,7 @@ void gameDrawTask(void *data)
     //resetGame(&player, &ufo, &asteroids, sizeof(asteroids), isMultiplayer);
     while (1)
     {
-
+        // On game start (or level start)
         struct gameStartInfo gameStart;
         if (xQueueReceive(game_start_queue, &gameStart, 0) == pdTRUE)
         {
@@ -359,7 +373,7 @@ void gameDrawTask(void *data)
             memset(bullets, 0, sizeof(bullets));
 
             sentDisconnected = 0;
-            ufosInField = 0;
+            totalUfosSpawned = 0;
             resetGame(&player, &ufos, maxUfoCount, &asteroids, sizeof(asteroids), isMultiplayer, isMaster, gameStart.level);
 
             if (isMultiplayer)
@@ -399,16 +413,10 @@ void gameDrawTask(void *data)
                 // Pause Screen
                 else if (buttons.D.risingEdge)
                 {
-                    struct changeScreenData changeScreen = {{0}};
-
-                    changeScreen.isPauseScreen = 1;
-                    sprintf(changeScreen.Title, "Game Over");
-                    sprintf(changeScreen.Subtext, "Score: %i", player.score);
-                    changeScreen.nextState = mainMenuStateId;
-                    changeScreen.msWaitingTime = 2000;
-
-                    xQueueSend(levelChange_queue, &changeScreen, 0);
-                    xQueueSend(state_queue, &levelChangeScreenId, 0);
+                    if (isMultiplayer)
+                        sendPause();
+                    
+                    pauseGame(&player);
                 }
             }
 
@@ -459,6 +467,13 @@ void gameDrawTask(void *data)
                     //memcpy(asteroids, framePacket.asteroids, sizeof(asteroids));
                 }
 
+                struct uartPausePacket pausePacket;
+                if (xQueueReceive(uartPauseQueue, &pausePacket, 0) == pdTRUE)
+                {
+                    if (!pausePacket.isResume)
+                        pauseGame(&player);
+                }
+
                 if (!isMaster)
                 {
                     struct uartCollisionPacket collisionPacket;
@@ -492,10 +507,10 @@ void gameDrawTask(void *data)
             }
             else
             {
-                if (ufosInField < UFO_MAX_COUNT && player.score > UFO_SPAWN_MIN_SCORE)
+                if (totalUfosSpawned < UFO_MAX_COUNT && player.score > UFO_SPAWN_MIN_SCORE)
                 {
                     if (spawnUfoRandom(&ufos, sizeof(ufos)))
-                        ufosInField++;
+                        totalUfosSpawned++;
                 }
 
                 updateUfo(ufos, maxUfoCount);

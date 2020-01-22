@@ -8,9 +8,9 @@
 extern QueueHandle_t uartHandshakeQueue;
 extern QueueHandle_t uartInviteQueue;
 extern QueueHandle_t uartGameSetupQueue;
-
 extern QueueHandle_t uartFramePacketQueue;
 extern QueueHandle_t uartCollosionPacketQueue;
+extern QueueHandle_t uartPauseQueue;
 
 extern TimerHandle_t disconnectTimer;
 extern SemaphoreHandle_t disconnectSemaphore;
@@ -64,6 +64,10 @@ struct uartGameSetupPacket {
     struct asteroid asteroids[MAX_ASTEROID_COUNT_MP];
 };
 
+struct uartPausePacket {
+    uint8_t isResume;
+};
+
 struct uartInitPacket {
     long seed;
 };
@@ -73,7 +77,8 @@ enum packetType {
     GameInvitePacket,
     GameSetupPacket,
     HandshakePacket,
-    CollisionPacket
+    CollisionPacket,
+    PausePacket
 };
 
 /*
@@ -83,21 +88,15 @@ enum packetType {
     - Master receives HandshakePacket and switches to GameState in Master-Mode
 
     - Master:
-        - Determins random seed for asteroid generation
-        - Calculates score for both players
+        - Calculates Asteroids at the beginning of game and sends it to slave
+        - Calculates collisions and sends it to slave
 
 */
 
-/* Beginning of level: 
-    - Send random seed for asteroid generation
-    - 
-
-*/
 
 /* During level:
     - Send own player XY position (and speed for interpolation ?)
     - Send projectile XY position and speed if new projectile is casted
-
 */
 
 void initUartQueues();
@@ -111,3 +110,5 @@ void sendGameSetup(struct asteroid* asteroids, size_t asteroidsLength);
 //void sendFramePacket(struct player* player, struct asteroid* asteroids, size_t asteroidsLength);
 void sendFramePacket(struct uartFramePacket* packet);
 void sendCollisionPacket(struct uartCollisionPacket* packet);
+void sendPause();
+void sendResume();

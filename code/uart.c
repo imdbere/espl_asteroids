@@ -11,9 +11,10 @@ SemaphoreHandle_t xSendMutex;
 QueueHandle_t uartHandshakeQueue;
 QueueHandle_t uartInviteQueue;
 QueueHandle_t uartGameSetupQueue;
-
 QueueHandle_t uartFramePacketQueue;
 QueueHandle_t uartCollosionPacketQueue;
+QueueHandle_t uartPauseQueue;
+
 TimerHandle_t disconnectTimer;
 SemaphoreHandle_t disconnectSemaphore;
 
@@ -21,11 +22,12 @@ void disconnectTimerElapsed(TimerHandle_t xTimer);
 
 void initUartQueues()
 {
-    uartHandshakeQueue = xQueueCreate(2, sizeof(struct uartHandshakePacket));
-    uartInviteQueue = xQueueCreate(2, sizeof(struct uartGameInvitePacket));
-    uartGameSetupQueue = xQueueCreate(2, sizeof(struct uartGameSetupPacket));
-    uartFramePacketQueue = xQueueCreate(2, sizeof(struct uartFramePacket));
-    uartCollosionPacketQueue = xQueueCreate(2, sizeof(struct uartCollisionPacket));
+    uartHandshakeQueue = xQueueCreate(1, sizeof(struct uartHandshakePacket));
+    uartInviteQueue = xQueueCreate(1, sizeof(struct uartGameInvitePacket));
+    uartGameSetupQueue = xQueueCreate(1, sizeof(struct uartGameSetupPacket));
+    uartFramePacketQueue = xQueueCreate(1, sizeof(struct uartFramePacket));
+    uartCollosionPacketQueue = xQueueCreate(1, sizeof(struct uartCollisionPacket));
+    uartPauseQueue = xQueueCreate(1, sizeof(struct uartPausePacket));
 
     xTaskCreate(receivePacketTask, "receivePacketTask", MAX_PACKET_LENGTH + 100, NULL, 2, NULL);
     xSendMutex = xSemaphoreCreateMutex();
@@ -75,6 +77,20 @@ void sendFramePacket(struct uartFramePacket* packet)
 void sendCollisionPacket(struct uartCollisionPacket* packet)
 {
     sendPacket(CollisionPacket, packet);
+}
+
+void sendPause()
+{
+    struct uartPausePacket packet;
+    packet.isResume = 0;
+    sendPacket(PausePacket, &packet);
+}
+
+void sendResume()
+{
+    struct uartPausePacket packet;
+    packet.isResume = 1;
+    sendPacket(PausePacket, &packet);
 }
 
 void sendBuffer(uint8_t *buffer, size_t length)
@@ -138,6 +154,8 @@ size_t getPacketSize(enum packetType type)
             return sizeof(struct uartFramePacket);
         case CollisionPacket:
             return sizeof(struct uartCollisionPacket);
+        case PausePacket:
+            return sizeof(struct uartPausePacket);
     }
 
     return 0;
@@ -164,6 +182,9 @@ void handleGotPacket(enum packetType type, uint8_t* buffer)
             break;
         case CollisionPacket:
             xQueueSend(uartCollosionPacketQueue, buffer, 0);
+            break;
+        case PausePacket:
+            xQueueSend(uartPauseQueue, buffer, 0);
             break;
     }
 }

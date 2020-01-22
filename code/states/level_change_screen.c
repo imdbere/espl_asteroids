@@ -7,6 +7,7 @@
 #include "stdlib.h"
 #include "asteroids.h"
 #include "ufo.h"
+#include "uart.h"
 #include "src/gdisp/gdisp_driver.h"
 #include "src/gos/gos_freertos.h"
 
@@ -90,13 +91,20 @@ void levelChangeScreenDraw(void *data)
                     if(buttons.D.risingEdge)
                     {
                         xQueueSend(state_queue, &gameStateId, 0);
+                        sendResume();
                     }
                     else if(buttons.A.risingEdge)
                     {   
                         changeScreenData.isPauseScreen = 0;
                     }
                 }
-                
+
+                struct uartPausePacket pausePacket;
+                if (xQueueReceive(uartPauseQueue, &pausePacket, 0) == pdTRUE)
+                {
+                    if (pausePacket.isResume)
+                        xQueueSend(state_queue, &gameStateId, 0);
+                }
             }
         }
     }
