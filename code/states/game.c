@@ -169,7 +169,7 @@ void handleCollision(struct uartCollisionPacket col, struct bullet bullets[], st
             damageUfo(&ufos[0]);
         }
 
-        checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength, isMultiplayer);
+        checkGameWin(asteroids, asteroidsLength, player, ufos, ufosLength, gameMode);
     }
 
     if (col.collider1 == COLL_BULLET)
@@ -420,7 +420,13 @@ void gameDrawTask(void *data)
                     changeScreen.nextState = mainMenuStateId;
                     changeScreen.msWaitingTime = 2000;
 
+                    struct userScore userScore = {{0}};
+                    userScore.gameMode = gameMode;
+                    userScore.score = player.score;
+                    sprintf(userScore.name, player.name);
+
                     xQueueSend(levelChange_queue, &changeScreen, 0);
+                    xQueueSend(score_queue, &userScore, 0);
                     xQueueSend(state_queue, &levelChangeScreenId, 0);
                 }
             }
