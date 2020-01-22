@@ -85,8 +85,12 @@ void ufoShoot(struct ufo *ufo, struct player *myplayer, struct bullet *bullets, 
 void damageUfo(struct ufo *ufo)
 {
     ufo->health -= 1;
-    ufo->isImmune = 1;
-    ufo->immunityStartTime = xTaskGetTickCount();
+    if (ufo->controlledByPlayer)
+    {
+        ufo->isImmune = 1;
+        ufo->immunityStartTime = xTaskGetTickCount();
+    }
+
     if (ufo->health <= 0)
     {
         ufo->isActive = 0;
