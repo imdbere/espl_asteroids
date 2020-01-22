@@ -4,6 +4,7 @@
 #include "input.h"
 #include "asteroids.h"
 #include "ufo.h"
+#include "explosion.h"
 #include "sm.h"
 #include "uart.h"
 #include "states/game.h"
@@ -294,18 +295,17 @@ void writeName(struct buttons *buttons, struct userNameInput *userName)
 
 void startGame(uint8_t gameMode, uint8_t isMaster, char *name)
 {
-    struct gameStartInfo gameStart;
-    gameStart.isMaster = isMaster;
-    gameStart.level = 1;
-    gameStart.mode = gameMode;
+    struct gameStartInfo gameStartInfo;
+    gameStartInfo.isMaster = isMaster;
+    gameStartInfo.level = 1;
+    gameStartInfo.mode = gameMode;
 
     if (name[0] == '\0')
     {
-        // int i = 0;
         sprintf(name, "PLAYER");
     }
 
-    strcpy(gameStart.name, name);
+    strcpy(gameStartInfo.name, name);
 
     struct changeScreenData changeScreenData = {{0}};
     sprintf(changeScreenData.Title, "Level 1");
@@ -315,7 +315,7 @@ void startGame(uint8_t gameMode, uint8_t isMaster, char *name)
     changeScreenData.nextState = gameStateId;
 
     xQueueSend(levelChange_queue, &changeScreenData, 0);
-    xQueueSend(game_start_queue, &gameStart, 0);
+    xQueueSend(game_start_queue, &gameStartInfo, 0);
     xQueueSend(state_queue, &levelChangeScreenId, 0);
 }
 
@@ -363,6 +363,15 @@ void mainMenuDrawTask(void *data)
     //multiplayer mode
     uint8_t otherUserConnected = 0;
     uint8_t isMaster = 1;
+
+    //explosion
+    struct explosion explosion;
+    explosion.fillPoly = 0;
+    explosion.frames = 0;
+    explosion.position.x = 220;
+    explosion.position.y = 100;
+    explosion.size = 10;
+
 
     while (1)
     {

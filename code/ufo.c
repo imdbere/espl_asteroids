@@ -18,7 +18,7 @@ void spawnUfo(struct ufo *ufo, uint8_t isSmall)
     ufo->color = HSVtoRGB(randRange(0, 360), 1, 1);
 }
 
-void spawnUfoRandom(struct ufo *ufos, size_t length)
+uint8_t spawnUfoRandom(struct ufo *ufos, size_t length)
 {
     struct ufo *u = (struct ufo *)searchForFreeSpace(ufos, sizeof(struct ufo), length);
     if (u != NULL)
@@ -26,8 +26,10 @@ void spawnUfoRandom(struct ufo *ufos, size_t length)
         if (randRange(0, 1000) < 5)
         {
             spawnUfo(u, 1);
+            return 1;
         }
     }
+    return 0;
 }
 
 void updateUfo(struct ufo *ufos, uint8_t maxUfoCount)
