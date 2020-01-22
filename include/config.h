@@ -37,7 +37,7 @@
 //UFO
 #define UFO_SPAWN_MIN_SCORE 2000
 #define UFO_MAX_LIFES_MP 4
-#define UFO_MAX_LIFES_SP 3
+#define UFO_MAX_LIFES_SP 2
 #define UFO_MAX_COUNT 2
 #define UFO_MAX_COUNT_MENU 3
 
