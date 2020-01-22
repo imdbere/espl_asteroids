@@ -24,3 +24,4 @@ void spawnUfoRandom(struct ufo *ufos, size_t length);
 void ufoShoot(struct ufo *myufo, struct player *myplayer, struct bullet *bullets, size_t bulletLength);
 void updateUfo(struct ufo *myufo, uint8_t maxUfoCount);
 uint8_t ufoShouldShoot();
+void damageUfo(struct ufo *ufo);

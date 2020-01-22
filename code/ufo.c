@@ -78,6 +78,15 @@ void ufoShoot(struct ufo *ufo, struct player *myplayer, struct bullet *bullets, 
     generateBullet(bullets, bulletLength, targetAngle, bulletSpeed, 0.0, ufo->position, ufo->speed, FROM_UFO);
 }
 
+void damageUfo(struct ufo *ufo)
+{
+    ufo->health -= 1;
+    if (ufo->health <= 0)
+    {
+        ufo->isActive = 0;
+    }
+}
+
 void drawUfo(struct ufo *ufos, uint8_t maxUfoCount)
 {
     pointf ufoPosition;
