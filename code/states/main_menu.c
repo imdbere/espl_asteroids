@@ -380,9 +380,9 @@ void mainMenuDrawTask(void *data)
             {
                 if (buttons.C.risingEdge)
                 {
-                    if (selected == 0)
+                    if (selected == 0) // Start Game
                     {
-                        // Start Game
+                        
                         if (gameMode == GAME_MODE_MP) //Multiplayer
                         {
                             sendGameInvitation(FALSE, userName.name);
@@ -392,7 +392,7 @@ void mainMenuDrawTask(void *data)
                             startGame(gameMode, isMaster, userName.name);
                         }
                     }
-                    else if (selected == 1)
+                    else if (selected == 1) //Change Game Mode
                     {
                         if (gameMode == 2)
                             gameMode = 0;
@@ -400,19 +400,20 @@ void mainMenuDrawTask(void *data)
                             gameMode++;
                     }
 
-                    else if (selected == 2 && !showHighScoreBool)
+                    else if (selected == 2 && !showHighScoreBool) //Highscore Table
                     {
                         showHighScoreBool = 1;
                     }
-                    else if (selected == 3 && !writeNameBool)
+                    else if (selected == 3 && !writeNameBool) //Writing Name
                     {
                         writeNameBool = 1;
-                        if (userName.name[0] == '\0')
+                        //If no name Add an A
+                        if (userName.name[0] == '\0') 
                         {
-                            userName.name[0] = 65;
+                            userName.name[0] = 65; 
                         }
                     }
-                    else if (writeNameBool)
+                    else if (writeNameBool) //Write name 
                     {
                         writeNameBool = 0;
                     }
