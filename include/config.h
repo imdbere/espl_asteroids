@@ -12,6 +12,7 @@
 #define MAX_HEALTH_COUNT 6
 #define MAX_BULLET_COUNT 10
 #define POINTS_FOR_HEALTH 10000
+#define IMMUNITY_PERIODE 1000
 
 
 // Physics

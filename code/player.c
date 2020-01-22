@@ -24,6 +24,25 @@ void updatePlayer(struct player* player, int joyX, int joyY)
     }
 
     player->flameLength = max(abs(joyX), abs(joyY)) * 12 / 127.0;
+
+    if (player->isImmune && xTaskGetTickCount() - player->immunityStartTime > pdMS_TO_TICKS(IMMUNITY_PERIODE))
+        player->isImmune = 0;
+}
+
+uint8_t damagePlayer(struct player *player, uint8_t gameMode)
+{
+    if (gameMode != GAME_MODE_GOD)
+    {
+        if (player->health > 0 /*&& !player->isImmune*/)
+        {
+            player->isImmune = 1;
+            player->immunityStartTime = xTaskGetTickCount();
+            player->health -= 1;
+        }
+        
+        return player->health <= 0; 
+    }
+    return 0;
 }
 
 void drawPlayer(struct player* player)
@@ -37,7 +56,8 @@ void drawPlayer(struct player* player)
         points[i] = toPoint(rotatedPoint);
     }
 
-    gdispFillConvexPoly(player->position.x, player->position.y, points, 3, White);
+    color_t fillColor = player->isImmune ? RGB2COLOR(170, 170, 160) : White;
+    gdispFillConvexPoly(player->position.x, player->position.y, points, 3, fillColor);
     if (player->isThrusting)
         gdispFillConvexPoly(player->position.x, player->position.y, points + 3, 3, Orange);
 }

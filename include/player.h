@@ -15,7 +15,10 @@ struct player
     int scoreOld;
     char name[10];
     int level;
+    TickType_t isImmune;
+    long immunityStartTime;
 };
 
 void updatePlayer(struct player* player, int joyX, int joyY);
+uint8_t damagePlayer(struct player *player, uint8_t gameMode);
 void drawPlayer(struct player* player);
